@@ -1,0 +1,7 @@
+{
+  "name": "engldom.uz",
+  "description": "An adaptive language learning engine for IELTS preparation using Google Gemini.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
