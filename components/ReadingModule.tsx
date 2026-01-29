@@ -22,10 +22,14 @@ const QUESTION_TYPES = [
     { value: 'matching', label: 'Matching Headings / Information' }
 ];
 
-export const ReadingModule: React.FC = () => {
+interface ReadingModuleProps {
+    initialData?: ReadingResponse;
+}
+
+export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => {
   // Customization State
   const [level, setLevel] = useState<CEFRLevel>(CEFRLevel.B1);
-  const [wordCount, setWordCount] = useState<number>(420);
+  const [wordCount, setWordCount] = useState<number>(400);
   const [newWordCount, setNewWordCount] = useState<number>(5);
   const [timeLimit, setTimeLimit] = useState<number>(12);
   const [topic, setTopic] = useState('Urban design and public spaces');
@@ -46,6 +50,18 @@ export const ReadingModule: React.FC = () => {
 
   // Validation
   const isCountValid = newWordCount > 0 && newWordCount <= 10;
+  const isWordCountValid = wordCount > 0 && wordCount <= 800;
+
+  // Hydration Effect
+  useEffect(() => {
+    if (initialData) {
+        setData(initialData);
+        setAnswers({});
+        setShowResults(false);
+        setTimerActive(false);
+        setTimeLeft(0); // Reset timer on restore
+    }
+  }, [initialData]);
 
   useEffect(() => {
       let interval: number;
@@ -62,6 +78,10 @@ export const ReadingModule: React.FC = () => {
   const handleGenerate = async () => {
     if (!isCountValid) {
         alert("Please choose between 1 and 10 new words.");
+        return;
+    }
+    if (!isWordCountValid) {
+        alert("Word count must be between 1 and 800.");
         return;
     }
 
@@ -86,6 +106,10 @@ export const ReadingModule: React.FC = () => {
       setData(response);
       setTimeLeft(timeLimit * 60);
       setTimerActive(true);
+      
+      // Save for History
+      storageService.saveActivity(ModuleType.READING, response);
+
     } catch (err) {
       alert("Failed to generate content. Please try again.");
     } finally {
@@ -190,7 +214,7 @@ export const ReadingModule: React.FC = () => {
   return (
     <div className="space-y-8 animate-fade-in pb-12">
       
-      {/* Configuration Panel - Only show when no data or toggled? For now keep visible but compact */}
+      {/* Configuration Panel - Only show when no data */}
       {!data && (
         <div className="bg-white p-8 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 max-w-4xl mx-auto">
             <div className="text-center mb-8">
@@ -242,10 +266,15 @@ export const ReadingModule: React.FC = () => {
                             <label className="text-sm font-bold text-slate-700 block">Length (Words)</label>
                             <input
                                 type="number"
+                                min="100"
+                                max="800"
                                 value={wordCount}
                                 onChange={(e) => setWordCount(Number(e.target.value))}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none"
+                                className={`w-full bg-slate-50 border rounded-lg px-4 py-3 outline-none ${!isWordCountValid ? 'border-red-300 bg-red-50 text-red-700' : 'border-slate-200'}`}
                             />
+                            <p className={`text-[10px] text-right font-medium ${!isWordCountValid ? 'text-red-500' : 'text-slate-400'}`}>
+                                Max 800 words
+                            </p>
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-700 block">New Vocabulary</label>
@@ -285,7 +314,7 @@ export const ReadingModule: React.FC = () => {
 
             <button
                 onClick={handleGenerate}
-                disabled={loading || !isCountValid}
+                disabled={loading || !isCountValid || !isWordCountValid}
                 className="w-full mt-8 bg-slate-900 text-white py-4 rounded-xl hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center justify-center gap-3 font-bold text-lg shadow-lg shadow-slate-900/20"
             >
                 {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <BookOpen className="w-5 h-5" />}

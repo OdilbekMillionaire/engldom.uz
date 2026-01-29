@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { storageService } from '../services/storageService';
 import { VocabItem, ModuleType, QuizResponse, Question } from '../types';
-import { Trash2, BrainCircuit, RefreshCw, BookmarkPlus, ChevronDown, ChevronUp, Sparkles, Book, Search, Filter, Clock, Calendar } from 'lucide-react';
+import { Trash2, BrainCircuit, RefreshCw, BookmarkPlus, ChevronDown, ChevronUp, Sparkles, Book, Search, Filter, Clock, Calendar, Check, AlertCircle } from 'lucide-react';
 import { generateLingifyContent, enrichWord } from '../services/geminiService';
 
 const SRS_INTERVALS = [1, 3, 7, 14, 30]; // Days
@@ -104,7 +104,7 @@ export const VocabularyVault: React.FC = () => {
                 candidates = candidates.filter(w => w.pos.toLowerCase().includes(quizPosFilter.toLowerCase()));
             }
 
-            // 2. Prioritize Due Words
+            // 2. Prioritize Due Words (SRS Filter)
             const dueWords = candidates.filter(w => (w.nextReview || 0) <= Date.now());
             const notDueWords = candidates.filter(w => (w.nextReview || 0) > Date.now());
             
@@ -118,7 +118,7 @@ export const VocabularyVault: React.FC = () => {
             }
 
             if (selected.length === 0) {
-                alert("No words match your criteria.");
+                alert("No words match your criteria. Try adjusting filters.");
                 setQuizLoading(false);
                 return;
             }
@@ -144,10 +144,7 @@ export const VocabularyVault: React.FC = () => {
 
         quiz?.forEach(q => {
             const isCorrect = quizAnswers[q.id] === q.answer;
-            // Find word associated with question. Prompt usually contains word or is definition of word.
-            // Heuristic: Check if any vault word is present in the prompt or answer options
-            // Since we pass wordList to generator, the questions are about those words.
-            // Ideally, the Question object would have a 'targetWord' field, but for now we search.
+            // Find word associated with question
             const targetWord = updatedVault.find(w => q.prompt.includes(w.word) || q.options?.some(o => o.includes(w.word)) || q.answer.includes(w.word));
             
             if (targetWord) {
@@ -159,7 +156,7 @@ export const VocabularyVault: React.FC = () => {
                     targetWord.srsLevel = nextLevel;
                     targetWord.nextReview = now + (days * 24 * 60 * 60 * 1000);
                 } else {
-                    // Reset
+                    // Reset on Failure
                     targetWord.srsLevel = 0;
                     targetWord.nextReview = now + (24 * 60 * 60 * 1000); // Review tomorrow
                 }
@@ -207,7 +204,11 @@ export const VocabularyVault: React.FC = () => {
             {/* Config Panel */}
             {isConfiguring && !quiz && (
                 <div className="bg-white p-6 rounded-xl border border-indigo-100 shadow-lg animate-fade-in max-w-2xl mx-auto">
-                    <h3 className="font-bold text-lg text-slate-800 mb-4">Quiz Configuration</h3>
+                    <h3 className="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-indigo-500" />
+                        Smart Quiz Configuration
+                    </h3>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Number of Questions</label>
@@ -220,7 +221,7 @@ export const VocabularyVault: React.FC = () => {
                             <div className="text-center font-bold text-indigo-600 mt-1">{quizSize} Questions</div>
                         </div>
                         <div>
-                            <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Filter by Type</label>
+                            <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Word Type (POS)</label>
                             <select 
                                 value={quizPosFilter} 
                                 onChange={(e) => setQuizPosFilter(e.target.value)}
@@ -231,6 +232,16 @@ export const VocabularyVault: React.FC = () => {
                             </select>
                         </div>
                     </div>
+
+                    {/* SRS Info */}
+                    <div className="bg-orange-50 p-4 rounded-lg border border-orange-100 mb-6 flex items-start gap-3">
+                        <Clock className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                        <div>
+                            <h4 className="text-sm font-bold text-orange-800 mb-1">Spaced Repetition System (SRS) Active</h4>
+                            <p className="text-xs text-orange-700">Questions are prioritized based on your review schedule. Correct answers increase the interval; incorrect answers reset it.</p>
+                        </div>
+                    </div>
+
                     <div className="flex gap-4">
                         <button 
                             onClick={generateQuiz} 
@@ -321,7 +332,7 @@ export const VocabularyVault: React.FC = () => {
                     className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all ${filterDue ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                 >
                     <Clock className="w-4 h-4" />
-                    Review Due
+                    Review Due Only
                 </button>
             </div>
 
@@ -330,13 +341,16 @@ export const VocabularyVault: React.FC = () => {
                 {filteredWords.map((w, i) => {
                     const isExpanded = expandedWord === w.word;
                     const isDue = (w.nextReview || 0) <= Date.now();
+                    const srsLevel = w.srsLevel || 0;
                     
                     return (
                         <div key={i} className={`bg-white p-6 rounded-2xl border transition-all duration-300 ${isExpanded ? 'border-indigo-300 shadow-xl scale-[1.02] z-10' : 'border-slate-100 hover:shadow-lg hover:border-indigo-100'} flex flex-col relative overflow-hidden`}>
-                            {/* SRS Indicator */}
-                            {isDue && <div className="absolute top-0 right-0 w-3 h-3 bg-orange-500 rounded-bl-lg z-20"></div>}
+                            {/* SRS Indicator Badge */}
+                            <div className={`absolute top-0 right-0 px-3 py-1 rounded-bl-xl text-[10px] font-bold tracking-wider ${isDue ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>
+                                {isDue ? 'DUE' : `LVL ${srsLevel}`}
+                            </div>
                             
-                            <div className="flex justify-between items-start mb-3">
+                            <div className="flex justify-between items-start mb-3 pt-4">
                                 <div>
                                     <h3 className="font-serif font-bold text-xl text-slate-900">{w.word}</h3>
                                     <span className="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-wider mt-1 inline-block">{w.pos}</span>
@@ -363,9 +377,6 @@ export const VocabularyVault: React.FC = () => {
                                 <div className="mt-auto flex justify-between items-center">
                                     <div className="flex flex-wrap gap-2">
                                         {w.synonyms && w.synonyms.slice(0,2).map(s => <span key={s} className="text-[10px] bg-slate-50 text-slate-500 px-2 py-1 rounded border border-slate-100">{s}</span>)}
-                                    </div>
-                                    <div className="text-[10px] text-slate-400 font-mono" title={`SRS Level: ${w.srsLevel || 0}`}>
-                                        Lv.{w.srsLevel || 0}
                                     </div>
                                 </div>
                             )}

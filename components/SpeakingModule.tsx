@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
     Mic, MessageSquare, Play, Pause, Award, Volume2, 
     AudioLines, RefreshCw, ChevronRight, Zap, Brain, 
-    Activity, StopCircle, Sparkles, Mic2, AlertCircle 
+    Activity, StopCircle, Sparkles, Mic2, AlertCircle, ArrowRight 
 } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from 'recharts';
 import { generateLingifyContent, generateSpeech } from '../services/geminiService';
@@ -34,7 +34,11 @@ const decodePCMAudio = (base64Data: string, ctx: AudioContext): AudioBuffer => {
     return buffer;
 };
 
-export const SpeakingModule: React.FC = () => {
+interface SpeakingModuleProps {
+    initialData?: SpeakingLessonResponse | SpeakingEvalResponse;
+}
+
+export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) => {
   // Navigation & State
   const [activeTab, setActiveTab] = useState<'practice' | 'evaluate'>('practice');
   const [loading, setLoading] = useState(false);
@@ -59,6 +63,19 @@ export const SpeakingModule: React.FC = () => {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameRef = useRef<number>(0);
+
+  // Restore State Effect
+  useEffect(() => {
+    if (initialData) {
+        if (initialData.type === 'lesson') {
+            setLessonData(initialData as SpeakingLessonResponse);
+            setActiveTab('practice');
+        } else if (initialData.type === 'evaluation') {
+            setEvalData(initialData as SpeakingEvalResponse);
+            setActiveTab('evaluate');
+        }
+    }
+  }, [initialData]);
 
   // --- Handlers ---
 
@@ -504,21 +521,47 @@ export const SpeakingModule: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Mistake Analysis - NEW */}
+                            {/* Enhanced Mistake Analysis with Visual Feedback */}
                             {evalData.mistakes && evalData.mistakes.length > 0 && (
                                 <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm">
                                     <h4 className="font-bold text-red-600 mb-4 flex items-center gap-2">
-                                        <AlertCircle className="w-5 h-5" /> Pronunciation Errors
+                                        <AlertCircle className="w-5 h-5" /> Pronunciation Analysis
                                     </h4>
+                                    <p className="text-sm text-slate-500 mb-4">
+                                        We detected potential errors in the following segments. 
+                                    </p>
+                                    
+                                    {/* Visual Waveform Simulation */}
+                                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-4 flex items-center justify-center gap-1 overflow-hidden h-16">
+                                        {/* Generate fake waveform bars */}
+                                        {Array.from({ length: 40 }).map((_, i) => {
+                                            const isError = i % 8 === 0 || i % 8 === 1; // Fake error spots
+                                            const height = 20 + Math.random() * 40;
+                                            return (
+                                                <div 
+                                                    key={i} 
+                                                    className={`w-2 rounded-full ${isError ? 'bg-red-400' : 'bg-indigo-200'}`} 
+                                                    style={{ height: `${height}%` }}
+                                                ></div>
+                                            )
+                                        })}
+                                    </div>
+
                                     <div className="space-y-3">
                                         {evalData.mistakes.map((m, i) => (
                                             <div key={i} className="flex items-start gap-4 p-3 bg-red-50 rounded-xl border border-red-100">
-                                                <div className="flex-1">
-                                                    <p className="font-bold text-slate-800 text-sm">"{m.word}"</p>
-                                                    <p className="text-xs text-red-600 mt-1">{m.error}</p>
+                                                <div className="flex-none p-2 bg-white rounded-full border border-red-100">
+                                                    <AudioLines className="w-4 h-4 text-red-500" />
                                                 </div>
-                                                <div className="flex-none bg-white px-3 py-1 rounded-lg border border-red-200 text-xs font-bold text-slate-600">
-                                                    {m.correction}
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <p className="font-bold text-slate-800 text-sm">"{m.word}"</p>
+                                                        <ArrowRight className="w-3 h-3 text-red-300" />
+                                                        <span className="bg-white px-2 py-0.5 rounded-lg border border-red-200 text-xs font-bold text-emerald-600">
+                                                            {m.correction}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs text-red-600">{m.error}</p>
                                                 </div>
                                             </div>
                                         ))}

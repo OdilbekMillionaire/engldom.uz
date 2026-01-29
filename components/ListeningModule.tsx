@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Headphones, Play, Pause, RotateCcw, BookmarkPlus, Loader2, Volume2, Eye, EyeOff, BrainCircuit, GraduationCap, ArrowRight, Clock, CheckCircle2, Rewind, FastForward } from 'lucide-react';
+import { Headphones, Play, Pause, RotateCcw, BookmarkPlus, Loader2, Volume2, Eye, EyeOff, BrainCircuit, GraduationCap, ArrowRight, Clock, CheckCircle2, Rewind, FastForward, RefreshCw } from 'lucide-react';
 import { generateLingifyContent, generateSpeech } from '../services/geminiService';
 import { storageService } from '../services/storageService';
 import { CEFRLevel, ModuleType, ListeningResponse, VocabItem } from '../types';
@@ -37,7 +37,11 @@ const decodePCMAudio = (base64Data: string, ctx: AudioContext): AudioBuffer => {
     return buffer;
 };
 
-export const ListeningModule: React.FC = () => {
+interface ListeningModuleProps {
+    initialData?: ListeningResponse;
+}
+
+export const ListeningModule: React.FC<ListeningModuleProps> = ({ initialData }) => {
   // Customization State
   const [topic, setTopic] = useState('Sustainable Urban Development');
   const [level, setLevel] = useState<CEFRLevel>(CEFRLevel.B2);
@@ -69,6 +73,19 @@ export const ListeningModule: React.FC = () => {
   const [progress, setProgress] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  // Restore Effect
+  useEffect(() => {
+    if (initialData) {
+        // Reset states
+        stopAudio();
+        // Clear audio buffer when loading from history as we don't persist binary data
+        audioBufferRef.current = null;
+        setData(initialData);
+        setAnswers({});
+        setShowResults(false);
+    }
+  }, [initialData]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -85,7 +102,7 @@ export const ListeningModule: React.FC = () => {
     if (audioBufferRef.current && canvasRef.current) {
         drawWaveform(audioBufferRef.current);
     }
-  }, [audioLoading]);
+  }, [audioLoading, data]); // Redraw when data changes (e.g. restoration) or audio loads
 
   const drawWaveform = (buffer: AudioBuffer) => {
     const canvas = canvasRef.current;
@@ -137,25 +154,19 @@ export const ListeningModule: React.FC = () => {
     setProgress(0);
     
     try {
+      // 1. Generate Text Content First
       const response = await generateLingifyContent<ListeningResponse>(ModuleType.LISTENING, {
         topic, level, style, newWordCount
       });
       setData(response);
-      setLoading(false);
-
-      setAudioLoading(true);
-      const base64Audio = await generateSpeech(response.audio_script, voice);
       
-      if (audioContextRef.current) audioContextRef.current.close();
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      audioContextRef.current = audioContext;
-      
-      const buffer = decodePCMAudio(base64Audio, audioContext);
-      audioBufferRef.current = buffer;
-      setAudioLoading(false);
-      
-      // Save log
+      // Save log immediately so we have the text/questions
       storageService.saveActivity(ModuleType.LISTENING, response);
+      
+      setLoading(false); // UI Updates here: User sees text immediately
+
+      // 2. Generate Audio
+      await regenerateAudio(response.audio_script);
 
     } catch (err) {
       console.error(err);
@@ -163,6 +174,26 @@ export const ListeningModule: React.FC = () => {
       setLoading(false);
       setAudioLoading(false);
     }
+  };
+
+  const regenerateAudio = async (scriptText: string) => {
+      setAudioLoading(true);
+      try {
+          const base64Audio = await generateSpeech(scriptText, voice);
+          
+          if (audioContextRef.current) await audioContextRef.current.close();
+          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          audioContextRef.current = audioContext;
+          
+          const buffer = decodePCMAudio(base64Audio, audioContext);
+          audioBufferRef.current = buffer;
+          drawWaveform(buffer); // Ensure visualization updates
+      } catch (audioErr) {
+          console.error("Audio generation failed", audioErr);
+          alert("Audio failed to load.");
+      } finally {
+          setAudioLoading(false);
+      }
   };
 
   const playAudio = async (startOffset?: number) => {
@@ -401,24 +432,34 @@ export const ListeningModule: React.FC = () => {
 
       {/* 2. Main Listening Interface */}
       {data && (
-          <div className="flex flex-col gap-6 h-[calc(100vh-100px)]">
-              {/* Premium Audio Player Bar */}
+          <div className="flex flex-col gap-6">
+              {/* Premium Audio Player Bar - NOT Sticky to allow more viewing area when scrolling down */}
               <div className="bg-slate-900 rounded-2xl p-4 md:p-6 shadow-xl flex flex-col items-center gap-6 text-white flex-none z-20 transition-all relative overflow-hidden">
                     {/* Background Waveform Canvas */}
                     <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-10 pointer-events-none" width={800} height={100} />
                     
                     <div className="flex w-full items-center gap-6 z-10">
-                        <button 
-                            onClick={togglePlay}
-                            disabled={audioLoading || !audioBufferRef.current}
-                            className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-lg flex-none ${audioLoading || !audioBufferRef.current ? 'bg-slate-700 cursor-not-allowed text-slate-500' : 'bg-indigo-500 hover:bg-indigo-400 shadow-indigo-500/30'}`}
-                        >
-                            {audioLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 ml-1 fill-current" />}
-                        </button>
+                        {/* Play Control Logic for History/Restore */}
+                        {!audioBufferRef.current && !audioLoading ? (
+                            <button
+                                onClick={() => regenerateAudio(data.audio_script)}
+                                className="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 transition-all"
+                            >
+                                <RefreshCw className="w-4 h-4" /> Load Audio
+                            </button>
+                        ) : (
+                            <button 
+                                onClick={togglePlay}
+                                disabled={audioLoading || !audioBufferRef.current}
+                                className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-lg flex-none ${audioLoading || !audioBufferRef.current ? 'bg-slate-700 cursor-not-allowed text-slate-500' : 'bg-indigo-500 hover:bg-indigo-400 shadow-indigo-500/30'}`}
+                            >
+                                {audioLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 ml-1 fill-current" />}
+                            </button>
+                        )}
                         
                         <div className="flex-1 w-full space-y-2">
                             <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-                                <span>{audioLoading ? 'Synthesizing...' : isPlaying ? 'Now Playing' : 'Paused'}</span>
+                                <span>{audioLoading ? 'Synthesizing Audio...' : isPlaying ? 'Now Playing' : !audioBufferRef.current ? 'Audio Not Loaded' : 'Ready to Play'}</span>
                                 <span>{data.title}</span>
                             </div>
                             <div className="h-2 bg-slate-700 rounded-full overflow-hidden relative group cursor-pointer" onClick={(e) => {
@@ -448,20 +489,22 @@ export const ListeningModule: React.FC = () => {
                     </div>
               </div>
 
-              {/* Split Content Area */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1 overflow-hidden">
-                  <div className="lg:col-span-7 flex flex-col bg-[#faf9f6] rounded-2xl border border-stone-200 shadow-sm relative overflow-hidden">
-                      <div className="p-6 border-b border-stone-200 bg-white/50 backdrop-blur-sm flex justify-between items-center sticky top-0 z-10">
+              {/* Split Content Area - Window Scroll Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  
+                  {/* LEFT: Transcript - Natural Height */}
+                  <div className="lg:col-span-7 flex flex-col bg-[#faf9f6] rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+                      <div className="p-6 border-b border-stone-200 bg-stone-100 flex justify-between items-center">
                            <h2 className="font-serif font-bold text-xl text-slate-800">Transcript</h2>
                            <button onClick={() => setShowTranscript(!showTranscript)} className="flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
                                {showTranscript ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />} {showTranscript ? 'Hide Text' : 'Reveal Text'}
                            </button>
                       </div>
-                      <div className="flex-1 overflow-y-auto p-8 relative">
+                      <div className="p-8 relative">
                           {renderTranscript()}
                           {!showTranscript && (
-                              <div className="absolute inset-0 flex items-center justify-center z-0">
-                                  <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl border border-white/50 shadow-lg text-center max-w-sm">
+                              <div className="absolute inset-0 flex items-center justify-center z-0 backdrop-blur-sm bg-white/30 h-96">
+                                  <div className="bg-white/80 p-6 rounded-xl border border-white/50 shadow-lg text-center max-w-sm backdrop-blur-md">
                                       <Headphones className="w-12 h-12 text-indigo-300 mx-auto mb-4" />
                                       <h3 className="font-bold text-slate-800 mb-2">Listen First</h3>
                                       <p className="text-sm text-slate-500 mb-6">Try to answer questions by listening only.</p>
@@ -471,12 +514,17 @@ export const ListeningModule: React.FC = () => {
                           )}
                       </div>
                   </div>
-                  <div className="lg:col-span-5 flex flex-col h-full gap-4">
+
+                  {/* RIGHT: Sidebar - Sticky */}
+                  <div className="lg:col-span-5 flex flex-col gap-4 lg:sticky lg:top-24 h-fit">
+                      {/* Tabs */}
                       <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-sm flex flex-none">
                         <button onClick={() => setActiveTab('vocab')} className={`flex-1 py-3 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === 'vocab' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}><BrainCircuit className="w-4 h-4" /> Vocabulary ({data.newWords.length})</button>
                         <button onClick={() => setActiveTab('quiz')} className={`flex-1 py-3 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === 'quiz' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}><GraduationCap className="w-4 h-4" /> Questions ({data.questions.length})</button>
                       </div>
-                      <div className="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative">
+                      
+                      {/* Content Box with constrained max-height for scrolling sidebar only if needed */}
+                      <div className="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative max-h-[calc(100vh-10rem)] overflow-y-auto">
                            {activeTab === 'vocab' && (
                                <div className="h-full flex flex-col">
                                    {selectedWord ? (
@@ -491,11 +539,11 @@ export const ListeningModule: React.FC = () => {
                                             <button id={`save-btn-${selectedWord.word}`} onClick={() => saveToVault(selectedWord)} className="w-full py-4 border-2 border-slate-200 rounded-xl text-slate-600 font-bold hover:border-indigo-600 hover:text-indigo-600 transition-all flex items-center justify-center gap-2"><BookmarkPlus className="w-5 h-5" /> Save to Vault</button>
                                        </div>
                                    ) : (
-                                       <div className="h-full overflow-y-auto p-4">
+                                       <div className="h-full p-4">
                                            <div className="text-center py-6"><p className="text-sm text-slate-500">Select a word from the transcript or list below.</p></div>
                                            <div className="space-y-2">
                                                 {data.newWords.map((w, i) => (
-                                                    <button key={i} onClick={() => handleWordClick(w)} className="w-full text-left p-4 rounded-xl border border-slate-100 hover:border-indigo-200 hover:shadow-md hover:bg-white bg-slate-50/50 transition-all group">
+                                                    <button key={i} onClick={() => handleWordClick(w)} className="w-full text-left p-3 rounded-xl border border-slate-100 hover:border-indigo-200 hover:shadow-md hover:bg-white bg-slate-50/50 transition-all group">
                                                         <div className="flex justify-between items-center"><span className="font-bold text-slate-700 group-hover:text-indigo-700">{w.word}</span><ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all" /></div>
                                                         <p className="text-xs text-slate-500 truncate mt-1">{w.meaning}</p>
                                                     </button>
@@ -506,8 +554,9 @@ export const ListeningModule: React.FC = () => {
                                </div>
                            )}
                            {activeTab === 'quiz' && (
-                               <div className="h-full flex flex-col p-6 overflow-y-auto">
-                                    <div className="flex-1 space-y-6">
+                               <div className="h-full flex flex-col bg-slate-50/30">
+                                    {/* Questions Container - Natural flow in sidebar */}
+                                    <div className="flex-1 p-6 space-y-6">
                                         {data.questions.map((q, idx) => (
                                             <div key={q.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                                                 <div className="flex gap-3 mb-4"><span className="flex-none w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">{idx+1}</span><p className="font-medium text-slate-800 text-sm leading-relaxed">{q.prompt}</p></div>
@@ -525,7 +574,11 @@ export const ListeningModule: React.FC = () => {
                                             </div>
                                         ))}
                                     </div>
-                                    {!showResults ? <button onClick={handleCheckAnswers} className="mt-6 w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 shadow-lg">Check Answers</button> : <div className="mt-6 p-4 bg-white border border-slate-200 rounded-xl text-center shadow-lg"><div className="text-sm font-bold text-slate-400 uppercase mb-1">Your Score</div><div className="text-3xl font-bold text-indigo-600 mb-2">{calculateScore()} / {data.questions.length}</div><button onClick={() => { setData(null); }} className="text-sm text-slate-500 underline hover:text-slate-800">Start New Session</button></div>}
+                                    
+                                    {/* Sticky Footer for Sidebar */}
+                                    <div className="p-4 border-t border-slate-200 bg-white/80 backdrop-blur-md shadow-lg flex-none sticky bottom-0 z-10">
+                                        {!showResults ? <button onClick={handleCheckAnswers} className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 shadow-lg transition-all">Check Answers</button> : <div className="p-2 text-center"><div className="text-sm font-bold text-slate-400 uppercase mb-1">Your Score</div><div className="text-3xl font-bold text-indigo-600 mb-2">{calculateScore()} / {data.questions.length}</div><button onClick={() => { setData(null); }} className="text-sm text-slate-500 underline hover:text-slate-800">Start New Session</button></div>}
+                                    </div>
                                </div>
                            )}
                       </div>

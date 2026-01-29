@@ -225,6 +225,12 @@ export const generateLingifyContent = async <T,>(
   } else if (module === ModuleType.GRAMMAR) {
       moduleSpecificInstructions = `
       Task: Create a grammar lesson and exercises for: "${payload.topic}" at Level ${payload.level}.
+      
+      Exercise Types Strategy:
+      1. Use 'reorder' for sentence structure practice (scramble a full sentence).
+      2. Use 'gap_fill' with options for picking the right conjugation/word.
+      3. Use 'fix_error' for advanced correction.
+      
       Output Schema (JSON):
       {
         "topic": string,
@@ -239,14 +245,15 @@ export const generateLingifyContent = async <T,>(
         "exercises": [
             {
                 "id": string,
-                "type": "fix_error" | "gap_fill" | "mcq",
-                "question": string,
-                "options": ["A", "B", "C", "D"] (only for mcq, else null),
-                "answer": string,
+                "type": "fix_error" | "gap_fill" | "mcq" | "reorder",
+                "question": string (For 'reorder', provide instruction like 'Arrange the words correctly'),
+                "scrambled": [string] (Only for 'reorder'. Array of words in RANDOM order),
+                "options": ["A", "B", "C", "D"] (Use for 'mcq' OR 'gap_fill' as dropdown choices),
+                "answer": string (The correct full answer),
                 "explanation": string,
                 "hint": "string (a subtle clue without giving the answer)"
             }
-        ] (Generate exactly 5 exercises. Mix types if possible, focusing on 'fix_error' for advanced levels)
+        ] (Generate exactly 5 exercises. Mix types: include at least 1 'reorder' and 1 'gap_fill')
       }`;
   }
 

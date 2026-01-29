@@ -171,12 +171,13 @@ export type SpeakingResponse = SpeakingLessonResponse | SpeakingEvalResponse;
 // Grammar Module
 export interface GrammarExercise {
   id: string;
-  type: 'fix_error' | 'gap_fill' | 'mcq';
-  question: string;
-  options?: string[]; // Only for MCQ
+  type: 'fix_error' | 'gap_fill' | 'mcq' | 'reorder';
+  question: string; // For reorder, this is the instruction
+  scrambled?: string[]; // For reorder
+  options?: string[]; // Only for MCQ or Dropdown Gap Fill
   answer: string;
   explanation: string;
-  hint?: string; // New: Subtle clue
+  hint?: string; 
 }
 
 export interface GrammarMistake {
@@ -202,6 +203,14 @@ export interface GrammarResponse {
     structureVariations: GrammarVariation[]; // Alternative ways to say it
   };
   exercises: GrammarExercise[];
+}
+
+export interface SavedGrammarRule {
+    id: string;
+    topic: string;
+    rule: string;
+    example: string;
+    savedAt: number;
 }
 
 // Quiz

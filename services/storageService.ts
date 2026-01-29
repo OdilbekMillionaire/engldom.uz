@@ -1,9 +1,10 @@
-import { ModuleType, ProgressEntry, VocabItem, ActivityLogEntry } from '../types';
+import { ModuleType, ProgressEntry, VocabItem, ActivityLogEntry, SavedGrammarRule } from '../types';
 
 const STORAGE_KEYS = {
   PROGRESS: 'engldom_progress',
   VOCAB: 'engldom_vocab',
-  ACTIVITY: 'engldom_activity_log' // New key for raw generations
+  ACTIVITY: 'engldom_activity_log', // New key for raw generations
+  GRAMMAR_RULES: 'engldom_grammar_rules'
 };
 
 export const storageService = {
@@ -47,6 +48,32 @@ export const storageService = {
     const current = storageService.getWords();
     const updated = current.filter(w => w.word !== wordText);
     localStorage.setItem(STORAGE_KEYS.VOCAB, JSON.stringify(updated));
+  },
+
+  // Grammar Cheat Sheet Methods
+  saveGrammarRule: (rule: Omit<SavedGrammarRule, 'id' | 'savedAt'>) => {
+      const current = storageService.getGrammarRules();
+      const newRule: SavedGrammarRule = {
+          ...rule,
+          id: crypto.randomUUID(),
+          savedAt: Date.now()
+      };
+      // Avoid exact duplicates
+      if (!current.find(r => r.rule === rule.rule)) {
+          const updated = [newRule, ...current];
+          localStorage.setItem(STORAGE_KEYS.GRAMMAR_RULES, JSON.stringify(updated));
+      }
+  },
+
+  getGrammarRules: (): SavedGrammarRule[] => {
+      const raw = localStorage.getItem(STORAGE_KEYS.GRAMMAR_RULES);
+      return raw ? JSON.parse(raw) : [];
+  },
+
+  removeGrammarRule: (id: string) => {
+      const current = storageService.getGrammarRules();
+      const updated = current.filter(r => r.id !== id);
+      localStorage.setItem(STORAGE_KEYS.GRAMMAR_RULES, JSON.stringify(updated));
   },
 
   // Progress Methods (Scores)

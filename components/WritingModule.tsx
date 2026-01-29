@@ -16,7 +16,11 @@ const TASK_TYPES = [
     { value: 'CEFR Essay', time: 45, label: 'CEFR Formal Essay', desc: '45 mins • Advanced Composition' }
 ];
 
-export const WritingModule: React.FC = () => {
+interface WritingModuleProps {
+    initialData?: WritingResponse;
+}
+
+export const WritingModule: React.FC<WritingModuleProps> = ({ initialData }) => {
   // Settings
   const [taskType, setTaskType] = useState(TASK_TYPES[0]);
   const [standard, setStandard] = useState('British English');
@@ -42,6 +46,17 @@ export const WritingModule: React.FC = () => {
   // Drills
   const [drillAnswers, setDrillAnswers] = useState<Record<number, string>>({});
   const [drillFeedback, setDrillFeedback] = useState<Record<number, boolean>>({});
+
+  // Restore State Effect
+  useEffect(() => {
+    if (initialData) {
+        setResult(initialData);
+        setIsSettingsCollapsed(true);
+        // Note: We can't fully restore the user's original essay text if it wasn't saved in the activity log.
+        // Assuming activity log stores the *result*, but maybe not the essay input unless we updated the type.
+        // For now, we just show the analysis.
+    }
+  }, [initialData]);
 
   useEffect(() => {
       setPrompt(taskType.value.includes('Task 1') 
@@ -102,7 +117,7 @@ export const WritingModule: React.FC = () => {
           setTimerRunning(true);
       }
   };
-
+// ... rest of the file remains exactly the same ...
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) setImageFile(e.target.files[0]);
   };

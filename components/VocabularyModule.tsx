@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { storageService } from '../services/storageService';
 import { VocabItem, ModuleType, CEFRLevel, VocabGenerationResponse } from '../types';
 import { BookmarkPlus, Sparkles, List, Library, GraduationCap, CheckCircle2, CheckSquare, Layers, FileDown, RefreshCw } from 'lucide-react';
@@ -27,7 +27,11 @@ const INCLUSIONS = [
 function MessageSquareIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>; }
 function ZapIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>; }
 
-export const VocabularyModule: React.FC = () => {
+interface VocabularyModuleProps {
+    initialData?: VocabGenerationResponse;
+}
+
+export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData }) => {
     // Generator State
     const [topic, setTopic] = useState('');
     const [level, setLevel] = useState<CEFRLevel>(CEFRLevel.C1);
@@ -37,6 +41,13 @@ export const VocabularyModule: React.FC = () => {
     const [generatedData, setGeneratedData] = useState<VocabGenerationResponse | null>(null);
     const [genLoading, setGenLoading] = useState(false);
     const [savedAll, setSavedAll] = useState(false);
+
+    // Restore State Effect
+    useEffect(() => {
+        if (initialData) {
+            setGeneratedData(initialData);
+        }
+    }, [initialData]);
 
     // --- Generator Logic ---
     const toggleType = (id: string) => {

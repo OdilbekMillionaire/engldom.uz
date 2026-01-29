@@ -13,34 +13,48 @@ import { ModuleType } from './types';
 
 function App() {
   const [currentModule, setCurrentModule] = useState<ModuleType>(ModuleType.DASHBOARD);
+  const [sessionData, setSessionData] = useState<any>(null);
+
+  const handleModuleChange = (module: ModuleType) => {
+    // Clear session data if manually navigating
+    setSessionData(null);
+    setCurrentModule(module);
+  };
+
+  const handleRestoreSession = (module: ModuleType, data: any) => {
+    setSessionData(data);
+    setCurrentModule(module);
+  };
 
   const renderModule = () => {
     switch (currentModule) {
       case ModuleType.DASHBOARD:
         return <Dashboard />;
       case ModuleType.READING:
-        return <ReadingModule />;
+        return <ReadingModule initialData={sessionData} />;
       case ModuleType.WRITING:
-        return <WritingModule />;
+        return <WritingModule initialData={sessionData} />;
       case ModuleType.LISTENING:
-        return <ListeningModule />;
+        return <ListeningModule initialData={sessionData} />;
       case ModuleType.SPEAKING:
-        return <SpeakingModule />;
+        return <SpeakingModule initialData={sessionData} />;
       case ModuleType.VOCABULARY:
-        return <VocabularyModule />;
+        // Vocab generator creates lists, restoring just means showing the result. 
+        // We pass it to prepopulate the "Output" view if needed, or simple ignore for now as it saves to Vault.
+        return <VocabularyModule initialData={sessionData} />;
       case ModuleType.VAULT:
         return <VaultModule />;
       case ModuleType.HISTORY:
-        return <HistoryModule />;
+        return <HistoryModule onRestore={handleRestoreSession} />;
       case ModuleType.GRAMMAR:
-        return <GrammarModule />;
+        return <GrammarModule initialData={sessionData} />;
       default:
         return <Dashboard />;
     }
   };
 
   return (
-    <Layout currentModule={currentModule} onModuleChange={setCurrentModule}>
+    <Layout currentModule={currentModule} onModuleChange={handleModuleChange}>
       {renderModule()}
     </Layout>
   );
