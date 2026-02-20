@@ -7,19 +7,19 @@ import { CEFRLevel, ModuleType, ReadingResponse, VocabItem } from '../types';
 const STYLE_OPTIONS = [
   "IELTS Academic (Descriptive)",
   "IELTS Academic (Argumentative)",
-  "Scientific / Technical Report",
-  "Historical / Biographical Narrative",
-  "Social / Cultural Analysis",
-  "General Interest / Magazine Style",
-  "Storytelling / Fictional Narrative", 
-  "Personal Diary / Journal Entry"       
+  "Scientific/Technical Report",
+  "Historical/Biographical Narrative",
+  "Social/Cultural Analysis",
+  "General Interest/Magazine Style",
+  "Storytelling/Fictional Narrative", 
+  "Personal Diary/Journal Entry"       
 ];
 
 const QUESTION_TYPES = [
     { value: 'mcq', label: 'Multiple Choice' },
-    { value: 'tfng', label: 'True / False / Not Given' },
+    { value: 'tfng', label: 'True/False/Not Given' },
     { value: 'gap_fill', label: 'Gap Filling / Sentence Completion' },
-    { value: 'matching', label: 'Matching Headings / Information' }
+    { value: 'matching', label: 'Matching Headings/Information' }
 ];
 
 interface ReadingModuleProps {

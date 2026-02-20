@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { 
     BookOpen, PenTool, Headphones, Mic, BarChart2, BookMarked, 
     Library, Clock, Scale, Search, Command, ArrowRight, CornerDownLeft, 
-    Hash, FileText, X, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen
+    Hash, FileText, X, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen,
+    GraduationCap
 } from 'lucide-react';
 import { ModuleType } from '../types';
 import { storageService } from '../services/storageService';
@@ -24,6 +26,8 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
   const navItems = [
     { id: ModuleType.DASHBOARD, icon: BarChart2, label: 'Dashboard' },
     { id: ModuleType.HISTORY, icon: Clock, label: 'History' },
+    { type: 'divider' },
+    { id: ModuleType.LIBRARY, icon: GraduationCap, label: 'Study Center' }, // New Static Module
     { type: 'divider' },
     { id: ModuleType.READING, icon: BookOpen, label: 'Reading' },
     { id: ModuleType.WRITING, icon: PenTool, label: 'Writing' },
@@ -197,7 +201,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
       >
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-40 bg-white/80 backdrop-blur-md">
            <h1 className="font-bold text-slate-800 capitalize flex items-center gap-2">
-               {currentModule === ModuleType.VAULT ? 'My Vault' : currentModule === ModuleType.HISTORY ? 'Activity History' : currentModule === ModuleType.GRAMMAR ? 'Grammar Laboratory' : `${currentModule} Module`}
+               {currentModule === ModuleType.VAULT ? 'My Vault' : currentModule === ModuleType.HISTORY ? 'Activity History' : currentModule === ModuleType.GRAMMAR ? 'Grammar Laboratory' : currentModule === ModuleType.LIBRARY ? 'Study Center' : `${currentModule} Module`}
            </h1>
            <div className="flex items-center gap-4">
              <button onClick={() => setIsCmdOpen(true)} className="lg:hidden text-slate-400">

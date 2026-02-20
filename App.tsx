@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Layout } from './components/Layout';
 import { ReadingModule } from './components/ReadingModule';
@@ -9,6 +10,7 @@ import { VocabularyModule } from './components/VocabularyModule';
 import { VaultModule } from './components/VaultModule';
 import { HistoryModule } from './components/HistoryModule';
 import { GrammarModule } from './components/GrammarModule';
+import { LibraryModule } from './components/LibraryModule';
 import { ModuleType } from './types';
 
 function App() {
@@ -48,6 +50,8 @@ function App() {
         return <HistoryModule onRestore={handleRestoreSession} />;
       case ModuleType.GRAMMAR:
         return <GrammarModule initialData={sessionData} />;
+      case ModuleType.LIBRARY:
+        return <LibraryModule />;
       default:
         return <Dashboard />;
     }

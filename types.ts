@@ -1,3 +1,4 @@
+
 // Shared Enums
 export enum CEFRLevel {
   A1 = 'A1',
@@ -18,6 +19,7 @@ export enum ModuleType {
   SPEAKING = 'speaking',
   HISTORY = 'history',       // New History Module
   GRAMMAR = 'grammar',       // New Grammar Module
+  LIBRARY = 'library',       // New Study Center (Static Content)
 }
 
 // Data Models based on Specification
