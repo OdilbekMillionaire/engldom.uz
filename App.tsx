@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { ReadingModule } from './components/ReadingModule';
 import { WritingModule } from './components/WritingModule';
@@ -11,14 +11,22 @@ import { VaultModule } from './components/VaultModule';
 import { HistoryModule } from './components/HistoryModule';
 import { GrammarModule } from './components/GrammarModule';
 import { LibraryModule } from './components/LibraryModule';
+import { SettingsModule } from './components/SettingsModule';
+import { applyTheme } from './components/SettingsModule';
 import { ModuleType } from './types';
+import { storageService } from './services/storageService';
 
 function App() {
   const [currentModule, setCurrentModule] = useState<ModuleType>(ModuleType.DASHBOARD);
   const [sessionData, setSessionData] = useState<any>(null);
 
+  // Apply saved theme on first load
+  useEffect(() => {
+    const settings = storageService.getSettings();
+    applyTheme(settings.theme);
+  }, []);
+
   const handleModuleChange = (module: ModuleType) => {
-    // Clear session data if manually navigating
     setSessionData(null);
     setCurrentModule(module);
   };
@@ -31,7 +39,7 @@ function App() {
   const renderModule = () => {
     switch (currentModule) {
       case ModuleType.DASHBOARD:
-        return <Dashboard />;
+        return <Dashboard onModuleChange={handleModuleChange} />;
       case ModuleType.READING:
         return <ReadingModule initialData={sessionData} />;
       case ModuleType.WRITING:
@@ -41,8 +49,6 @@ function App() {
       case ModuleType.SPEAKING:
         return <SpeakingModule initialData={sessionData} />;
       case ModuleType.VOCABULARY:
-        // Vocab generator creates lists, restoring just means showing the result. 
-        // We pass it to prepopulate the "Output" view if needed, or simple ignore for now as it saves to Vault.
         return <VocabularyModule initialData={sessionData} />;
       case ModuleType.VAULT:
         return <VaultModule />;
@@ -52,8 +58,10 @@ function App() {
         return <GrammarModule initialData={sessionData} />;
       case ModuleType.LIBRARY:
         return <LibraryModule />;
+      case ModuleType.SETTINGS:
+        return <SettingsModule />;
       default:
-        return <Dashboard />;
+        return <Dashboard onModuleChange={handleModuleChange} />;
     }
   };
 

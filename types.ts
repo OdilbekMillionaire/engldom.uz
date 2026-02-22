@@ -20,6 +20,7 @@ export enum ModuleType {
   HISTORY = 'history',       // New History Module
   GRAMMAR = 'grammar',       // New Grammar Module
   LIBRARY = 'library',       // New Study Center (Static Content)
+  SETTINGS = 'settings',     // User Settings & Profile
 }
 
 // Data Models based on Specification
@@ -213,6 +214,29 @@ export interface SavedGrammarRule {
     rule: string;
     example: string;
     savedAt: number;
+}
+
+// User Settings & Profile
+export interface UserSettings {
+  // Profile
+  displayName: string;
+  avatarDataUrl: string | null;      // Base64-encoded image
+  // Learning Preferences
+  nativeLanguage: string;            // e.g. "Uzbek", "Russian", "Arabic"
+  targetBand: string;                // "5.0" … "9.0"
+  dailyGoal: number;                 // exercises per day: 2, 5, 10, 20
+  defaultCEFRLevel: CEFRLevel;
+  // Appearance
+  theme: 'light' | 'dark' | 'system';
+  // Meta
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface StreakData {
+  current: number;
+  longest: number;
+  lastActiveDate: string;            // YYYY-MM-DD
 }
 
 // Quiz

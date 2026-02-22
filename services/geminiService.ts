@@ -17,6 +17,26 @@ const cleanAndParseJSON = (text: string) => {
   }
 };
 
+// Read the learner's native language from settings so explanations can be localised.
+const getLearnerNativeLanguage = (): string => {
+  try {
+    const raw = localStorage.getItem('engldom_settings');
+    if (!raw) return 'English';
+    const s = JSON.parse(raw);
+    return s.nativeLanguage || 'English';
+  } catch {
+    return 'English';
+  }
+};
+
+const buildSystemInstruction = (): string => {
+  const lang = getLearnerNativeLanguage();
+  const langNote = lang !== 'English'
+    ? `\n3. Localised Explanations: Write ALL explanatory text, hints, feedback descriptions, error explanations, and educational commentary in ${lang}. Exercise questions, answer options, article/passage text, and vocabulary examples MUST remain in English. Only the instructional and explanatory prose should be in ${lang}.`
+    : '';
+  return `You are ENGLDOM, an adaptive language learning engine designed to help users prepare for proficiency exams like IELTS. Your goal is to generate high-quality, exam-standard content.\n\nCore Principles:\n1. Strict JSON Output: You must ALWAYS output valid, minified JSON.\n2. Exam Standard: Content must strictly adhere to IELTS Academic standards.${langNote}`;
+};
+
 const SYSTEM_INSTRUCTION = `
 You are ENGLDOM, an adaptive language learning engine designed to help users prepare for proficiency exams like IELTS. Your goal is to generate high-quality, exam-standard content.
 
@@ -52,8 +72,8 @@ export const generateLingifyContent = async <T,>(
   // Model Selection Strategy based on Feature Requirements
   let modelName = 'gemini-3-flash-preview'; // Default
   let config: any = {
-    systemInstruction: SYSTEM_INSTRUCTION,
-    responseMimeType: "application/json", 
+    systemInstruction: buildSystemInstruction(),
+    responseMimeType: "application/json",
   };
 
   if (module === ModuleType.WRITING) {
@@ -307,9 +327,11 @@ export const chatWithTutor = async (context: string, userMessage: string, histor
     }
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
-    const systemPrompt = `You are an expert IELTS tutor. The user is asking questions about their recent exercise result. 
+    const lang = getLearnerNativeLanguage();
+    const langNote = lang !== 'English' ? ` Respond in ${lang} so the learner understands easily, but keep all English examples in English.` : '';
+    const systemPrompt = `You are an expert IELTS tutor. The user is asking questions about their recent exercise result.
     Context provided: ${context}.
-    Answer concisely, encouragingly, and strictly related to language learning.`;
+    Answer concisely, encouragingly, and strictly related to language learning.${langNote}`;
 
     const chat = ai.chats.create({
         model: 'gemini-3-pro-preview', // Smartest model for chat
