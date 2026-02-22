@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { storageService } from '../services/storageService';
 import { VocabItem, ModuleType, QuizResponse, Question } from '../types';
-import { Trash2, BrainCircuit, RefreshCw, BookmarkPlus, ChevronDown, ChevronUp, Sparkles, Book, Search, Filter } from 'lucide-react';
+import { Trash2, BrainCircuit, RefreshCw, BookmarkPlus, ChevronDown, ChevronUp, Sparkles, Book, Search } from 'lucide-react';
 import { generateLingifyContent, enrichWord } from '../services/geminiService';
+import { gamificationService } from '../services/gamificationService';
+import { useXPToast } from './ui/XPToastProvider';
 
 export const VaultModule: React.FC = () => {
+    const { showXP, showBadge } = useXPToast();
     const [vaultWords, setVaultWords] = useState<VocabItem[]>([]);
     const [filteredWords, setFilteredWords] = useState<VocabItem[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -165,8 +168,19 @@ export const VaultModule: React.FC = () => {
                     </div>
                     {!showQuizResults ? (
                         <div className="mt-8 flex gap-4">
-                            <button 
-                                onClick={() => setShowQuizResults(true)}
+                            <button
+                                onClick={() => {
+                                    setShowQuizResults(true);
+                                    if (quiz) {
+                                        const score = quiz.filter(q => quizAnswers[q.id] === q.answer).length;
+                                        const isPerfect = score === quiz.length;
+                                        const bonuses: string[] = [];
+                                        if (isPerfect) bonuses.push('vault_quiz_perfect');
+                                        const result = gamificationService.earnXP('vault_quiz_complete', bonuses as any);
+                                        result.newBadges.forEach(b => showBadge(b));
+                                        showXP(result.earned + result.bonus, 'Vault Quiz');
+                                    }
+                                }}
                                 className="flex-1 py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg"
                             >
                                 Check Answers

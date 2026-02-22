@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Scale, CheckCircle2, AlertTriangle, RefreshCw, 
-    Book, Zap, Search, Layout, Lightbulb, HelpCircle,
-    ArrowRight, MessageSquare, Layers, FileWarning, Shuffle,
+import {
+    Scale, CheckCircle2, AlertTriangle, RefreshCw,
+    Book, Zap, Layout, Lightbulb, HelpCircle,
+    ArrowRight, MessageSquare, Layers, FileWarning,
     GraduationCap, Sparkles, Brain, Save, Trash2, X
 } from 'lucide-react';
 import { generateLingifyContent } from '../services/geminiService';
 import { storageService } from '../services/storageService';
 import { ModuleType, CEFRLevel, GrammarResponse, SavedGrammarRule } from '../types';
 import { ChatTutor } from './ChatTutor';
+import { CompletionScreen } from './ui/CompletionScreen';
+import { useXPToast } from './ui/XPToastProvider';
+import { gamificationService } from '../services/gamificationService';
 
 const COMMON_TOPICS = [
     { id: 'tenses_overview', label: '12 Tenses Overview', icon: ClockIcon, color: 'bg-blue-50 text-blue-600' },
@@ -57,6 +60,11 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
     // Chat State
     const [showChat, setShowChat] = useState(false);
     const [chatContext, setChatContext] = useState('');
+
+    // Gamification
+    const [showCompletion, setShowCompletion] = useState(false);
+    const [completionData, setCompletionData] = useState({ score: 0, maxScore: 0, xpEarned: 0, bonusXP: 0, leveledUp: false, newLevel: 0, newBadges: [] as any[] });
+    const { showXP, showBadge } = useXPToast();
 
     useEffect(() => {
         if (initialData) {
@@ -111,17 +119,46 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
         // Normalize for comparison
         const user = state.userAnswer.trim().toLowerCase().replace(/\s+/g, ' ');
         const correct = correctAnswer.trim().toLowerCase().replace(/\s+/g, ' ');
-        
+
         const isCorrect = user === correct;
-        
+
         setExerciseStates(prev => ({
             ...prev,
-            [id]: { 
-                ...prev[id], 
+            [id]: {
+                ...prev[id],
                 status: isCorrect ? 'correct' : 'incorrect',
-                revealed: isCorrect 
+                revealed: true
             }
         }));
+    };
+
+    const handleCompleteLesson = () => {
+        if (!data) return;
+        const states = Object.values(exerciseStates);
+        const score = states.filter(s => s.status === 'correct').length;
+        const maxScore = data.exercises.length;
+        storageService.saveProgress({
+            module: ModuleType.GRAMMAR,
+            score,
+            maxScore,
+            label: data.topic
+        });
+        const isPerfect = score === maxScore;
+        const bonuses: string[] = [];
+        if (isPerfect) bonuses.push('grammar_perfect');
+        const result = gamificationService.earnXP('grammar_complete', bonuses as any);
+        result.newBadges.forEach(b => showBadge(b));
+        showXP(result.earned + result.bonus, 'Grammar');
+        setCompletionData({
+            score,
+            maxScore,
+            xpEarned: result.earned,
+            bonusXP: result.bonus,
+            leveledUp: result.leveledUp,
+            newLevel: result.newLevel,
+            newBadges: result.newBadges
+        });
+        setShowCompletion(true);
     };
 
     const toggleHint = (id: string) => {
@@ -269,7 +306,24 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                     </div>
                 </div>
             ) : (
-                <div className="grid lg:grid-cols-12 gap-8 h-[calc(100vh-100px)]">
+                <div className="grid lg:grid-cols-12 gap-8 h-[calc(100vh-100px)] relative">
+                    {/* Completion overlay */}
+                    {showCompletion && (
+                        <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm rounded-3xl overflow-auto">
+                            <CompletionScreen
+                                score={completionData.score}
+                                maxScore={completionData.maxScore}
+                                xpEarned={completionData.xpEarned}
+                                bonusXP={completionData.bonusXP}
+                                leveledUp={completionData.leveledUp}
+                                newLevel={completionData.newLevel}
+                                newBadges={completionData.newBadges}
+                                moduleLabel="Grammar Lesson"
+                                onRetry={() => { setData(null); setShowCompletion(false); setExerciseStates({}); }}
+                                onHome={() => { setData(null); setShowCompletion(false); setExerciseStates({}); }}
+                            />
+                        </div>
+                    )}
                     
                     {/* LEFT: THE BLACKBOARD (Lesson) */}
                     <div className="lg:col-span-5 flex flex-col h-full bg-[#2c3e50] rounded-3xl shadow-2xl overflow-hidden text-slate-200 border-4 border-slate-800 relative">
@@ -378,6 +432,19 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-10 scroll-smooth">
+                            {(() => {
+                                const allRevealed = data.exercises.length > 0 && data.exercises.every(ex => exerciseStates[ex.id]?.revealed);
+                                return allRevealed ? (
+                                    <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm pb-4 -mx-2 px-2 animate-fade-in">
+                                        <button
+                                            onClick={handleCompleteLesson}
+                                            className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 transition-all"
+                                        >
+                                            <GraduationCap className="w-5 h-5" /> Complete Lesson & Earn XP
+                                        </button>
+                                    </div>
+                                ) : null;
+                            })()}
                             {data.exercises.map((ex, i) => {
                                 const state = exerciseStates[ex.id] || { status: 'idle', userAnswer: '', showHint: false, revealed: false };
                                 const isCorrect = state.status === 'correct';

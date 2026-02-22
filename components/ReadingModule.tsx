@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { BookOpen, RefreshCw, BookmarkPlus, AlertCircle, Clock, GraduationCap, ArrowRight, CheckCircle2, XCircle, BrainCircuit, List } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { BookOpen, RefreshCw, BookmarkPlus, Clock, GraduationCap, ArrowRight, CheckCircle2, BrainCircuit, Zap } from 'lucide-react';
 import { generateLingifyContent } from '../services/geminiService';
 import { storageService } from '../services/storageService';
 import { CEFRLevel, ModuleType, ReadingResponse, VocabItem } from '../types';
+import { TimerRing } from './ui/TimerRing';
+import { QuizProgressBar } from './ui/QuizProgressBar';
+import { CompletionScreen } from './ui/CompletionScreen';
+import { useXPToast } from './ui/XPToastProvider';
+import { gamificationService } from '../services/gamificationService';
 
 const STYLE_OPTIONS = [
   "IELTS Academic (Descriptive)",
@@ -47,6 +52,16 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
   const [selectedWord, setSelectedWord] = useState<VocabItem | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+
+  // Gamification & completion state
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [completionData, setCompletionData] = useState({ score: 0, maxScore: 0, xpEarned: 0, bonusXP: 0, leveledUp: false, newLevel: 0, newBadges: [] as any[] });
+  const [focusedQuestion, setFocusedQuestion] = useState(0);
+  const { showXP, showBadge } = useXPToast();
+
+  // Difficulty quick-select (maps to CEFR)
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+  const DIFFICULTY_CEFR: Record<string, CEFRLevel> = { easy: CEFRLevel.B1, medium: CEFRLevel.B2, hard: CEFRLevel.C1 };
 
   // Validation
   const isCountValid = newWordCount > 0 && newWordCount <= 10;
@@ -130,17 +145,56 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
     return correct;
   };
   
+  // Keyboard shortcuts: 1-4 to pick option for focused question, Enter to submit
+  useEffect(() => {
+    if (!data || activeTab !== 'quiz' || showResults) return;
+    const handleKey = (e: KeyboardEvent) => {
+      const q = data.questions[focusedQuestion];
+      if (!q || !q.options) return;
+      const num = parseInt(e.key);
+      if (num >= 1 && num <= q.options.length) {
+        handleOptionSelect(q.id, q.options[num - 1]);
+      }
+      if (e.key === 'Enter' && Object.keys(answers).length === data.questions.length) {
+        handleCheckAnswers();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [data, activeTab, showResults, focusedQuestion, answers]);
+
   const handleCheckAnswers = () => {
       setShowResults(true);
       setTimerActive(false);
       if (data) {
           const score = calculateScore();
+          const maxScore = data.questions.length;
           storageService.saveProgress({
               module: ModuleType.READING,
               score,
-              maxScore: data.questions.length,
+              maxScore,
               label: data.title
           });
+
+          // Gamification
+          const isPerfect = score === maxScore;
+          const isSpeed = timeLeft > (timeLimit * 60 * 0.5);
+          const bonuses: string[] = [];
+          if (isPerfect) bonuses.push('reading_perfect');
+          if (isSpeed) bonuses.push('reading_speed');
+          const result = gamificationService.earnXP('reading_complete', bonuses);
+          result.newBadges.forEach(b => showBadge(b));
+          showXP(result.earned + result.bonus, 'Reading');
+          setCompletionData({
+              score,
+              maxScore,
+              xpEarned: result.earned,
+              bonusXP: result.bonus,
+              leveledUp: result.leveledUp,
+              newLevel: result.newLevel,
+              newBadges: result.newBadges
+          });
+          setShowCompletion(true);
       }
   };
 
@@ -213,13 +267,45 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
-      
+
+      {/* Completion overlay */}
+      {showCompletion && (
+        <CompletionScreen
+          score={completionData.score}
+          maxScore={completionData.maxScore}
+          xpEarned={completionData.xpEarned}
+          bonusXP={completionData.bonusXP}
+          leveledUp={completionData.leveledUp}
+          newLevel={completionData.newLevel}
+          newBadges={completionData.newBadges}
+          moduleLabel="Reading Practice"
+          onRetry={() => { setData(null); setShowCompletion(false); setShowResults(false); setAnswers({}); }}
+          onHome={() => { setData(null); setShowCompletion(false); setShowResults(false); setAnswers({}); }}
+        />
+      )}
+
       {/* Configuration Panel - Only show when no data */}
       {!data && (
         <div className="bg-white p-8 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 max-w-4xl mx-auto">
             <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-slate-800 mb-2 font-serif">Design Your Reading Practice</h2>
                 <p className="text-slate-500">Customize the topic, length, and difficulty for a personalized session.</p>
+                {/* Difficulty quick-select */}
+                <div className="flex justify-center gap-2 mt-4">
+                    {(['easy', 'medium', 'hard'] as const).map(d => (
+                        <button
+                            key={d}
+                            onClick={() => { setDifficulty(d); setLevel(DIFFICULTY_CEFR[d]); }}
+                            className={`px-5 py-2 rounded-full text-sm font-bold border-2 transition-all ${
+                                difficulty === d
+                                    ? d === 'easy' ? 'bg-emerald-500 border-emerald-500 text-white' : d === 'medium' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-red-500 border-red-500 text-white'
+                                    : 'border-slate-200 text-slate-500 hover:border-indigo-300'
+                            }`}
+                        >
+                            {d === 'easy' ? '🌱 Easy' : d === 'medium' ? '🔥 Medium' : '⚡ Hard'}
+                        </button>
+                    ))}
+                </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -335,10 +421,7 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
                         <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full uppercase tracking-wider">
                             {style.split(' ')[0]} • Level {level}
                         </span>
-                        <div className={`flex items-center gap-2 font-mono font-bold text-lg ${timeLeft < 60 ? 'text-red-500 animate-pulse' : 'text-slate-500'}`}>
-                            <Clock className="w-4 h-4" />
-                            {formatTime(timeLeft)}
-                        </div>
+                        <TimerRing timeLeft={timeLeft} totalTime={timeLimit * 60} size={48} />
                      </div>
                      <h1 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 leading-tight">
                          {data.title}
@@ -463,9 +546,20 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
                     {/* QUIZ TAB */}
                     {activeTab === 'quiz' && (
                          <div className="h-full flex flex-col p-6 overflow-y-auto bg-slate-50/30">
+                            <div className="mb-4">
+                                <QuizProgressBar
+                                    total={data.questions.length}
+                                    current={Object.keys(answers).length}
+                                    results={showResults ? data.questions.map(q =>
+                                        answers[q.id]?.toLowerCase() === q.answer.toLowerCase() ? 'correct' :
+                                        answers[q.id] ? 'wrong' : 'unanswered'
+                                    ) : undefined}
+                                />
+                                {!showResults && <p className="text-xs text-slate-400 mt-1 text-right">Press 1–4 to select · Enter to submit</p>}
+                            </div>
                             <div className="flex-1 space-y-6">
                                 {data.questions.map((q, idx) => (
-                                    <div key={q.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                                    <div key={q.id} onClick={() => setFocusedQuestion(idx)} className={`bg-white p-5 rounded-xl border shadow-sm cursor-pointer transition-all ${focusedQuestion === idx && !showResults ? 'border-indigo-300 ring-2 ring-indigo-100' : 'border-slate-200'}`}>
                                         <div className="flex gap-3 mb-4">
                                             <span className="flex-none w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">{idx+1}</span>
                                             <p className="font-medium text-slate-800 text-sm leading-relaxed">{q.prompt}</p>
@@ -520,15 +614,20 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
                             {!showResults ? (
                                 <button
                                     onClick={handleCheckAnswers}
-                                    className="mt-6 w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 shadow-lg"
+                                    disabled={Object.keys(answers).length === 0}
+                                    className="mt-6 w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 shadow-lg flex items-center justify-center gap-2 disabled:opacity-40"
                                 >
-                                    Check Answers
+                                    <Zap className="w-5 h-5" /> Check Answers
                                 </button>
                             ) : (
-                                <div className="mt-6 p-4 bg-white border border-slate-200 rounded-xl text-center shadow-lg">
-                                    <div className="text-sm font-bold text-slate-400 uppercase mb-1">Your Score</div>
-                                    <div className="text-3xl font-bold text-indigo-600 mb-2">{calculateScore()} / {data.questions.length}</div>
-                                    <button onClick={() => { setData(null); }} className="text-sm text-slate-500 underline hover:text-slate-800">Start New Session</button>
+                                <div className="mt-6 flex gap-3">
+                                    <button
+                                        onClick={() => setShowCompletion(true)}
+                                        className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2"
+                                    >
+                                        <Zap className="w-4 h-4" /> View Results
+                                    </button>
+                                    <button onClick={() => { setData(null); setShowResults(false); setAnswers({}); }} className="px-6 py-3 text-slate-500 font-bold hover:bg-slate-50 rounded-xl border border-slate-200">New Session</button>
                                 </div>
                             )}
                          </div>

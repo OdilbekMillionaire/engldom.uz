@@ -6,6 +6,7 @@ import {
     Hash, FileText, X, PanelLeftClose, PanelLeftOpen,
     GraduationCap, Settings, User
 } from 'lucide-react';
+import { LevelBadge } from './ui/LevelBadge';
 import { ModuleType } from '../types';
 import { storageService } from '../services/storageService';
 import { applyTheme } from './SettingsModule';
@@ -218,6 +219,11 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
                     <span className="bg-slate-900 px-1.5 py-0.5 rounded text-[10px] font-mono border border-slate-700">⌘K</span>
                 </button>
             )}
+
+            {/* XP Level badge row */}
+            <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-2 px-1 py-2'}`}>
+              <LevelBadge size={36} showLabel={!isSidebarCollapsed} />
+            </div>
 
             {/* Settings button */}
             <button
