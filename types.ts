@@ -35,9 +35,12 @@ export interface VocabItem {
   etymology?: string;
   detailedDefinition?: string;
   synonyms?: string[];
-  wordFormation?: string; // Added for Reading Module UI
+  antonyms?: string[];         // Opposite words
+  wordFormation?: string;      // e.g. "Verb: ameliorate, Noun: amelioration, Adj: ameliorative"
+  register?: string;           // 'formal' | 'informal' | 'academic' | 'technical' | 'neutral'
+  grammarNote?: string;        // e.g. "Takes 'of' + noun: a dearth of resources. Not used with 'a/an'."
   // Generator Specifics
-  collocations?: string[];
+  collocations?: string[];     // Real multi-word phrases, e.g. "make a significant impact"
   context?: string;
   // SRS Fields
   srsLevel?: number; // 0 = New, 1-5 = Learned intervals
@@ -249,6 +252,10 @@ export interface VocabEnrichmentResponse {
     etymology: string;
     detailedDefinition: string;
     synonyms: string[];
+    antonyms?: string[];
+    collocations?: string[];
+    register?: string;
+    grammarNote?: string;
 }
 
 // Vocabulary Generator

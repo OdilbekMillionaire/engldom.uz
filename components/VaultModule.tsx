@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { storageService } from '../services/storageService';
 import { VocabItem, ModuleType, QuizResponse, Question } from '../types';
-import { Trash2, BrainCircuit, RefreshCw, BookmarkPlus, ChevronDown, ChevronUp, Sparkles, Book, Search } from 'lucide-react';
+import { Trash2, BrainCircuit, RefreshCw, BookmarkPlus, ChevronDown, ChevronUp, Sparkles, Book, Search, Info, GitBranch } from 'lucide-react';
 import { generateLingifyContent, enrichWord } from '../services/geminiService';
 import { gamificationService } from '../services/gamificationService';
 import { useXPToast } from './ui/XPToastProvider';
+
+const REGISTER_STYLES: Record<string, string> = {
+    formal:    'bg-violet-50 text-violet-700 border-violet-200',
+    academic:  'bg-indigo-50 text-indigo-700 border-indigo-200',
+    informal:  'bg-amber-50  text-amber-700  border-amber-200',
+    technical: 'bg-teal-50   text-teal-700   border-teal-200',
+    neutral:   'bg-slate-100 text-slate-600  border-slate-200',
+};
 
 export const VaultModule: React.FC = () => {
     const { showXP, showBadge } = useXPToast();
@@ -202,7 +210,14 @@ export const VaultModule: React.FC = () => {
                             <div className="flex justify-between items-start mb-3">
                                 <div>
                                     <h3 className="font-serif font-bold text-xl text-slate-900">{w.word}</h3>
-                                    <span className="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-wider mt-1 inline-block">{w.pos}</span>
+                                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                        <span className="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 uppercase tracking-wider">{w.pos}</span>
+                                        {w.register && (
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide ${REGISTER_STYLES[w.register.toLowerCase()] || REGISTER_STYLES.neutral}`}>
+                                                {w.register}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="flex gap-1">
                                     <button 
@@ -232,8 +247,11 @@ export const VaultModule: React.FC = () => {
 
                             {isExpanded && (
                                 <div className="pt-4 border-t border-slate-100 animate-fade-in space-y-4">
-                                    <div className="bg-slate-50 p-3 rounded-lg text-xs text-slate-600 italic border border-slate-100">"{w.example}"</div>
-                                    
+                                    {/* Example sentence */}
+                                    <div className="bg-slate-50 p-3 rounded-lg text-xs text-slate-600 italic border border-slate-100">
+                                        "{w.example}"
+                                    </div>
+
                                     {enriching && !w.etymology ? (
                                         <div className="flex items-center gap-2 text-indigo-500 text-xs font-medium py-2">
                                             <Sparkles className="w-4 h-4 animate-spin" />
@@ -241,26 +259,83 @@ export const VaultModule: React.FC = () => {
                                         </div>
                                     ) : (
                                         <>
+                                            {/* Academic Definition */}
                                             {w.detailedDefinition && (
                                                 <div>
                                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Academic Definition</span>
                                                     <p className="text-sm text-slate-700 leading-relaxed">{w.detailedDefinition}</p>
                                                 </div>
                                             )}
+
+                                            {/* Collocations — as full phrases */}
+                                            {w.collocations && w.collocations.length > 0 && (
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Common Collocations</span>
+                                                    <div className="space-y-1.5">
+                                                        {w.collocations.map((c, ci) => {
+                                                            const regex = new RegExp(`(${w.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                                                            const parts = c.split(regex);
+                                                            return (
+                                                                <div key={ci} className="flex items-start gap-2 bg-white rounded-lg px-2.5 py-1.5 border border-slate-100">
+                                                                    <span className="w-1 h-1 bg-indigo-300 rounded-full flex-none mt-1.5" />
+                                                                    <span className="text-xs text-slate-700 italic">
+                                                                        {parts.map((p, pi) => regex.test(p)
+                                                                            ? <strong key={pi} className="font-bold not-italic text-indigo-700">{p}</strong>
+                                                                            : <span key={pi}>{p}</span>
+                                                                        )}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Synonyms + Antonyms */}
+                                            {((w.synonyms && w.synonyms.length > 0) || (w.antonyms && w.antonyms.length > 0)) && (
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Synonyms & Antonyms</span>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {w.synonyms?.map(s => (
+                                                            <span key={s} className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-100 font-medium">≈ {s}</span>
+                                                        ))}
+                                                        {w.antonyms?.map(a => (
+                                                            <span key={a} className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full border border-red-100 font-medium">≠ {a}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Grammar Note */}
+                                            {w.grammarNote && (
+                                                <div className="bg-amber-50 border border-amber-100 rounded-lg p-2.5 flex gap-2">
+                                                    <Info className="w-3.5 h-3.5 text-amber-500 flex-none mt-0.5" />
+                                                    <div>
+                                                        <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wider mb-0.5">Grammar Note</p>
+                                                        <p className="text-xs text-amber-800 leading-relaxed">{w.grammarNote}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Word Formation */}
+                                            {w.wordFormation && (
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+                                                        <GitBranch className="w-3 h-3" /> Word Family
+                                                    </span>
+                                                    <div className="bg-white rounded-lg px-2.5 py-2 border border-slate-100">
+                                                        <p className="text-xs text-slate-600 leading-relaxed">{w.wordFormation}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Etymology */}
                                             {w.etymology && (
                                                 <div>
                                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Origin</span>
                                                     <div className="flex items-start gap-2">
-                                                        <Book className="w-3 h-3 text-slate-400 mt-1" />
-                                                        <p className="text-xs text-slate-600 italic">{w.etymology}</p>
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {w.collocations && (
-                                                <div>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Collocations</span>
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {w.collocations.map(c => <span key={c} className="text-[10px] border border-slate-200 px-2 py-0.5 rounded text-slate-600 bg-white">{c}</span>)}
+                                                        <Book className="w-3 h-3 text-slate-400 mt-0.5 flex-none" />
+                                                        <p className="text-xs text-slate-600 italic leading-relaxed">{w.etymology}</p>
                                                     </div>
                                                 </div>
                                             )}

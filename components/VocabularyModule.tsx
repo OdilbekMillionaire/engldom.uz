@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { storageService } from '../services/storageService';
 import { VocabItem, ModuleType, CEFRLevel, VocabGenerationResponse } from '../types';
-import { BookmarkPlus, Sparkles, List, Library, GraduationCap, CheckCircle2, CheckSquare, Layers, FileDown, RefreshCw } from 'lucide-react';
+import {
+    BookmarkPlus, Sparkles, List, Library, GraduationCap, CheckCircle2,
+    CheckSquare, Layers, FileDown, RefreshCw, ChevronDown, ChevronUp,
+    Info, Copy, Check, BookOpen, GitBranch
+} from 'lucide-react';
 import { generateLingifyContent } from '../services/geminiService';
 
 const IELTS_TOPICS = [
-    "The Ethics of AI", "Globalization", "Climate Change", "Remote Work", 
+    "The Ethics of AI", "Globalization", "Climate Change", "Remote Work",
     "Urbanization", "Mental Health", "Space Exploration", "Social Media Impact"
 ];
 
@@ -27,6 +31,41 @@ const INCLUSIONS = [
 function MessageSquareIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>; }
 function ZapIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>; }
 
+// Register badge with semantic colour coding
+const REGISTER_STYLES: Record<string, string> = {
+    formal:    'bg-violet-50 text-violet-700 border-violet-200',
+    academic:  'bg-indigo-50 text-indigo-700 border-indigo-200',
+    informal:  'bg-amber-50  text-amber-700  border-amber-200',
+    technical: 'bg-teal-50   text-teal-700   border-teal-200',
+    neutral:   'bg-slate-100 text-slate-600  border-slate-200',
+    colloquial:'bg-orange-50 text-orange-700 border-orange-200',
+};
+
+const RegisterBadge: React.FC<{ register: string }> = ({ register }) => {
+    const key = register.toLowerCase();
+    const cls = REGISTER_STYLES[key] || REGISTER_STYLES.neutral;
+    return (
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide ${cls}`}>
+            {register}
+        </span>
+    );
+};
+
+// Highlight the target word inside a collocation phrase
+const CollocationPhrase: React.FC<{ phrase: string; word: string }> = ({ phrase, word }) => {
+    const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = phrase.split(regex);
+    return (
+        <span className="text-xs text-slate-700 italic">
+            {parts.map((part, i) =>
+                regex.test(part)
+                    ? <strong key={i} className="font-bold not-italic text-indigo-700">{part}</strong>
+                    : <span key={i}>{part}</span>
+            )}
+        </span>
+    );
+};
+
 interface VocabularyModuleProps {
     initialData?: VocabGenerationResponse;
 }
@@ -42,6 +81,11 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
     const [genLoading, setGenLoading] = useState(false);
     const [savedAll, setSavedAll] = useState(false);
 
+    // Card expansion & copy state
+    const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+    const [copiedWord, setCopiedWord] = useState<string | null>(null);
+    const [savedWords, setSavedWords] = useState<Set<string>>(new Set());
+
     // Restore State Effect
     useEffect(() => {
         if (initialData) {
@@ -53,16 +97,34 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
     const toggleType = (id: string) => {
         setSelectedTypes(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
     };
-    
+
     const toggleInclusion = (id: string) => {
         setSelectedInclusions(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
     };
+
+    const toggleCard = useCallback((word: string) => {
+        setExpandedCards(prev => {
+            const next = new Set(prev);
+            if (next.has(word)) next.delete(word);
+            else next.add(word);
+            return next;
+        });
+    }, []);
+
+    const copyToClipboard = useCallback((word: string, meaning: string) => {
+        navigator.clipboard.writeText(`${word}: ${meaning}`).then(() => {
+            setCopiedWord(word);
+            setTimeout(() => setCopiedWord(null), 2000);
+        });
+    }, []);
 
     const handleGenerate = async () => {
         if (!topic) { alert("Please enter or select a topic."); return; }
         setGenLoading(true);
         setGeneratedData(null);
         setSavedAll(false);
+        setExpandedCards(new Set());
+        setSavedWords(new Set());
         try {
             const res = await generateLingifyContent<VocabGenerationResponse>(ModuleType.VOCABULARY, {
                 task: 'generate_list',
@@ -73,10 +135,7 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                 inclusions: selectedInclusions
             });
             setGeneratedData(res);
-            
-            // Persist the full generation to the new Activity Log
             storageService.saveActivity(ModuleType.VOCABULARY, res);
-            
         } catch (e) {
             alert("Generation failed. Please try again.");
         } finally {
@@ -84,34 +143,25 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
         }
     };
 
-    const saveGeneratedWord = (word: VocabItem) => {
-        storageService.saveWord(word);
-        // Visual feedback
-        const btn = document.getElementById(`gen-save-${word.word}`);
-        if(btn) {
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = `<span class="flex items-center gap-1"><CheckCircle2 class="w-4 h-4" /> Saved</span>`;
-            btn.classList.add('bg-green-100', 'text-green-700', 'border-green-200');
-            setTimeout(() => {
-                btn.innerHTML = originalContent;
-                btn.classList.remove('bg-green-100', 'text-green-700', 'border-green-200');
-            }, 2000);
-        }
+    const saveGeneratedWord = (w: VocabItem) => {
+        storageService.saveWord(w);
+        setSavedWords(prev => new Set(prev).add(w.word));
     };
 
     const handleSaveAll = () => {
         if (!generatedData) return;
         storageService.saveWords(generatedData.words);
         setSavedAll(true);
+        setSavedWords(new Set(generatedData.words.map(w => w.word)));
     };
 
     return (
         <div className="space-y-6 pb-12">
-            
+
             {/* Header */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8">
-                 <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Vocabulary Generator</h2>
-                 <p className="text-slate-500">Create custom word lists tailored to your IELTS topic and proficiency level.</p>
+                <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Vocabulary Generator</h2>
+                <p className="text-slate-500">Create custom word lists tailored to your IELTS topic and proficiency level.</p>
             </div>
 
             <div className="grid lg:grid-cols-12 gap-8">
@@ -121,13 +171,13 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                         <h3 className="font-bold text-indigo-900 mb-6 flex items-center gap-2">
                             <Sparkles className="w-5 h-5" /> Settings
                         </h3>
-                        
+
                         {/* Topic */}
                         <div className="space-y-4 mb-6">
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-slate-500 uppercase">Select Topic</label>
-                                <select 
-                                    onChange={(e) => setTopic(e.target.value)} 
+                                <select
+                                    onChange={(e) => setTopic(e.target.value)}
                                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
                                     value={IELTS_TOPICS.includes(topic) ? topic : ''}
                                 >
@@ -137,9 +187,9 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                             </div>
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-slate-500 uppercase">Or, Specific Topic</label>
-                                <input 
-                                    type="text" 
-                                    value={topic} 
+                                <input
+                                    type="text"
+                                    value={topic}
                                     onChange={(e) => setTopic(e.target.value)}
                                     placeholder="e.g., The Ethics of AI"
                                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
@@ -151,7 +201,7 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                         <div className="grid grid-cols-2 gap-4 mb-6">
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-slate-500 uppercase">CEFR Level</label>
-                                <select 
+                                <select
                                     value={level}
                                     onChange={(e) => setLevel(e.target.value as CEFRLevel)}
                                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none"
@@ -160,9 +210,9 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                 </select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Count (2-20)</label>
-                                <input 
-                                    type="number" 
+                                <label className="text-xs font-bold text-slate-500 uppercase">Count (2–20)</label>
+                                <input
+                                    type="number"
                                     min="2" max="20"
                                     value={count}
                                     onChange={(e) => setCount(Number(e.target.value))}
@@ -201,7 +251,7 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                         className="flex items-center gap-3 w-full"
                                     >
                                         <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedInclusions.includes(inc.id) ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300'}`}>
-                                                {selectedInclusions.includes(inc.id) && <CheckSquare className="w-3 h-3 text-white" />}
+                                            {selectedInclusions.includes(inc.id) && <CheckSquare className="w-3 h-3 text-white" />}
                                         </div>
                                         <span className={`text-sm ${selectedInclusions.includes(inc.id) ? 'font-bold text-indigo-900' : 'text-slate-600'}`}>{inc.label}</span>
                                     </button>
@@ -209,7 +259,7 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                             </div>
                         </div>
 
-                        <button 
+                        <button
                             onClick={handleGenerate}
                             disabled={genLoading || !topic}
                             className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 transition-all disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
@@ -224,6 +274,7 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                 <div className="lg:col-span-8">
                     {generatedData ? (
                         <div className="space-y-6 animate-fade-in">
+                            {/* Results header */}
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-800">Results: {generatedData.topic}</h3>
@@ -242,42 +293,180 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                 </button>
                             </div>
 
+                            {/* Word cards */}
                             <div className="grid md:grid-cols-2 gap-4">
-                                {generatedData.words.map((w, i) => (
-                                    <div key={i} className="bg-white p-5 rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all group flex flex-col">
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div>
-                                                <h4 className="text-xl font-serif font-bold text-slate-900">{w.word}</h4>
-                                                <span className="text-xs font-bold text-indigo-500 uppercase tracking-wide bg-indigo-50 px-2 py-0.5 rounded mt-1 inline-block">{w.pos}</span>
+                                {generatedData.words.map((w, i) => {
+                                    const isExpanded = expandedCards.has(w.word);
+                                    const isSaved = savedWords.has(w.word);
+                                    const isCopied = copiedWord === w.word;
+
+                                    return (
+                                        <div
+                                            key={i}
+                                            className={`bg-white rounded-xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'border-indigo-300 shadow-xl' : 'border-slate-200 hover:border-indigo-200 hover:shadow-md'}`}
+                                        >
+                                            {/* Card top strip — register colour accent */}
+                                            {w.register && (
+                                                <div className={`h-1 w-full ${
+                                                    w.register === 'academic' ? 'bg-indigo-400' :
+                                                    w.register === 'formal'   ? 'bg-violet-400' :
+                                                    w.register === 'technical'? 'bg-teal-400'   :
+                                                    w.register === 'informal' ? 'bg-amber-400'  :
+                                                    'bg-slate-200'
+                                                }`} />
+                                            )}
+
+                                            {/* Header row */}
+                                            <div className="p-5 pb-3 flex justify-between items-start">
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-xl font-serif font-bold text-slate-900 leading-tight">{w.word}</h4>
+                                                    <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                                        <span className="text-xs font-bold text-indigo-500 uppercase tracking-wide bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">{w.pos}</span>
+                                                        {w.register && <RegisterBadge register={w.register} />}
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-1 ml-2 flex-none">
+                                                    {/* Copy */}
+                                                    <button
+                                                        onClick={() => copyToClipboard(w.word, w.meaning)}
+                                                        title="Copy word & definition"
+                                                        className="p-1.5 text-slate-300 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                                    >
+                                                        {isCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                                                    </button>
+                                                    {/* Expand */}
+                                                    <button
+                                                        onClick={() => toggleCard(w.word)}
+                                                        title={isExpanded ? 'Collapse' : 'Expand details'}
+                                                        className="p-1.5 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                    >
+                                                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                                    </button>
+                                                    {/* Save */}
+                                                    <button
+                                                        onClick={() => saveGeneratedWord(w)}
+                                                        title="Save to Vault"
+                                                        className={`p-1.5 rounded-lg transition-colors ${isSaved ? 'text-green-600 bg-green-50' : 'text-slate-300 hover:text-indigo-600 hover:bg-indigo-50'}`}
+                                                    >
+                                                        {isSaved ? <CheckCircle2 className="w-4 h-4" /> : <BookmarkPlus className="w-4 h-4" />}
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <button 
-                                                id={`gen-save-${w.word}`}
-                                                onClick={() => saveGeneratedWord(w)}
-                                                className="p-2 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all"
-                                                title="Save to Vault"
-                                            >
-                                                <BookmarkPlus className="w-5 h-5" />
-                                            </button>
+
+                                            {/* Meaning + Example (always visible) */}
+                                            <div className="px-5 pb-3 space-y-2">
+                                                <p className="text-sm text-slate-700 leading-relaxed">{w.meaning}</p>
+                                                <div className="pl-3 border-l-2 border-indigo-200 py-1">
+                                                    <p className="text-xs text-slate-500 italic">"{w.example}"</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Collocations preview — collapsed */}
+                                            {!isExpanded && w.collocations && w.collocations.length > 0 && (
+                                                <div className="px-5 pb-4">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Collocations</p>
+                                                    <div className="space-y-1">
+                                                        {w.collocations.slice(0, 2).map((c, ci) => (
+                                                            <div key={ci} className="flex items-center gap-1.5">
+                                                                <span className="w-1 h-1 bg-indigo-300 rounded-full flex-none" />
+                                                                <CollocationPhrase phrase={c} word={w.word} />
+                                                            </div>
+                                                        ))}
+                                                        {w.collocations.length > 2 && (
+                                                            <button
+                                                                onClick={() => toggleCard(w.word)}
+                                                                className="text-[10px] text-indigo-400 hover:text-indigo-600 font-medium mt-0.5"
+                                                            >
+                                                                +{w.collocations.length - 2} more →
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Synonyms/antonyms preview — collapsed */}
+                                            {!isExpanded && ((w.synonyms && w.synonyms.length > 0) || (w.antonyms && w.antonyms.length > 0)) && (
+                                                <div className="px-5 pb-4 flex flex-wrap gap-1.5">
+                                                    {w.synonyms?.slice(0, 2).map(s => (
+                                                        <span key={s} className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-100">≈ {s}</span>
+                                                    ))}
+                                                    {w.antonyms?.slice(0, 1).map(a => (
+                                                        <span key={a} className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded border border-red-100">≠ {a}</span>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* ——— EXPANDED PANEL ——— */}
+                                            {isExpanded && (
+                                                <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-4 space-y-5 animate-fade-in">
+
+                                                    {/* All collocations */}
+                                                    {w.collocations && w.collocations.length > 0 && (
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                                                <BookOpen className="w-3 h-3" /> Common Collocations
+                                                            </p>
+                                                            <div className="space-y-1.5">
+                                                                {w.collocations.map((c, ci) => (
+                                                                    <div key={ci} className="flex items-start gap-2 bg-white rounded-lg px-3 py-2 border border-slate-100">
+                                                                        <span className="w-1 h-1 bg-indigo-400 rounded-full flex-none mt-1.5" />
+                                                                        <CollocationPhrase phrase={c} word={w.word} />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Synonyms + Antonyms */}
+                                                    {((w.synonyms && w.synonyms.length > 0) || (w.antonyms && w.antonyms.length > 0)) && (
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Synonyms & Antonyms</p>
+                                                            <div className="flex flex-wrap gap-1.5">
+                                                                {w.synonyms?.map(s => (
+                                                                    <span key={s} className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-100 font-medium">≈ {s}</span>
+                                                                ))}
+                                                                {w.antonyms?.map(a => (
+                                                                    <span key={a} className="text-xs bg-red-50 text-red-600 px-2.5 py-1 rounded-full border border-red-100 font-medium">≠ {a}</span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Grammar Note */}
+                                                    {w.grammarNote && (
+                                                        <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 flex gap-2.5">
+                                                            <Info className="w-4 h-4 text-amber-500 flex-none mt-0.5" />
+                                                            <div>
+                                                                <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-0.5">Grammar Note</p>
+                                                                <p className="text-xs text-amber-800 leading-relaxed">{w.grammarNote}</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Word Formation */}
+                                                    {w.wordFormation && (
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                                                <GitBranch className="w-3 h-3" /> Word Family
+                                                            </p>
+                                                            <div className="bg-white rounded-lg px-3 py-2.5 border border-slate-100">
+                                                                <p className="text-xs text-slate-600 leading-relaxed">{w.wordFormation}</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Etymology */}
+                                                    {w.etymology && (
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Origin</p>
+                                                            <p className="text-xs text-slate-500 italic leading-relaxed">{w.etymology}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
-                                        
-                                        <div className="flex-1 space-y-3">
-                                            <p className="text-sm text-slate-700 leading-relaxed">{w.meaning}</p>
-                                            <div className="pl-3 border-l-2 border-indigo-200">
-                                                <p className="text-xs text-slate-500 italic">"{w.example}"</p>
-                                            </div>
-                                            
-                                            {/* Extras */}
-                                            <div className="flex flex-wrap gap-2 pt-2">
-                                                {w.collocations && w.collocations.map(c => (
-                                                    <span key={c} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded border border-slate-200">{c}</span>
-                                                ))}
-                                                {w.synonyms && w.synonyms.slice(0, 2).map(s => (
-                                                    <span key={s} className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-1 rounded border border-emerald-100">≈ {s}</span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     ) : (

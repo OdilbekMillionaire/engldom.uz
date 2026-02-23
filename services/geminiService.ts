@@ -114,15 +114,19 @@ export const generateLingifyContent = async <T,>(
       "title": string,
       "article": string (plain text, approx ${targetWordCount} words, style: "${style}". CRITICAL: Do NOT use markdown bolding (**word**) or italics (*word*) or headers (#). The text must be CLEAN plain text. We will highlight words programmatically.),
       "estimatedMinutes": integer,
-      "newWords": [ 
-        { 
-            "word": string, 
-            "pos": string, 
-            "meaning": string, 
-            "example": string,
-            "synonyms": [string],
-            "wordFormation": string (e.g. "Verb: ameliorate, Noun: amelioration")
-        } 
+      "newWords": [
+        {
+            "word": string,
+            "pos": string,
+            "meaning": string (clear, learner-friendly definition),
+            "example": string (a natural sentence from or inspired by the article),
+            "synonyms": [string] (2-4 real synonyms),
+            "antonyms": [string] (1-3 genuine opposite words, empty array if none),
+            "collocations": [string] (2-4 REAL high-frequency multi-word phrases native speakers use. Each MUST be a complete phrase containing the word itself, e.g. for "vital": ["play a vital role", "of vital importance", "vital to national security"]. NEVER use single-word labels or generic descriptors.),
+            "register": string (one of: "formal", "informal", "academic", "technical", "neutral"),
+            "wordFormation": string (e.g. "Verb: ameliorate → Noun: amelioration → Adj: ameliorative → Adv: amelioratively"),
+            "grammarNote": string (practical grammar usage tip, e.g. "Always followed by a preposition 'of': a surplus of goods. Uncountable — never use 'a/an'.")
+        }
       ] (Generate EXACTLY ${targetNewWords} new vocabulary words. Do not generate more than ${targetNewWords}.),
       "questions": [
         {
@@ -184,7 +188,19 @@ export const generateLingifyContent = async <T,>(
       "level": "A1"..."C2",
       "audio_script": string (min 150 chars, style: "${style}", strictly plain text, no markdown.),
       "estimatedMinutes": integer,
-      "newWords": [ { "word": string, "pos": string, "meaning": string, "example": string, "synonyms": [string] } ] (exactly ${targetNewWords} words.),
+      "newWords": [
+        {
+          "word": string,
+          "pos": string,
+          "meaning": string,
+          "example": string,
+          "synonyms": [string] (2-3 synonyms),
+          "antonyms": [string] (1-2 antonyms, empty if none),
+          "collocations": [string] (2-3 REAL multi-word phrases containing the word, e.g. "reach a consensus", "strong consensus among experts". NEVER use single-word labels.),
+          "register": string (one of: "formal","informal","academic","technical","neutral"),
+          "wordFormation": string (all word forms, e.g. "Noun: consensus → Verb: — → Adj: consensual")
+        }
+      ] (exactly ${targetNewWords} words.),
       "questions": [
         {
           "id": string,
@@ -236,8 +252,17 @@ export const generateLingifyContent = async <T,>(
             "topic": string,
             "words": [
                 {
-                    "word": string, "pos": string, "meaning": string, "example": string,
-                    "etymology": string (optional), "synonyms": [string] (optional), "collocations": [string] (optional), "wordFormation": string (optional)
+                    "word": string,
+                    "pos": string,
+                    "meaning": string (clear, learner-friendly definition — NOT a dictionary copy-paste; explain it naturally),
+                    "example": string (a vivid, topic-relevant sentence that shows the word in real context),
+                    "etymology": string (word origin and history, e.g. "From Latin 'ameliorare', to improve, from 'melior', better"),
+                    "synonyms": [string] (2-4 real synonyms),
+                    "antonyms": [string] (1-3 genuine opposite words, empty array if none apply),
+                    "collocations": [string] (3-5 REAL high-frequency collocations. CRITICAL RULES: (1) Each MUST be a complete multi-word phrase that native English speakers actually say, e.g. for "impact": ["have a significant impact on", "make a lasting impact", "assess the impact of", "minimize the negative impact"]. (2) Each phrase MUST contain the target word itself. (3) NEVER use single adjectives, single nouns, or descriptive labels as collocations. (4) Prefer verb+word or word+noun patterns common in academic/IELTS writing.),
+                    "register": string (one of: "formal", "informal", "academic", "technical", "neutral" — the typical usage context),
+                    "grammarNote": string (a practical, specific grammar tip about how this word behaves, e.g. "Followed by 'to' + infinitive: 'tend to do'. Cannot be used in passive voice." or "Takes 'of': 'a dearth of evidence'. Uncountable."),
+                    "wordFormation": string (all main word family forms, e.g. "Verb: innovate → Noun: innovation / innovator → Adj: innovative → Adv: innovatively")
                 }
             ]
         }`;
@@ -348,17 +373,21 @@ export const enrichWord = async (word: string): Promise<VocabEnrichmentResponse>
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     const prompt = `
-    Provide detailed information for the word: "${word}".
+    Provide comprehensive linguistic information for the English word: "${word}".
     Output JSON Schema:
     {
-        "etymology": "string (origin and history)",
-        "detailedDefinition": "string (comprehensive definition)",
-        "synonyms": ["string", "string", "string"] (max 5)
+        "etymology": "string (word origin and history, e.g. 'From Latin ameliorare, to improve, from melior, better. First recorded in English circa 1728.')",
+        "detailedDefinition": "string (clear, comprehensive academic definition — explain what it means, when it is used, and any important nuances)",
+        "synonyms": ["string"] (3-5 real synonyms that can substitute in similar contexts),
+        "antonyms": ["string"] (1-3 genuine opposite words; omit if none apply — use empty array),
+        "collocations": ["string"] (4-6 REAL high-frequency collocations. RULES: (1) Each MUST be a complete multi-word phrase native speakers actually say, e.g. for "consensus": ["reach a consensus", "build consensus among", "broad consensus on", "consensus-based approach", "emerge as a consensus"]. (2) Each phrase MUST contain the target word "${word}" itself. (3) NEVER use single adjectives or nouns alone as collocations.),
+        "register": "string (one of: formal, informal, academic, technical, neutral)",
+        "grammarNote": "string (a specific, practical grammar usage note, e.g. 'Usually used with the preposition of: a lack of evidence. Uncountable noun — never pluralized.' or 'Verb + to-infinitive: tend to do something. Cannot be used in the continuous form.')"
     }
     `;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-lite', // Fast model
+        model: 'gemini-2.5-flash-lite',
         contents: { parts: [{ text: prompt }] },
         config: { responseMimeType: "application/json" }
     });

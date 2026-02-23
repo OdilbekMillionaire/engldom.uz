@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { BookOpen, RefreshCw, BookmarkPlus, Clock, GraduationCap, ArrowRight, CheckCircle2, BrainCircuit, Zap } from 'lucide-react';
+import { BookOpen, RefreshCw, BookmarkPlus, Clock, GraduationCap, ArrowRight, CheckCircle2, BrainCircuit, Zap, Info, GitBranch, Minus, Plus } from 'lucide-react';
 import { generateLingifyContent } from '../services/geminiService';
 import { storageService } from '../services/storageService';
 import { CEFRLevel, ModuleType, ReadingResponse, VocabItem } from '../types';
@@ -62,6 +62,18 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
   // Difficulty quick-select (maps to CEFR)
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const DIFFICULTY_CEFR: Record<string, CEFRLevel> = { easy: CEFRLevel.B1, medium: CEFRLevel.B2, hard: CEFRLevel.C1 };
+
+  // Article font size (UX enhancement: accessibility)
+  const [articleFontSize, setArticleFontSize] = useState(17);
+
+  // Register badge helper
+  const REGISTER_STYLES: Record<string, string> = {
+      formal:    'bg-violet-50 text-violet-700 border-violet-200',
+      academic:  'bg-indigo-50 text-indigo-700 border-indigo-200',
+      informal:  'bg-amber-50  text-amber-700  border-amber-200',
+      technical: 'bg-teal-50   text-teal-700   border-teal-200',
+      neutral:   'bg-slate-100 text-slate-600  border-slate-200',
+  };
 
   // Validation
   const isCountValid = newWordCount > 0 && newWordCount <= 10;
@@ -237,7 +249,7 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
     const parts = cleanArticle.split(pattern);
 
     return (
-        <div className="prose prose-lg prose-slate max-w-none font-serif text-slate-800 leading-loose">
+        <div className="prose prose-slate max-w-none font-serif text-slate-800 leading-loose" style={{ fontSize: `${articleFontSize}px` }}>
             {parts.map((part, i) => {
                 const match = data.newWords.find(w => w.word.toLowerCase() === part.toLowerCase());
                 const isSelected = selectedWord?.word.toLowerCase() === match?.word.toLowerCase();
@@ -421,7 +433,27 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
                         <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full uppercase tracking-wider">
                             {style.split(' ')[0]} • Level {level}
                         </span>
-                        <TimerRing timeLeft={timeLeft} totalTime={timeLimit * 60} size={48} />
+                        <div className="flex items-center gap-3">
+                            {/* Font size controls */}
+                            <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+                                <button
+                                    onClick={() => setArticleFontSize(s => Math.max(13, s - 2))}
+                                    className="w-6 h-6 flex items-center justify-center rounded text-slate-600 hover:bg-white hover:shadow-sm transition-all text-xs font-bold"
+                                    title="Decrease font size"
+                                >
+                                    <Minus className="w-3 h-3" />
+                                </button>
+                                <span className="text-[10px] font-bold text-slate-500 px-1">{articleFontSize}px</span>
+                                <button
+                                    onClick={() => setArticleFontSize(s => Math.min(26, s + 2))}
+                                    className="w-6 h-6 flex items-center justify-center rounded text-slate-600 hover:bg-white hover:shadow-sm transition-all text-xs font-bold"
+                                    title="Increase font size"
+                                >
+                                    <Plus className="w-3 h-3" />
+                                </button>
+                            </div>
+                            <TimerRing timeLeft={timeLeft} totalTime={timeLimit * 60} size={48} />
+                        </div>
                      </div>
                      <h1 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 leading-tight">
                          {data.title}
@@ -463,51 +495,116 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
                     {activeTab === 'vocab' && (
                         <div className="h-full flex flex-col">
                             {selectedWord ? (
-                                // FLASHCARD VIEW
-                                <div className="flex-1 p-6 md:p-8 flex flex-col animate-fade-in bg-gradient-to-br from-white to-indigo-50/30">
-                                    <button 
+                                // FLASHCARD VIEW — enhanced
+                                <div className="flex-1 p-6 flex flex-col animate-fade-in bg-gradient-to-br from-white to-indigo-50/30 overflow-y-auto">
+                                    <button
                                         onClick={() => setSelectedWord(null)}
-                                        className="text-slate-400 hover:text-indigo-600 text-sm font-medium mb-6 flex items-center gap-1 self-start"
+                                        className="text-slate-400 hover:text-indigo-600 text-sm font-medium mb-4 flex items-center gap-1 self-start"
                                     >
                                         <ArrowRight className="w-4 h-4 rotate-180" /> Back to list
                                     </button>
-                                    
-                                    <div className="flex-1 flex flex-col justify-center">
-                                        <div className="mb-2">
+
+                                    {/* Word header */}
+                                    <div className="mb-4">
+                                        <div className="flex flex-wrap items-center gap-2 mb-2">
                                             <span className="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded uppercase tracking-wider">{selectedWord.pos}</span>
-                                        </div>
-                                        <h2 className="text-4xl font-serif font-bold text-indigo-900 mb-6">{selectedWord.word}</h2>
-                                        
-                                        <div className="space-y-6">
-                                            <div className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
-                                                <h3 className="text-xs font-bold text-slate-400 uppercase mb-1">Definition</h3>
-                                                <p className="text-lg text-slate-800 leading-relaxed font-medium">{selectedWord.meaning}</p>
-                                            </div>
-
-                                            <div>
-                                                <h3 className="text-xs font-bold text-slate-400 uppercase mb-2">Example Usage</h3>
-                                                <div className="pl-4 border-l-4 border-indigo-300 italic text-slate-600">
-                                                    "{selectedWord.example}"
-                                                </div>
-                                            </div>
-
-                                            {selectedWord.synonyms && (
-                                                <div>
-                                                    <h3 className="text-xs font-bold text-slate-400 uppercase mb-2">Synonyms</h3>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {selectedWord.synonyms.map(s => (
-                                                            <span key={s} className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-sm">{s}</span>
-                                                        ))}
-                                                    </div>
-                                                </div>
+                                            {selectedWord.register && (
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide ${
+                                                    selectedWord.register === 'academic'  ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                                                    selectedWord.register === 'formal'    ? 'bg-violet-50 text-violet-700 border-violet-200' :
+                                                    selectedWord.register === 'technical' ? 'bg-teal-50 text-teal-700 border-teal-200'       :
+                                                    selectedWord.register === 'informal'  ? 'bg-amber-50 text-amber-700 border-amber-200'     :
+                                                    'bg-slate-100 text-slate-600 border-slate-200'
+                                                }`}>
+                                                    {selectedWord.register}
+                                                </span>
                                             )}
                                         </div>
+                                        <h2 className="text-3xl font-serif font-bold text-indigo-900">{selectedWord.word}</h2>
+                                    </div>
+
+                                    <div className="space-y-4 flex-1">
+                                        {/* Definition */}
+                                        <div className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
+                                            <h3 className="text-[10px] font-bold text-slate-400 uppercase mb-1">Definition</h3>
+                                            <p className="text-base text-slate-800 leading-relaxed font-medium">{selectedWord.meaning}</p>
+                                        </div>
+
+                                        {/* Example */}
+                                        <div>
+                                            <h3 className="text-[10px] font-bold text-slate-400 uppercase mb-2">Example</h3>
+                                            <div className="pl-4 border-l-4 border-indigo-300 italic text-slate-600 text-sm">
+                                                "{selectedWord.example}"
+                                            </div>
+                                        </div>
+
+                                        {/* Collocations */}
+                                        {selectedWord.collocations && selectedWord.collocations.length > 0 && (
+                                            <div>
+                                                <h3 className="text-[10px] font-bold text-slate-400 uppercase mb-2">Common Collocations</h3>
+                                                <div className="space-y-1.5">
+                                                    {selectedWord.collocations.map((c, i) => {
+                                                        const regex = new RegExp(`(${selectedWord.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                                                        const parts = c.split(regex);
+                                                        return (
+                                                            <div key={i} className="flex items-start gap-2 bg-white rounded-lg px-3 py-2 border border-slate-100">
+                                                                <span className="w-1 h-1 bg-indigo-400 rounded-full flex-none mt-1.5" />
+                                                                <span className="text-xs text-slate-700 italic">
+                                                                    {parts.map((p, pi) => regex.test(p)
+                                                                        ? <strong key={pi} className="font-bold not-italic text-indigo-700">{p}</strong>
+                                                                        : <span key={pi}>{p}</span>
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Synonyms + Antonyms */}
+                                        {((selectedWord.synonyms && selectedWord.synonyms.length > 0) || (selectedWord.antonyms && selectedWord.antonyms.length > 0)) && (
+                                            <div>
+                                                <h3 className="text-[10px] font-bold text-slate-400 uppercase mb-2">Synonyms & Antonyms</h3>
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {selectedWord.synonyms?.map(s => (
+                                                        <span key={s} className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-xs font-medium">≈ {s}</span>
+                                                    ))}
+                                                    {selectedWord.antonyms?.map(a => (
+                                                        <span key={a} className="px-2.5 py-1 bg-red-50 text-red-600 border border-red-100 rounded-full text-xs font-medium">≠ {a}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Grammar Note */}
+                                        {selectedWord.grammarNote && (
+                                            <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 flex gap-2.5">
+                                                <Info className="w-4 h-4 text-amber-500 flex-none mt-0.5" />
+                                                <div>
+                                                    <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-0.5">Grammar Note</p>
+                                                    <p className="text-xs text-amber-800 leading-relaxed">{selectedWord.grammarNote}</p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Word Formation */}
+                                        {selectedWord.wordFormation && (
+                                            <div>
+                                                <h3 className="text-[10px] font-bold text-slate-400 uppercase mb-2 flex items-center gap-1.5">
+                                                    <GitBranch className="w-3 h-3" /> Word Family
+                                                </h3>
+                                                <div className="bg-white rounded-lg px-3 py-2.5 border border-slate-100">
+                                                    <p className="text-xs text-slate-600 leading-relaxed">{selectedWord.wordFormation}</p>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <button
                                         id={`save-btn-${selectedWord.word}`}
                                         onClick={() => saveToVault(selectedWord)}
-                                        className="mt-8 w-full py-4 border-2 border-slate-200 rounded-xl text-slate-600 font-bold hover:border-indigo-600 hover:text-indigo-600 transition-all flex items-center justify-center gap-2"
+                                        className="mt-6 w-full py-3.5 border-2 border-slate-200 rounded-xl text-slate-600 font-bold hover:border-indigo-600 hover:text-indigo-600 transition-all flex items-center justify-center gap-2"
                                     >
                                         <BookmarkPlus className="w-5 h-5" />
                                         Save to Vault
