@@ -54,8 +54,8 @@ const buildPrompt = (task: string, payload: any) => {
 };
 
 export interface MediaInput {
-    mimeType: string;
-    data: string; // Base64
+  mimeType: string;
+  data: string; // Base64
 }
 
 export const generateLingifyContent = async <T,>(
@@ -68,7 +68,7 @@ export const generateLingifyContent = async <T,>(
   }
 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
+
   // Model Selection Strategy based on Feature Requirements
   let modelName = 'gemini-3-flash-preview'; // Default
   let config: any = {
@@ -77,26 +77,26 @@ export const generateLingifyContent = async <T,>(
   };
 
   if (module === ModuleType.WRITING) {
-      // Use Pro model for deep reasoning in Writing assessment
-      modelName = 'gemini-3-pro-preview';
-      // Writing requires intense thinking for accurate band scoring
-      config = {
-          ...config,
-          thinkingConfig: { thinkingBudget: 32768 }, 
-      };
+    // Use Pro model for deep reasoning in Writing assessment
+    modelName = 'gemini-3-pro-preview';
+    // Writing requires intense thinking for accurate band scoring
+    config = {
+      ...config,
+      thinkingConfig: { thinkingBudget: 32768 },
+    };
   } else if (module === ModuleType.READING || module === ModuleType.LISTENING || module === ModuleType.VOCABULARY || module === ModuleType.GRAMMAR) {
-      modelName = 'gemini-2.5-flash-lite';
+    modelName = 'gemini-2.5-flash-lite';
   } else if (module === ModuleType.SPEAKING) {
-      if (payload.mode === 'evaluation') {
-          modelName = 'gemini-3-flash-preview'; 
-      } else {
-          modelName = 'gemini-2.5-flash-lite';
-      }
+    if (payload.mode === 'evaluation') {
+      modelName = 'gemini-3-flash-preview';
+    } else {
+      modelName = 'gemini-2.5-flash-lite';
+    }
   }
 
   let moduleSpecificInstructions = "";
   let userPromptOverride = ""; // To replace buildPrompt if we need a very specific prompt structure (like Writing)
-  
+
   if (module === ModuleType.READING) {
     const targetWordCount = payload.wordCount || 400;
     const requestedCount = payload.newWordCount || 5;
@@ -140,11 +140,11 @@ export const generateLingifyContent = async <T,>(
       ] (exactly 5 items)
     }`;
   } else if (module === ModuleType.WRITING) {
-      // Determine correct Task Achievement vs Task Response label
-      const isTask2 = payload.taskType.includes('Task 2') || payload.taskType.includes('CEFR');
-      const taLabel = isTask2 ? 'Task Achievement' : 'Task Response';
+    // Determine correct Task Achievement vs Task Response label
+    const isTask2 = payload.taskType.includes('Task 2') || payload.taskType.includes('CEFR');
+    const taLabel = isTask2 ? 'Task Achievement' : 'Task Response';
 
-      const writingPrompt = `You are a senior IELTS examiner. Assess the following writing sample using the OFFICIAL IELTS Public Band Descriptors exactly as Cambridge Assessment English publishes them.
+    const writingPrompt = `You are a senior IELTS examiner. Assess the following writing sample using the OFFICIAL IELTS Public Band Descriptors exactly as Cambridge Assessment English publishes them.
 
 TASK TYPE: ${payload.taskType}
 SPELLING STANDARD: ${payload.standard}
@@ -164,9 +164,9 @@ SCORING RULES — apply ALL of these without exception:
 7. Create 3–4 targeted grammar practice drills addressing the error types found.
 `;
 
-      userPromptOverride = writingPrompt;
+    userPromptOverride = writingPrompt;
 
-      moduleSpecificInstructions = `
+    moduleSpecificInstructions = `
       Output Schema (JSON) — every field is REQUIRED:
       {
         "band_score": "string (overall band to nearest 0.5, e.g. '6.5')",
@@ -274,16 +274,16 @@ SCORING RULES — apply ALL of these without exception:
     }`;
   } else if (module === ModuleType.VOCABULARY) {
     if (payload.task === 'create_quiz') {
-        moduleSpecificInstructions = `
+      moduleSpecificInstructions = `
         Output Schema (JSON):
         { "questions": [ { "id": string, "type": "mcq", "prompt": string, "options": ["A", "B", "C", "D"], "answer": string, "explanation": string } ] }
         `;
     } else {
-        const types = payload.types ? payload.types.join(", ") : "Formal Academic Words";
-        const inclusions = payload.inclusions ? payload.inclusions.join(", ") : "";
-        const count = payload.count || 10;
-        
-        moduleSpecificInstructions = `
+      const types = payload.types ? payload.types.join(", ") : "Formal Academic Words";
+      const inclusions = payload.inclusions ? payload.inclusions.join(", ") : "";
+      const count = payload.count || 10;
+
+      moduleSpecificInstructions = `
         Task: Generate a vocabulary list for topic "${payload.topic}" at CEFR Level ${payload.level}.
         Constraints: Include ${types}. ${inclusions}. Quantity: ${count}.
         Output Schema (JSON):
@@ -307,7 +307,7 @@ SCORING RULES — apply ALL of these without exception:
         }`;
     }
   } else if (module === ModuleType.GRAMMAR) {
-      moduleSpecificInstructions = `
+    moduleSpecificInstructions = `
       Task: Create a grammar lesson and exercises for: "${payload.topic}" at Level ${payload.level}.
       
       Exercise Types Strategy:
@@ -350,7 +350,7 @@ SCORING RULES — apply ALL of these without exception:
 
   try {
     const requestParts: any[] = [{ text: promptText }];
-    
+
     // Add media if present (Audio or Image)
     if (media) {
       requestParts.push({
@@ -369,15 +369,15 @@ SCORING RULES — apply ALL of these without exception:
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     const parsedData = cleanAndParseJSON(text);
 
     // FAIL-SAFE: Programmatically strip markdown chars
     if ((module === ModuleType.READING || module === ModuleType.LISTENING)) {
-        if ((parsedData as any).article) (parsedData as any).article = (parsedData as any).article.replace(/[*#]/g, '');
-        if ((parsedData as any).audio_script) (parsedData as any).audio_script = (parsedData as any).audio_script.replace(/[*#]/g, '');
+      if ((parsedData as any).article) (parsedData as any).article = (parsedData as any).article.replace(/[*#]/g, '');
+      if ((parsedData as any).audio_script) (parsedData as any).audio_script = (parsedData as any).audio_script.replace(/[*#]/g, '');
     }
-    
+
     return parsedData as T;
   } catch (error) {
     console.error("Gemini API Error:", error);
@@ -386,32 +386,32 @@ SCORING RULES — apply ALL of these without exception:
 };
 
 export const chatWithTutor = async (context: string, userMessage: string, history: any[] = []) => {
-    if (!process.env.API_KEY) {
-        throw new Error("API Key is missing.");
-    }
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
-    const lang = getLearnerNativeLanguage();
-    const langNote = lang !== 'English' ? ` Respond in ${lang} so the learner understands easily, but keep all English examples in English.` : '';
-    const systemPrompt = `You are an expert IELTS tutor. The user is asking questions about their recent exercise result.
+  if (!process.env.API_KEY) {
+    throw new Error("API Key is missing.");
+  }
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+  const lang = getLearnerNativeLanguage();
+  const langNote = lang !== 'English' ? ` Respond in ${lang} so the learner understands easily, but keep all English examples in English.` : '';
+  const systemPrompt = `You are an expert IELTS tutor. The user is asking questions about their recent exercise result.
     Context provided: ${context}.
     Answer concisely, encouragingly, and strictly related to language learning.${langNote}`;
 
-    const chat = ai.chats.create({
-        model: 'gemini-3-pro-preview', // Smartest model for chat
-        config: { systemInstruction: systemPrompt }
-    });
-    
-    const result = await chat.sendMessage({ message: userMessage });
-    return result.text;
+  const chat = ai.chats.create({
+    model: 'gemini-3-pro-preview', // Smartest model for chat
+    config: { systemInstruction: systemPrompt }
+  });
+
+  const result = await chat.sendMessage({ message: userMessage });
+  return result.text;
 };
 
 // Vocabulary Enrichment Task
 export const enrichWord = async (word: string): Promise<VocabEnrichmentResponse> => {
-    if (!process.env.API_KEY) throw new Error("API Key is missing.");
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!process.env.API_KEY) throw new Error("API Key is missing.");
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-    const prompt = `
+  const prompt = `
     Provide comprehensive linguistic information for the English word: "${word}".
     Output JSON Schema:
     {
@@ -425,35 +425,103 @@ export const enrichWord = async (word: string): Promise<VocabEnrichmentResponse>
     }
     `;
 
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-lite',
-        contents: { parts: [{ text: prompt }] },
-        config: { responseMimeType: "application/json" }
-    });
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-lite',
+    contents: { parts: [{ text: prompt }] },
+    config: { responseMimeType: "application/json" }
+  });
 
-    return cleanAndParseJSON(response.text as string);
+  return cleanAndParseJSON(response.text as string);
+};
+
+// AI Weekly Study Plan Generator
+export const generateStudyPlan = async (
+  currentScore: string,
+  targetScore: string,
+  weeksRemaining: number,
+  nativeLanguage: string = 'English'
+): Promise<any> => {
+  if (!process.env.API_KEY) throw new Error('API Key is missing.');
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+  const langNote = nativeLanguage !== 'English'
+    ? `Write the 'motivationalNote' and task 'tip' fields in ${nativeLanguage}. All other text must be in English.`
+    : '';
+
+  const prompt = `You are an expert IELTS coach. Generate a highly personalised 7-day study plan for a student.
+Student profile:
+- Current IELTS Band: ${currentScore}
+- Target IELTS Band: ${targetScore}
+- Weeks until exam: ${weeksRemaining}
+${langNote}
+
+Rules:
+1. Distribute tasks across all 4 IELTS skills (Reading, Writing, Listening, Speaking) plus Vocabulary and Grammar.
+2. Day 7 should always be a lighter review/rest day.
+3. Match difficulty and task types to the gap between current and target band.
+4. Each task must have a practical, specific description (not generic).
+5. XP values: reading=50, writing=150, listening=50, speaking=100, vocabulary=20, grammar=60, review=30.
+
+Output ONLY valid JSON. No markdown. Schema:
+{
+  "title": "string (e.g. '7-Day IELTS Sprint Plan')",
+  "summary": "string (2-sentence personalised summary)",
+  "currentScore": "${currentScore}",
+  "targetScore": "${targetScore}",
+  "weeksRemaining": ${weeksRemaining},
+  "weeklyFocus": "string (the #1 skill to focus on this week based on the score gap)",
+  "weeklyGoals": ["string"] (3 specific, measurable goals for the week),
+  "motivationalNote": "string (1 encouraging sentence personalised for this student)",
+  "days": [
+    {
+      "day": 1,
+      "dayName": "Monday",
+      "theme": "string (e.g. 'Reading Endurance & Vocabulary')",
+      "totalMinutes": 90,
+      "tasks": [
+        {
+          "id": "d1t1",
+          "type": "reading",
+          "title": "string",
+          "description": "string (specific instructions like: Read one IELTS Academic passage on technology, answer 13 True/False/Not Given questions)",
+          "duration": "30 min",
+          "xp": 50,
+          "tip": "string (a smart strategy tip for this task)"
+        }
+      ]
+    }
+  ]
+}`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-lite',
+    contents: { parts: [{ text: prompt }] },
+    config: { responseMimeType: 'application/json' },
+  });
+
+  return cleanAndParseJSON(response.text as string);
 };
 
 // TTS Generation
 export const generateSpeech = async (text: string, voiceName: string = 'Aoede'): Promise<string> => {
-    if (!process.env.API_KEY) throw new Error("API Key is missing.");
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!process.env.API_KEY) throw new Error("API Key is missing.");
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash-preview-tts",
-        contents: { parts: [{ text: text }] },
-        config: {
-            responseModalities: [Modality.AUDIO],
-            speechConfig: {
-                voiceConfig: {
-                  prebuiltVoiceConfig: { voiceName: voiceName },
-                },
-            },
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash-preview-tts",
+    contents: { parts: [{ text: text }] },
+    config: {
+      responseModalities: [Modality.AUDIO],
+      speechConfig: {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName: voiceName },
         },
-    });
+      },
+    },
+  });
 
-    const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (!audioData) throw new Error("Failed to generate speech");
-    
-    return audioData;
+  const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+  if (!audioData) throw new Error("Failed to generate speech");
+
+  return audioData;
 };

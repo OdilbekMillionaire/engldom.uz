@@ -17,10 +17,12 @@ export enum ModuleType {
   WRITING = 'writing',
   LISTENING = 'listening',
   SPEAKING = 'speaking',
-  HISTORY = 'history',       // New History Module
-  GRAMMAR = 'grammar',       // New Grammar Module
-  LIBRARY = 'library',       // New Study Center (Static Content)
+  HISTORY = 'history',       // History Module
+  GRAMMAR = 'grammar',       // Grammar Module
+  LIBRARY = 'library',       // Study Center (Static Content)
   SETTINGS = 'settings',     // User Settings & Profile
+  STUDY_PLAN = 'study_plan', // AI Weekly Study Plan
+  GAMES = 'games',           // Vocabulary Mini-Games
 }
 
 // Data Models based on Specification
@@ -68,11 +70,11 @@ export interface ProgressEntry {
 
 // Activity Log to store RAW generations (The "Store Everything" rule)
 export interface ActivityLogEntry {
-    id: string;
-    date: number;
-    module: ModuleType;
-    type: 'generation' | 'practice';
-    data: any; // The full JSON response from Gemini
+  id: string;
+  date: number;
+  module: ModuleType;
+  type: 'generation' | 'practice';
+  data: any; // The full JSON response from Gemini
 }
 
 // Reading
@@ -186,7 +188,7 @@ export interface GrammarExercise {
   options?: string[]; // Only for MCQ or Dropdown Gap Fill
   answer: string;
   explanation: string;
-  hint?: string; 
+  hint?: string;
 }
 
 export interface GrammarMistake {
@@ -215,11 +217,11 @@ export interface GrammarResponse {
 }
 
 export interface SavedGrammarRule {
-    id: string;
-    topic: string;
-    rule: string;
-    example: string;
-    savedAt: number;
+  id: string;
+  topic: string;
+  rule: string;
+  example: string;
+  savedAt: number;
 }
 
 // User Settings & Profile
@@ -252,17 +254,48 @@ export interface QuizResponse {
 
 // Enrichment
 export interface VocabEnrichmentResponse {
-    etymology: string;
-    detailedDefinition: string;
-    synonyms: string[];
-    antonyms?: string[];
-    collocations?: string[];
-    register?: string;
-    grammarNote?: string;
+  etymology: string;
+  detailedDefinition: string;
+  synonyms: string[];
+  antonyms?: string[];
+  collocations?: string[];
+  register?: string;
+  grammarNote?: string;
 }
 
 // Vocabulary Generator
 export interface VocabGenerationResponse {
-    topic: string;
-    words: VocabItem[];
+  topic: string;
+  words: VocabItem[];
+}
+
+// Study Plan
+export interface StudyPlanTask {
+  id: string;
+  type: 'reading' | 'writing' | 'listening' | 'speaking' | 'vocabulary' | 'grammar' | 'review';
+  title: string;
+  description: string;
+  duration: string; // e.g. "25 min"
+  xp: number;
+  tip?: string;
+}
+
+export interface StudyPlanDay {
+  day: number;
+  dayName: string; // e.g. "Monday"
+  theme: string;   // e.g. "Reading & Vocabulary Focus"
+  tasks: StudyPlanTask[];
+  totalMinutes: number;
+}
+
+export interface StudyPlanResponse {
+  title: string;
+  summary: string;
+  currentScore: string;
+  targetScore: string;
+  weeksRemaining: number;
+  weeklyFocus: string;
+  days: StudyPlanDay[];
+  weeklyGoals: string[];
+  motivationalNote: string;
 }
