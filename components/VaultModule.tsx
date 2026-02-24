@@ -105,12 +105,12 @@ export const VaultModule: React.FC = () => {
                     <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">My Vault</h2>
                     <p className="text-slate-500">Your personal collection of {vaultWords.length} words.</p>
                 </div>
-                <div className="flex gap-4 w-full md:w-auto">
-                     <div className="relative flex-1 md:w-64">
+                <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                     <div className="relative flex-1 min-w-[200px] md:w-64">
                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                         <input 
-                            type="text" 
-                            placeholder="Search words..." 
+                         <input
+                            type="text"
+                            placeholder="Search words..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500"
@@ -119,10 +119,10 @@ export const VaultModule: React.FC = () => {
                      <button
                         onClick={generateQuiz}
                         disabled={quizLoading || vaultWords.length < 3}
-                        className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-indigo-200"
+                        className="bg-indigo-600 text-white px-6 min-h-[44px] rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-indigo-200 whitespace-nowrap"
                     >
                         {quizLoading ? <RefreshCw className="animate-spin w-5 h-5" /> : <BrainCircuit className="w-5 h-5" />}
-                        <span className="hidden md:inline">Generate Quiz</span>
+                        <span>Generate Quiz</span>
                     </button>
                 </div>
             </div>
@@ -220,15 +220,15 @@ export const VaultModule: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex gap-1">
-                                    <button 
+                                    <button
                                         onClick={() => toggleExpandVaultWord(w)}
-                                        className="p-2 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+                                        className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors"
                                     >
                                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => removeWord(w.word)}
-                                        className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                                        className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>

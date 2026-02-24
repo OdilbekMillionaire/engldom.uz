@@ -2,10 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ENGLDOM - AI Language Tutor</title>
-    <!-- Custom Dragon Shield Favicon -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>ENGLDOM — AI IELTS Tutor</title>
+    <meta name="description" content="AI-powered adaptive IELTS preparation — Reading, Writing, Listening, Speaking, Vocabulary. Study smarter with personalised feedback." />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Theme colour (browser chrome on Android) -->
+    <meta name="theme-color" content="#4338ca" />
+
+    <!-- iOS PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ENGLDOM" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileColor" content="#4338ca" />
+    <meta name="msapplication-TileImage" content="/icons/icon-192.svg" />
+
+    <!-- Custom Shield Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234338ca'/%3E%3Cpath d='M16 6C10 6 6 10 6 16v4c0 4 3 8 10 10 7-2 10-6 10-10v-4c0-6-4-10-10-10zm0 4c2 0 4 1.5 4 3.5S18 17 16 17s-4-1.5-4-3.5S14 10 16 10zm0 16c-3 0-5-2-5-4 0-1 2-3 5-3s5 2 5 3c0 2-2 4-5 4z' fill='white'/%3E%3C/svg%3E" />
+
     <!-- Tailwind with dark-mode class strategy -->
     <script>
       tailwind.config = { darkMode: 'class' };

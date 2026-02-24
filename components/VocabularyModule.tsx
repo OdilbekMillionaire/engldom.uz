@@ -326,27 +326,27 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-1 ml-2 flex-none">
-                                                    {/* Copy */}
+                                                    {/* Copy — 44px touch target */}
                                                     <button
                                                         onClick={() => copyToClipboard(w.word, w.meaning)}
                                                         title="Copy word & definition"
-                                                        className="p-1.5 text-slate-300 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                                        className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-300 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                                                     >
                                                         {isCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                                                     </button>
-                                                    {/* Expand */}
+                                                    {/* Expand — 44px touch target */}
                                                     <button
                                                         onClick={() => toggleCard(w.word)}
                                                         title={isExpanded ? 'Collapse' : 'Expand details'}
-                                                        className="p-1.5 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                        className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                                                     >
                                                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                                                     </button>
-                                                    {/* Save */}
+                                                    {/* Save — 44px touch target */}
                                                     <button
                                                         onClick={() => saveGeneratedWord(w)}
                                                         title="Save to Vault"
-                                                        className={`p-1.5 rounded-lg transition-colors ${isSaved ? 'text-green-600 bg-green-50' : 'text-slate-300 hover:text-indigo-600 hover:bg-indigo-50'}`}
+                                                        className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors ${isSaved ? 'text-green-600 bg-green-50' : 'text-slate-300 hover:text-indigo-600 hover:bg-indigo-50'}`}
                                                     >
                                                         {isSaved ? <CheckCircle2 className="w-4 h-4" /> : <BookmarkPlus className="w-4 h-4" />}
                                                     </button>

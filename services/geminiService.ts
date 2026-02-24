@@ -140,40 +140,79 @@ export const generateLingifyContent = async <T,>(
       ] (exactly 5 items)
     }`;
   } else if (module === ModuleType.WRITING) {
-      // Special Prompt Construction for "WRITIFY" logic
-      const writingPrompt = `Assess the user's writing strictly according to the IELTS Band Descriptors (TR, CC, LR, GRA) for a '${payload.taskType}' task.
-      User Prompt/Topic: "${payload.prompt}"
-      User Writing: "${payload.essay}"
-      Standard: "${payload.standard}"
-      
-      Requirements:
-      1. Score strictly (0-9 Band).
-      2. Provide specific examples from the user's text.
-      3. Identify at least 3-5 specific spelling/grammar errors.
-      4. Create practice tasks for the specific error types found.
-      `;
-      
+      // Determine correct Task Achievement vs Task Response label
+      const isTask2 = payload.taskType.includes('Task 2') || payload.taskType.includes('CEFR');
+      const taLabel = isTask2 ? 'Task Achievement' : 'Task Response';
+
+      const writingPrompt = `You are a senior IELTS examiner. Assess the following writing sample using the OFFICIAL IELTS Public Band Descriptors exactly as Cambridge Assessment English publishes them.
+
+TASK TYPE: ${payload.taskType}
+SPELLING STANDARD: ${payload.standard}
+TASK PROMPT: "${payload.prompt}"
+CANDIDATE WRITING:
+"""
+${payload.essay}
+"""
+
+SCORING RULES — apply ALL of these without exception:
+1. Score each of the 4 criteria separately on the 0–9 band scale (half-bands allowed: 5.5, 6.5, 7.5 etc.).
+2. Overall band_score = arithmetic mean of the 4 criterion scores, rounded to nearest 0.5.
+3. For EACH criterion, cite the EXACT official band descriptor text for the band you awarded (e.g. "Band 6 ${taLabel}: addresses the task but the format may be inappropriate in places…"). Do NOT paraphrase — use the real descriptor language.
+4. For EACH criterion, write examiner_notes (2–3 sentences) quoting or paraphrasing specific words/sentences from the candidate's essay as evidence.
+5. Provide 2–3 distinct strengths AND 2–3 distinct weaknesses per criterion — not generic platitudes.
+6. Identify at least 4 specific errors (spelling, grammar, punctuation, word choice) from the text.
+7. Create 3–4 targeted grammar practice drills addressing the error types found.
+`;
+
       userPromptOverride = writingPrompt;
 
       moduleSpecificInstructions = `
-      Output Schema (JSON):
+      Output Schema (JSON) — every field is REQUIRED:
       {
-        "band_score": "string (e.g. '6.5')",
-        "cefr_level": "string",
+        "band_score": "string (overall band to nearest 0.5, e.g. '6.5')",
+        "cefr_level": "string (e.g. 'B2')",
         "spelling_standard": "string",
-        "overall_feedback": "string",
+        "overall_feedback": "string (3–4 sentence examiner summary referencing the essay specifically)",
         "detailed_analysis": {
-            "task_response": { "score": number, "strengths": [string], "weaknesses": [string] },
-            "coherence_cohesion": { "score": number, "strengths": [string], "weaknesses": [string] },
-            "lexical_resource": { "score": number, "strengths": [string], "weaknesses": [string] },
-            "grammatical_range_accuracy": { "score": number, "strengths": [string], "weaknesses": [string] }
+            "task_response": {
+                "criterion_label": "${taLabel}",
+                "score": number (0–9, half-bands allowed),
+                "band_descriptor": "string (EXACT official IELTS band descriptor text for the awarded band)",
+                "examiner_notes": "string (2–3 sentences quoting specific evidence from the essay)",
+                "strengths": ["string", "string", "string"] (2–3 specific strengths),
+                "weaknesses": ["string", "string", "string"] (2–3 specific weaknesses)
+            },
+            "coherence_cohesion": {
+                "criterion_label": "Coherence & Cohesion",
+                "score": number,
+                "band_descriptor": "string (EXACT official descriptor)",
+                "examiner_notes": "string (specific evidence from essay)",
+                "strengths": ["string", "string"],
+                "weaknesses": ["string", "string"]
+            },
+            "lexical_resource": {
+                "criterion_label": "Lexical Resource",
+                "score": number,
+                "band_descriptor": "string (EXACT official descriptor)",
+                "examiner_notes": "string (specific evidence from essay)",
+                "strengths": ["string", "string"],
+                "weaknesses": ["string", "string"]
+            },
+            "grammatical_range_accuracy": {
+                "criterion_label": "Grammatical Range & Accuracy",
+                "score": number,
+                "band_descriptor": "string (EXACT official descriptor)",
+                "examiner_notes": "string (specific evidence from essay)",
+                "strengths": ["string", "string"],
+                "weaknesses": ["string", "string"]
+            }
         },
         "mistakes_and_corrections": [
-            { "original": "string", "correction": "string", "type": "string", "rule": "string" }
-        ],
+            { "original": "string (exact text from essay)", "correction": "string", "type": "string (e.g. Subject-Verb Agreement)", "rule": "string (brief rule explanation)" }
+        ] (minimum 4 items),
         "grammar_review_tasks": [
             { "error_type": "string", "rule_explanation": "string", "example_sentence": "string", "practice_task": "string", "practice_answer": "string" }
-        ]
+        ] (3–4 items targeting the errors found)
       }`;
 
   } else if (module === ModuleType.LISTENING) {

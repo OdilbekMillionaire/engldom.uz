@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- Background: indigo rounded square -->
+  <rect width="192" height="192" rx="40" fill="#4338ca"/>
+  <!-- Subtle inner glow -->
+  <rect width="192" height="192" rx="40" fill="url(#grad)" opacity="0.4"/>
+  <defs>
+    <radialGradient id="grad" cx="30%" cy="25%" r="70%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#4338ca" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Shield body -->
+  <path d="M96 28 C68 28 48 42 48 64 v 42 c0 34 24 54 48 62 24-8 48-28 48-62 V 64 C144 42 124 28 96 28z" fill="white" opacity="0.95"/>
+  <!-- Shield inner accent -->
+  <path d="M96 40 C74 40 58 52 58 70 v 36 c0 28 20 44 38 52 18-8 38-24 38-52 V 70 C134 52 118 40 96 40z" fill="#4338ca" opacity="0.15"/>
+  <!-- Letter E — bold, centered in shield -->
+  <text x="96" y="110" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="60" fill="#4338ca" letter-spacing="-2">E</text>
+</svg>

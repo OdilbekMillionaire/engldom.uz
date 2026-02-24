@@ -423,10 +423,10 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
 
       {/* READING INTERFACE */}
       {data && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-100px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:h-[calc(100vh-100px)]">
             
             {/* LEFT COLUMN: ARTICLE (Scrollable) */}
-            <div className="lg:col-span-7 flex flex-col h-full bg-[#faf9f6] rounded-2xl border border-stone-200 shadow-sm overflow-hidden relative">
+            <div className="lg:col-span-7 flex flex-col min-h-[50vh] lg:h-full bg-[#faf9f6] rounded-2xl border border-stone-200 shadow-sm overflow-hidden relative">
                 {/* Article Header */}
                 <div className="p-6 md:p-8 border-b border-stone-200 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
                      <div className="flex justify-between items-start mb-4">
@@ -438,18 +438,18 @@ export const ReadingModule: React.FC<ReadingModuleProps> = ({ initialData }) => 
                             <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
                                 <button
                                     onClick={() => setArticleFontSize(s => Math.max(13, s - 2))}
-                                    className="w-6 h-6 flex items-center justify-center rounded text-slate-600 hover:bg-white hover:shadow-sm transition-all text-xs font-bold"
+                                    className="w-8 h-8 flex items-center justify-center rounded text-slate-600 hover:bg-white hover:shadow-sm transition-all text-xs font-bold"
                                     title="Decrease font size"
                                 >
-                                    <Minus className="w-3 h-3" />
+                                    <Minus className="w-3.5 h-3.5" />
                                 </button>
                                 <span className="text-[10px] font-bold text-slate-500 px-1">{articleFontSize}px</span>
                                 <button
                                     onClick={() => setArticleFontSize(s => Math.min(26, s + 2))}
-                                    className="w-6 h-6 flex items-center justify-center rounded text-slate-600 hover:bg-white hover:shadow-sm transition-all text-xs font-bold"
+                                    className="w-8 h-8 flex items-center justify-center rounded text-slate-600 hover:bg-white hover:shadow-sm transition-all text-xs font-bold"
                                     title="Increase font size"
                                 >
-                                    <Plus className="w-3 h-3" />
+                                    <Plus className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                             <TimerRing timeLeft={timeLeft} totalTime={timeLimit * 60} size={48} />

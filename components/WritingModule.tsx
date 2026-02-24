@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    PenTool, Image as ImageIcon, MessageSquare, Loader2, CheckCircle2, 
-    ArrowRight, Clock, Target, Link2, BookOpen, Scale, 
-    AlertTriangle, Sparkles, RefreshCw, Type, Check, Trophy
+import {
+    PenTool, Image as ImageIcon, MessageSquare, Loader2, CheckCircle2,
+    ArrowRight, Clock, Target, Link2, BookOpen, Scale,
+    AlertTriangle, Sparkles, RefreshCw, Type, Check, Trophy, ChevronDown, ChevronUp, Quote
 } from 'lucide-react';
+import {
+    ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip
+} from 'recharts';
 import { generateLingifyContent } from '../services/geminiService';
 import { storageService } from '../services/storageService';
-import { ModuleType, WritingResponse, VocabItem } from '../types';
+import { ModuleType, WritingResponse, VocabItem, WritingCriteria } from '../types';
 import { ChatTutor } from './ChatTutor';
 
 const TASK_TYPES = [
@@ -46,6 +49,9 @@ export const WritingModule: React.FC<WritingModuleProps> = ({ initialData }) => 
   // Drills
   const [drillAnswers, setDrillAnswers] = useState<Record<number, string>>({});
   const [drillFeedback, setDrillFeedback] = useState<Record<number, boolean>>({});
+
+  // Expanded descriptor panels
+  const [expandedDescriptor, setExpandedDescriptor] = useState<string | null>(null);
 
   // Restore State Effect
   useEffect(() => {
@@ -187,6 +193,20 @@ export const WritingModule: React.FC<WritingModuleProps> = ({ initialData }) => 
       if (score >= 5) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       return 'text-red-600 bg-red-50 border-red-200';
   };
+
+  const getScoreBarColor = (score: number) => {
+      if (score >= 8) return 'bg-emerald-500';
+      if (score >= 6.5) return 'bg-indigo-500';
+      if (score >= 5) return 'bg-yellow-500';
+      return 'bg-red-500';
+  };
+
+  const getRadarData = (r: WritingResponse) => [
+      { subject: r.detailed_analysis.task_response.criterion_label || 'Task Response', score: r.detailed_analysis.task_response.score, fullMark: 9 },
+      { subject: r.detailed_analysis.coherence_cohesion.criterion_label || 'Coherence', score: r.detailed_analysis.coherence_cohesion.score, fullMark: 9 },
+      { subject: r.detailed_analysis.lexical_resource.criterion_label || 'Lexical', score: r.detailed_analysis.lexical_resource.score, fullMark: 9 },
+      { subject: r.detailed_analysis.grammatical_range_accuracy.criterion_label || 'Grammar', score: r.detailed_analysis.grammatical_range_accuracy.score, fullMark: 9 },
+  ];
 
   return (
     <div className="space-y-8 pb-12">
@@ -399,43 +419,173 @@ export const WritingModule: React.FC<WritingModuleProps> = ({ initialData }) => 
                             </div>
                         </div>
 
-                        {/* DETAILED CRITERIA GRID */}
-                        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
-                            {[
-                                { key: 'task_response', label: 'Task Response', icon: Target, desc: 'Relevance & Development', data: result.detailed_analysis.task_response },
-                                { key: 'coherence_cohesion', label: 'Coherence', icon: Link2, desc: 'Flow & Linking Words', data: result.detailed_analysis.coherence_cohesion },
-                                { key: 'lexical_resource', label: 'Vocabulary', icon: BookOpen, desc: 'Range & Accuracy', data: result.detailed_analysis.lexical_resource },
-                                { key: 'grammatical_range_accuracy', label: 'Grammar', icon: Scale, desc: 'Structures & Errors', data: result.detailed_analysis.grammatical_range_accuracy },
-                            ].map((item) => (
-                                <div key={item.key} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="p-3 bg-slate-50 rounded-xl group-hover:bg-indigo-50 transition-colors">
-                                            <item.icon className="w-6 h-6 text-slate-700 group-hover:text-indigo-600" />
-                                        </div>
-                                        <div className={`px-3 py-1 rounded-lg font-bold text-lg border ${getScoreColor(item.data.score)}`}>
-                                            {item.data.score}
-                                        </div>
-                                    </div>
-                                    <h4 className="font-bold text-slate-800 text-lg mb-1">{item.label}</h4>
-                                    <p className="text-xs text-slate-400 mb-4">{item.desc}</p>
-                                    
-                                    {/* Mini Score Bar */}
-                                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-4">
-                                        <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${(item.data.score / 9) * 100}%` }}></div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <div className="flex gap-2 items-start">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-none"></div>
-                                            <p className="text-xs text-slate-600 leading-snug">{item.data.strengths[0] || "Good performance"}</p>
-                                        </div>
-                                        <div className="flex gap-2 items-start">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-none"></div>
-                                            <p className="text-xs text-slate-600 leading-snug">{item.data.weaknesses[0] || "No major issues"}</p>
-                                        </div>
-                                    </div>
+                        {/* ── RADAR CHART + SCORE SUMMARY ── */}
+                        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                            <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                                <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                    <Trophy className="w-5 h-5 text-indigo-600" /> Criterion Analysis
+                                </h3>
+                                <p className="text-xs text-slate-400 mt-0.5">Official IELTS band scores across all four assessed criteria</p>
+                            </div>
+                            <div className="flex flex-col md:flex-row gap-0">
+                                {/* Radar Chart */}
+                                <div className="flex-1 min-h-[280px] p-4">
+                                    <ResponsiveContainer width="100%" height={280}>
+                                        <RadarChart cx="50%" cy="50%" outerRadius="75%" data={getRadarData(result)}>
+                                            <PolarGrid stroke="#e2e8f0" />
+                                            <PolarAngleAxis
+                                                dataKey="subject"
+                                                tick={{ fill: '#475569', fontSize: 11, fontWeight: 600 }}
+                                            />
+                                            <PolarRadiusAxis
+                                                angle={30}
+                                                domain={[0, 9]}
+                                                tickCount={4}
+                                                tick={{ fill: '#94a3b8', fontSize: 9 }}
+                                                axisLine={false}
+                                            />
+                                            <Radar
+                                                name="Score"
+                                                dataKey="score"
+                                                stroke="#4f46e5"
+                                                strokeWidth={2.5}
+                                                fill="#4f46e5"
+                                                fillOpacity={0.18}
+                                            />
+                                            <Tooltip
+                                                formatter={(v: number) => [`${v} / 9`, 'Band Score']}
+                                                contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: 12 }}
+                                            />
+                                        </RadarChart>
+                                    </ResponsiveContainer>
                                 </div>
-                            ))}
+                                {/* Score pill list */}
+                                <div className="md:w-64 flex-none p-6 border-t md:border-t-0 md:border-l border-slate-100 flex flex-col justify-center gap-4">
+                                    {[
+                                        { key: 'task_response', icon: Target },
+                                        { key: 'coherence_cohesion', icon: Link2 },
+                                        { key: 'lexical_resource', icon: BookOpen },
+                                        { key: 'grammatical_range_accuracy', icon: Scale },
+                                    ].map(({ key, icon: Icon }) => {
+                                        const d = result.detailed_analysis[key as keyof typeof result.detailed_analysis] as WritingCriteria;
+                                        return (
+                                            <div key={key} className="flex items-center gap-3">
+                                                <div className="p-2 bg-slate-50 rounded-lg flex-none">
+                                                    <Icon className="w-4 h-4 text-slate-600" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-bold text-slate-600 truncate">{d.criterion_label || key}</p>
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                            <div
+                                                                className={`h-full rounded-full transition-all duration-700 ${getScoreBarColor(d.score)}`}
+                                                                style={{ width: `${(d.score / 9) * 100}%` }}
+                                                            />
+                                                        </div>
+                                                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded border ${getScoreColor(d.score)}`}>
+                                                            {d.score}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* ── EXPANDED CRITERIA CARDS ── */}
+                        <div className="grid md:grid-cols-2 gap-5">
+                            {([
+                                { key: 'task_response', icon: Target },
+                                { key: 'coherence_cohesion', icon: Link2 },
+                                { key: 'lexical_resource', icon: BookOpen },
+                                { key: 'grammatical_range_accuracy', icon: Scale },
+                            ] as const).map(({ key, icon: Icon }) => {
+                                const d = result.detailed_analysis[key as keyof typeof result.detailed_analysis] as WritingCriteria;
+                                const isOpen = expandedDescriptor === key;
+                                return (
+                                    <div key={key} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                                        {/* Card header */}
+                                        <div className="p-5 flex justify-between items-start gap-3">
+                                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                                                <div className="p-2.5 bg-indigo-50 rounded-xl flex-none">
+                                                    <Icon className="w-5 h-5 text-indigo-600" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-bold text-slate-800 text-base leading-tight">{d.criterion_label || key}</h4>
+                                                    {/* Wide progress bar with label */}
+                                                    <div className="flex items-center gap-2 mt-2">
+                                                        <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                                            <div
+                                                                className={`h-full rounded-full ${getScoreBarColor(d.score)}`}
+                                                                style={{ width: `${(d.score / 9) * 100}%` }}
+                                                            />
+                                                        </div>
+                                                        <span className={`text-sm font-bold px-2 py-0.5 rounded-lg border flex-none ${getScoreColor(d.score)}`}>
+                                                            {d.score} / 9
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Examiner notes */}
+                                        {d.examiner_notes && (
+                                            <div className="mx-5 mb-4 flex gap-2 bg-indigo-50 border border-indigo-100 rounded-xl p-3">
+                                                <Quote className="w-4 h-4 text-indigo-400 flex-none mt-0.5" />
+                                                <p className="text-xs text-indigo-800 leading-relaxed italic">{d.examiner_notes}</p>
+                                            </div>
+                                        )}
+
+                                        {/* Strengths + Weaknesses */}
+                                        <div className="px-5 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div>
+                                                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1.5">Strengths</p>
+                                                <div className="space-y-1.5">
+                                                    {(d.strengths || []).map((s, i) => (
+                                                        <div key={i} className="flex items-start gap-1.5">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-none mt-1.5" />
+                                                            <p className="text-xs text-slate-600 leading-snug">{s}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider mb-1.5">Areas to Improve</p>
+                                                <div className="space-y-1.5">
+                                                    {(d.weaknesses || []).map((w, i) => (
+                                                        <div key={i} className="flex items-start gap-1.5">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-red-400 flex-none mt-1.5" />
+                                                            <p className="text-xs text-slate-600 leading-snug">{w}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Collapsible official descriptor */}
+                                        {d.band_descriptor && (
+                                            <div className="border-t border-slate-100">
+                                                <button
+                                                    onClick={() => setExpandedDescriptor(isOpen ? null : key)}
+                                                    className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-slate-50 transition-colors"
+                                                >
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Official Band Descriptor</span>
+                                                    {isOpen ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                                                </button>
+                                                {isOpen && (
+                                                    <div className="px-5 pb-4 animate-fade-in">
+                                                        <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100 italic">
+                                                            {d.band_descriptor}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         {/* MISTAKES & CORRECTIONS (Refined Diff View) */}

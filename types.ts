@@ -96,6 +96,9 @@ export interface WritingCriteria {
   score: number;
   strengths: string[];
   weaknesses: string[];
+  criterion_label?: string;   // Official IELTS name e.g. "Task Achievement"
+  band_descriptor?: string;   // Official IELTS descriptor text for the awarded band
+  examiner_notes?: string;    // Specific evidence from the essay
 }
 
 export interface GrammarReviewTask {

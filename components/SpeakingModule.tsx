@@ -417,46 +417,93 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                 
                 {/* LEFT: Recorder Interface */}
                 <div className="xl:col-span-5 space-y-6">
-                    <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex flex-col h-[500px] relative">
+                    <div className={`bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col h-[500px] relative transition-all duration-300 ${isRecording ? 'border-2 border-red-400 ring-4 ring-red-200/40 shadow-red-100' : 'border border-slate-100'}`}>
                         {/* Visualizer Canvas Area */}
-                        <div className="flex-1 bg-slate-50 relative flex flex-col items-center justify-center p-6">
-                             {!audioUrl && !isRecording && (
-                                 <div className="text-center">
-                                     <div className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center mx-auto mb-6">
-                                         <Mic className="w-10 h-10 text-slate-300" />
-                                     </div>
-                                     <h3 className="text-xl font-bold text-slate-700 mb-2">Ready to Record</h3>
-                                     <p className="text-slate-400 text-sm max-w-xs mx-auto">
-                                         Ensure you are in a quiet environment. Speak clearly for accurate AI analysis.
-                                     </p>
-                                 </div>
-                             )}
+                        <div className="flex-1 bg-slate-50 relative flex flex-col items-center justify-center p-6 overflow-hidden">
 
-                             {/* Visualizer Canvas (Hidden when not recording) */}
-                             <canvas 
-                                ref={canvasRef} 
-                                className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-300 ${isRecording ? 'opacity-100' : 'opacity-0'}`}
+                            {/* IDLE STATE */}
+                            {!audioUrl && !isRecording && (
+                                <div className="text-center">
+                                    <div className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center mx-auto mb-6">
+                                        <Mic className="w-10 h-10 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-700 mb-2">Ready to Record</h3>
+                                    <p className="text-slate-400 text-sm max-w-xs mx-auto">
+                                        Ensure you are in a quiet environment. Speak clearly for accurate AI analysis.
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* LIVE RECORDING STATE — immediate CSS animation */}
+                            {isRecording && (
+                                <div className="flex flex-col items-center justify-center gap-6 w-full h-full z-10 relative">
+                                    {/* Pulsing mic orb */}
+                                    <div className="relative flex items-center justify-center">
+                                        {/* Outer glow rings */}
+                                        <div className="absolute w-36 h-36 rounded-full bg-red-100 animate-ping opacity-30" />
+                                        <div className="absolute w-28 h-28 rounded-full bg-red-200 animate-pulse opacity-40" />
+                                        {/* Mic button */}
+                                        <div className="w-20 h-20 rounded-full bg-red-500 shadow-lg shadow-red-400/50 flex items-center justify-center z-10">
+                                            <Mic className="w-9 h-9 text-white" />
+                                        </div>
+                                    </div>
+                                    {/* Animated waveform bars */}
+                                    <div className="flex items-end gap-1 h-12">
+                                        {[0.4, 0.7, 1, 0.85, 0.6, 0.9, 1, 0.75, 0.5, 0.8, 1, 0.65, 0.45].map((h, i) => (
+                                            <div
+                                                key={i}
+                                                className="w-2 rounded-full bg-red-400 animate-bounce"
+                                                style={{
+                                                    height: `${h * 100}%`,
+                                                    animationDuration: `${0.4 + (i % 5) * 0.1}s`,
+                                                    animationDelay: `${(i * 0.07) % 0.5}s`
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                    <p className="text-red-500 text-sm font-bold tracking-wide animate-pulse">
+                                        Recording in progress…
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Visualizer Canvas — draws real audio on top when data arrives */}
+                            <canvas
+                                ref={canvasRef}
+                                className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-500 ${isRecording ? 'opacity-80' : 'opacity-0'}`}
                                 width={600}
                                 height={400}
-                             />
+                            />
 
-                             {/* Timer Overlay */}
-                             {isRecording && (
-                                 <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-1 rounded-full text-sm font-mono font-bold animate-pulse shadow-lg">
-                                     REC {formatDuration(recordingDuration)}
-                                 </div>
-                             )}
+                            {/* REC timer pill */}
+                            {isRecording && (
+                                <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-1.5 rounded-full text-sm font-mono font-bold shadow-lg z-20 flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                                    REC {formatDuration(recordingDuration)}
+                                </div>
+                            )}
 
-                             {/* Playback Preview */}
-                             {audioUrl && !isRecording && (
-                                 <div className="w-full max-w-sm bg-white p-4 rounded-2xl shadow-lg border border-slate-100 z-10">
-                                     <div className="flex justify-between items-center mb-2">
-                                         <span className="text-xs font-bold text-slate-400 uppercase">Preview</span>
-                                         <button onClick={() => { setAudioUrl(null); setAudioBlob(null); setEvalData(null); }} className="text-xs text-red-500 font-bold hover:underline">Delete</button>
-                                     </div>
-                                     <audio src={audioUrl} controls className="w-full h-10" />
-                                 </div>
-                             )}
+                            {/* Playback Preview — recording ready state */}
+                            {audioUrl && !isRecording && (
+                                <div className="w-full max-w-sm z-10 space-y-3">
+                                    <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500 flex-none" />
+                                        <span className="text-sm font-bold text-emerald-700">Recording ready for analysis</span>
+                                    </div>
+                                    <div className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-xs font-bold text-slate-400 uppercase">Preview</span>
+                                            <button
+                                                onClick={() => { setAudioUrl(null); setAudioBlob(null); setEvalData(null); }}
+                                                className="text-xs text-red-500 font-bold hover:underline"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                        <audio src={audioUrl} controls className="w-full h-10" />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Controls */}
