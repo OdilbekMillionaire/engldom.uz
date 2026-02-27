@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Sparkles,
     ChevronRight,
     Target,
     Trophy,
     Timer,
     GraduationCap,
     Briefcase,
-    Palmtree,
-    CheckCircle2
+    Globe,
+    Zap,
+    BookOpen,
+    Bot,
+    AudioLines,
+    BrainCircuit,
+    Lightbulb,
+    Clock,
+    Star,
+    Pen,
+    MessageSquare,
+    BarChart
 } from 'lucide-react';
 
 interface OnboardingQuizProps {
@@ -24,43 +33,117 @@ interface OnboardingQuizProps {
 const steps = [
     {
         id: 'name',
-        title: 'Welcome!',
-        subtitle: 'What should we call you?',
+        sequence: 'INITIALIZATION',
+        title: 'Enter your designation.',
         isInput: true,
-        placeholder: 'e.g. Akbar, Sarah...',
+        placeholder: 'e.g. Alex, Maria...',
         options: []
     },
     {
         id: 'goal',
-        title: 'Your English Goal',
-        subtitle: 'What is your primary focus?',
+        sequence: 'MISSION VECTOR',
+        title: 'What is your primary objective?',
         options: [
-            { id: 'ielts', label: 'IELTS Mastery', icon: <Trophy className="w-6 h-6" />, desc: 'Aiming for a high band score' },
-            { id: 'business', label: 'Business Focus', icon: <Briefcase className="w-6 h-6" />, desc: 'Professional communication' },
-            { id: 'travel', label: 'Travel & Fun', icon: <Palmtree className="w-6 h-6" />, desc: 'For your next adventure' },
-            { id: 'academic', label: 'Academic Study', icon: <GraduationCap className="w-6 h-6" />, desc: 'University & Research' },
+            { id: 'ielts', label: 'IELTS Academic', icon: <Trophy className="w-5 h-5" />, desc: 'University admission & Band 8.0+' },
+            { id: 'general', label: 'IELTS General', icon: <Star className="w-5 h-5" />, desc: 'Immigration & work permits' },
+            { id: 'business', label: 'Business English', icon: <Briefcase className="w-5 h-5" />, desc: 'Corporate fluency & negotiations' },
+            { id: 'academic', label: 'Academic Research', icon: <GraduationCap className="w-5 h-5" />, desc: 'Postgraduate-level comprehension' },
+            { id: 'travel', label: 'Global Mobility', icon: <Globe className="w-5 h-5" />, desc: 'International travel & living' },
+            { id: 'career', label: 'Career Advancement', icon: <BarChart className="w-5 h-5" />, desc: 'Professional certification & promotion' },
+        ]
+    },
+    {
+        id: 'targetBand',
+        sequence: 'TARGET ACQUISITION',
+        title: 'What IELTS band score are you aiming for?',
+        options: [
+            { id: '5.5', label: 'Band 5.5', icon: <div className="font-black text-sm">5.5</div>, desc: 'Community college / entry-level work' },
+            { id: '6.5', label: 'Band 6.5', icon: <div className="font-black text-sm">6.5</div>, desc: 'Most universities & skilled migration' },
+            { id: '7.0', label: 'Band 7.0', icon: <div className="font-black text-sm">7.0</div>, desc: 'Competitive programs & professional jobs' },
+            { id: '7.5', label: 'Band 7.5', icon: <div className="font-black text-sm">7.5</div>, desc: 'Top universities & specialist occupations' },
+            { id: '8.0', label: 'Band 8.0', icon: <div className="font-black text-sm">8.0</div>, desc: 'Elite institutions & senior professionals' },
+            { id: '9.0', label: 'Band 9.0', icon: <div className="font-black text-sm">9.0</div>, desc: 'Native-level mastery — Expert user' },
         ]
     },
     {
         id: 'level',
-        title: 'Current Level',
-        subtitle: 'Where are you starting from?',
+        sequence: 'BASELINE CALIBRATION',
+        title: 'What is your current English level?',
         options: [
-            { id: 'a1', label: 'Beginner (A1-A2)', icon: <div className="font-black text-xs">A1</div>, desc: 'Can understand basic phrases' },
-            { id: 'b1', label: 'Intermediate (B1-B2)', icon: <div className="font-black text-xs">B1</div>, desc: 'Can handle most situations' },
-            { id: 'c1', label: 'Advanced (C1-C2)', icon: <div className="font-black text-xs">C1</div>, desc: 'Fluent and sophisticated usage' },
+            { id: 'a1', label: 'Beginner (A1-A2)', icon: <div className="font-black text-xs">A1</div>, desc: 'Basic words and phrases only' },
+            { id: 'b1', label: 'Intermediate (B1)', icon: <div className="font-black text-xs">B1</div>, desc: 'Comfortable in everyday situations' },
+            { id: 'b2', label: 'Upper-Intermediate (B2)', icon: <div className="font-black text-xs">B2</div>, desc: 'Fluent but with occasional errors' },
+            { id: 'c1', label: 'Advanced (C1-C2)', icon: <div className="font-black text-xs">C1</div>, desc: 'Near-native, seeking perfection' },
+        ]
+    },
+    {
+        id: 'weakness',
+        sequence: 'WEAKNESS DIAGNOSTICS',
+        title: 'Where do you struggle most?',
+        options: [
+            { id: 'speaking', label: 'Speaking', icon: <AudioLines className="w-5 h-5" />, desc: 'Fluency, hesitation, pronunciation' },
+            { id: 'writing', label: 'Writing', icon: <Pen className="w-5 h-5" />, desc: 'Task response, cohesion, grammar' },
+            { id: 'listening', label: 'Listening', icon: <Zap className="w-5 h-5" />, desc: 'Fast speech, accents, note-taking' },
+            { id: 'reading', label: 'Reading', icon: <BookOpen className="w-5 h-5" />, desc: 'Skimming speed, inference, vocab' },
+        ]
+    },
+    {
+        id: 'learning_style',
+        sequence: 'LEARNING PROFILE',
+        title: 'How do you learn best?',
+        options: [
+            { id: 'visual', label: 'Visual & Structured', icon: <BarChart className="w-5 h-5" />, desc: 'Charts, diagrams, written rules' },
+            { id: 'audio', label: 'Audio & Conversational', icon: <AudioLines className="w-5 h-5" />, desc: 'Listening, repeating, speaking' },
+            { id: 'practice', label: 'Practice-First', icon: <Zap className="w-5 h-5" />, desc: 'Jump in, learn from mistakes' },
+            { id: 'analytical', label: 'Analytical & Deep', icon: <BrainCircuit className="w-5 h-5" />, desc: 'Understand grammar rules fully' },
+        ]
+    },
+    {
+        id: 'exam_date',
+        sequence: 'TIMELINE LOCK',
+        title: 'When is your exam or deadline?',
+        options: [
+            { id: 'under1month', label: 'Under 1 Month', icon: <Clock className="w-4 h-4" />, desc: 'Intensive sprint mode activated' },
+            { id: '1to3months', label: '1 – 3 Months', icon: <Clock className="w-4 h-4" />, desc: 'Structured acceleration plan' },
+            { id: '3to6months', label: '3 – 6 Months', icon: <Clock className="w-4 h-4" />, desc: 'Balanced deep-learning path' },
+            { id: '6plus', label: '6+ Months', icon: <Clock className="w-4 h-4" />, desc: 'Long-term mastery program' },
+            { id: 'nodate', label: 'No fixed date', icon: <Lightbulb className="w-4 h-4" />, desc: 'Self-paced lifelong learning' },
+        ]
+    },
+    {
+        id: 'context',
+        sequence: 'ENVIRONMENT SCAN',
+        title: 'What best describes your current situation?',
+        options: [
+            { id: 'student', label: 'Full-time Student', icon: <GraduationCap className="w-5 h-5" />, desc: 'Studying at school or university' },
+            { id: 'working', label: 'Working Professional', icon: <Briefcase className="w-5 h-5" />, desc: 'Employed and studying part-time' },
+            { id: 'selfpaced', label: 'Self-studying at Home', icon: <BookOpen className="w-5 h-5" />, desc: 'Full control of own schedule' },
+            { id: 'retaker', label: 'IELTS Retaker', icon: <Trophy className="w-5 h-5" />, desc: 'Taken IELTS before, improving score' },
+        ]
+    },
+    {
+        id: 'motivation',
+        sequence: 'DRIVE ANALYSIS',
+        title: 'What motivates you most to improve?',
+        options: [
+            { id: 'university', label: 'University Admission', icon: <GraduationCap className="w-5 h-5" />, desc: 'Dream institution acceptance' },
+            { id: 'migration', label: 'Migration / Visa', icon: <Globe className="w-5 h-5" />, desc: 'Moving abroad permanently' },
+            { id: 'promotion', label: 'Career Promotion', icon: <BarChart className="w-5 h-5" />, desc: 'Advance in current career' },
+            { id: 'confidence', label: 'Personal Confidence', icon: <Star className="w-5 h-5" />, desc: 'Speak with native-like ease' },
+            { id: 'social', label: 'Daily Communication', icon: <MessageSquare className="w-5 h-5" />, desc: 'Connect better with people' },
         ]
     },
     {
         id: 'commitment',
-        title: 'Daily Spark',
-        subtitle: 'How much can you commit daily?',
+        sequence: 'NEURAL SYNC DURATION',
+        title: 'How much time can you dedicate daily?',
         options: [
-            { id: '5', label: '5 Minutes', icon: <Timer className="w-6 h-6 opacity-50" />, desc: 'For the busy schedule' },
-            { id: '15', label: '15 Minutes', icon: <Timer className="w-6 h-6" />, desc: 'Steady progress daily' },
-            { id: '30', label: '30 Minutes', icon: <div className="relative"><Timer className="w-6 h-6" /><Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-amber-400" /></div>, desc: 'The elite fast-track' },
+            { id: '5', label: 'Micro-Burst (5m)', icon: <Timer className="w-4 h-4 opacity-40" />, desc: 'Tight schedule, minimal sessions' },
+            { id: '15', label: 'Standard (15m)', icon: <Timer className="w-4 h-4" />, desc: 'Steady, compounded improvement' },
+            { id: '30', label: 'Focused (30m)', icon: <Timer className="w-4 h-4 text-indigo-400" />, desc: 'Significant weekly progress' },
+            { id: '60', label: 'Deep Work (60m+)', icon: <div className="relative"><Timer className="w-4 h-4" /><Zap className="absolute -top-1 -right-1 w-3 h-3 text-indigo-400" /></div>, desc: 'Maximum velocity to target band' },
         ]
-    }
+    },
 ];
 
 export const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
@@ -69,47 +152,78 @@ export const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) =>
     const [inputValue, setInputValue] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
+    const [analysisText, setAnalysisText] = useState('Initializing AI Core...');
 
     useEffect(() => {
         if (isProcessing) {
-            const interval = setInterval(() => {
+            const texts = [
+                'Parsing your learning profile...',
+                `Calibrating for ${selections.level?.toUpperCase() || 'B1'} baseline...`,
+                `Targeting ${selections.weakness || 'writing'} deficiencies...`,
+                `Aligning with ${selections.goal || 'IELTS'} objective...`,
+                `Scheduling ${selections.exam_date || '3-month'} sprint program...`,
+                `Estimating path to Band ${selections.targetBand || '7.0'}...`,
+                'Generating hyper-optimized curriculum...',
+                'Mapping cognitive learning patterns...',
+                'Finalizing your personalized AI engine...',
+                'System ready. Welcome.'
+            ];
+
+            let textIndex = 0;
+            const textInterval = setInterval(() => {
+                if (textIndex < texts.length) {
+                    setAnalysisText(texts[textIndex]);
+                    textIndex++;
+                }
+            }, 600);
+
+            const progressInterval = setInterval(() => {
                 setProgress(prev => {
                     if (prev >= 100) {
-                        clearInterval(interval);
+                        clearInterval(progressInterval);
+                        clearInterval(textInterval);
                         setTimeout(() => {
                             const targetBandMap: Record<string, number> = {
-                                'a1': 5,
-                                'b1': 7,
-                                'c1': 8.5
+                                'a1': 5.5,
+                                'b1': 6.5,
+                                'b2': 7.0,
+                                'c1': 8.0
                             };
+                            const commitmentMap: Record<string, number> = {
+                                '5': 5, '15': 15, '30': 30, '60': 60
+                            };
+                            const parsedBand = parseFloat(selections.targetBand || '7');
                             onComplete({
-                                name: selections.name || 'Learner',
+                                name: selections.name || 'Agent',
                                 goal: selections.goal || 'ielts',
                                 level: selections.level || 'b1',
-                                commitment: parseInt(selections.commitment || '15'),
-                                targetBand: targetBandMap[selections.level] || 7
+                                commitment: commitmentMap[selections.commitment] || 15,
+                                targetBand: !isNaN(parsedBand) ? parsedBand : targetBandMap[selections.level] || 7
                             });
-                        }, 800);
+                        }, 1200);
                         return 100;
                     }
-                    return prev + 2;
+                    return prev + 1;
                 });
-            }, 50);
-            return () => clearInterval(interval);
+            }, 55);
+
+            return () => {
+                clearInterval(progressInterval);
+                clearInterval(textInterval);
+            };
         }
     }, [isProcessing, selections, onComplete]);
 
     const handleNext = () => {
         if (steps[currentStep].isInput && !inputValue.trim()) return;
-
         const val = steps[currentStep].isInput ? inputValue.trim() : selections[steps[currentStep].id];
         const newSelections = { ...selections, [steps[currentStep].id]: val };
         setSelections(newSelections);
 
         if (currentStep < steps.length - 1) {
-            setTimeout(() => setCurrentStep(prev => prev + 1), 400);
+            setTimeout(() => setCurrentStep(prev => prev + 1), 200);
         } else {
-            setTimeout(() => setIsProcessing(true), 400);
+            setTimeout(() => setIsProcessing(true), 200);
         }
     };
 
@@ -118,58 +232,42 @@ export const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) =>
         setSelections(newSelections);
 
         if (currentStep < steps.length - 1) {
-            setTimeout(() => setCurrentStep(prev => prev + 1), 400);
+            setTimeout(() => setCurrentStep(prev => prev + 1), 300);
         } else {
-            setTimeout(() => setIsProcessing(true), 400);
+            setTimeout(() => setIsProcessing(true), 300);
         }
     };
 
     if (isProcessing) {
         return (
-            <div className="fixed inset-0 bg-slate-50 flex flex-col items-center justify-center p-6 z-50 overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-                    <div className="absolute inset-0 bg-[radial-gradient(#4f46e5_1px,transparent_1px)] [background-size:32px_32px]" />
-                </div>
-
-                <div className="relative p-12 rounded-3xl border border-slate-200 max-w-md w-full text-center space-y-8 shadow-sm bg-white animate-in zoom-in-95 duration-700">
-                    <div className="relative w-24 h-24 mx-auto">
-                        <div className="absolute inset-0 border-4 border-sub-border rounded-full" />
-                        <div
-                            className="absolute inset-0 border-4 border-indigo-600 rounded-full transition-all duration-150"
-                            style={{
-                                clipPath: `inset(0 0 0 0)`,
-                                strokeDasharray: '251.2',
-                                strokeDashoffset: (251.2 - (251.2 * progress) / 100),
-                                transform: 'rotate(-90deg)'
-                            }}
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center text-indigo-600 font-black text-xl">
-                            {progress}%
+            <div className="fixed inset-0 bg-background flex flex-col items-center justify-center p-6 z-50">
+                <div className="relative max-w-lg w-full text-center space-y-12">
+                    {/* Animated AI Core */}
+                    <div className="relative w-44 h-44 mx-auto">
+                        <div className="absolute inset-0 border border-indigo-200 rounded-full animate-[spin_4s_linear_infinite]" />
+                        <div className="absolute inset-3 border-y border-indigo-400/40 rounded-full animate-[spin_3s_linear_infinite_reverse]" />
+                        <div className="absolute inset-6 border-x border-violet-400/30 rounded-full animate-[spin_5s_linear_infinite]" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Bot className="w-14 h-14 text-indigo-600 relative z-10" />
+                            <div className="absolute w-14 h-14 bg-indigo-400/20 rounded-full blur-xl animate-pulse" />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <h2 className="text-2xl font-display font-black text-t-1 tracking-tight">Generating your plan...</h2>
-                        <p className="text-t-3 font-semibold text-sm">Personalizing your English journey.</p>
+                    <div className="space-y-3 font-mono">
+                        <div className="text-2xl font-black text-t-1 tracking-tight">AI Engine Compiling</div>
+                        <div className="h-6 flex items-center justify-center gap-2">
+                            <span className="text-indigo-600 text-sm">{analysisText}</span>
+                            <span className="w-2 h-4 bg-indigo-500 inline-block animate-pulse rounded-sm" />
+                        </div>
                     </div>
 
-                    <div className="space-y-4 pt-4">
-                        {[
-                            { id: 1, label: 'Analyzing goals', threshold: 30 },
-                            { id: 2, label: 'Mapping proficiency', threshold: 60 },
-                            { id: 3, label: 'Optimizing schedule', threshold: 90 },
-                        ].map((s) => (
-                            <div key={s.id} className="flex items-center gap-3 text-left">
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors ${progress >= s.threshold ? 'bg-indigo-600 text-white' : 'bg-surface-2 text-slate-300'}`}>
-                                    {progress >= s.threshold ? <CheckCircle2 className="w-3 h-3" /> : <div className="w-1.5 h-1.5 bg-current rounded-full" />}
-                                </div>
-                                <span className={`text-xs font-black uppercase tracking-widest ${progress >= s.threshold ? 'text-t-2' : 'text-t-4'}`}>
-                                    {s.label}
-                                </span>
-                            </div>
-                        ))}
+                    <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden border border-sub-border">
+                        <div
+                            className="h-full bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-500 transition-all duration-75 ease-linear"
+                            style={{ width: `${progress}%` }}
+                        />
                     </div>
+                    <div className="text-t-4 text-xs font-mono">{progress}% / 100%</div>
                 </div>
             </div>
         );
@@ -179,105 +277,93 @@ export const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) =>
 
     return (
         <div className="fixed inset-0 bg-background flex flex-col items-center justify-center p-6 z-50 overflow-hidden">
-            {/* Background Orbs */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-100/30 rounded-full blur-[120px] -mr-40 -mt-40" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-rose-100/20 rounded-full blur-[120px] -ml-40 -mb-40" />
+            {/* Ambient glow */}
+            <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-indigo-500/5 rounded-full blur-[120px] -mr-96 -mt-96 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-[100px] -ml-64 -mb-64 pointer-events-none" />
 
-            <div className="max-w-4xl w-full relative z-10 flex flex-col md:flex-row items-center gap-16 animate-in slide-in-from-bottom-8 duration-700">
+            <div className="max-w-3xl w-full relative z-10 flex flex-col items-center gap-10 animate-in fade-in slide-in-from-bottom-8 duration-500">
 
-                {/* Left Side: Context */}
-                <div className="md:w-1/2 space-y-6 text-center md:text-left">
-                    <div className="inline-flex items-center gap-2 bg-surface px-4 py-2 rounded-full border border-sub-border shadow-sm mx-auto md:mx-0">
-                        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-ping" />
-                        <span className="text-[10px] font-black text-t-2 uppercase tracking-widest">Onboarding Experience</span>
-                    </div>
-
-                    <div className="space-y-2">
-                        <h1 className="text-5xl lg:text-6xl font-black text-t-1 tracking-tighter leading-[1.1]">
-                            Craft your <span className="text-indigo-600">crystal</span> future.
-                        </h1>
-                        <p className="text-t-3 font-bold text-xl leading-relaxed max-w-md mx-auto md:mx-0">
-                            A few questions to build a learning path that actually works for you.
-                        </p>
-                    </div>
-
-                    <div className="flex gap-2 justify-center md:justify-start">
-                        {steps.map((_, idx) => (
-                            <div
-                                key={idx}
-                                className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentStep ? 'w-12 bg-indigo-600' : 'w-4 bg-surface-3'}`}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                {/* Right Side: Step Card */}
-                <div className="md:w-1/2 w-full">
-                    <div className="bg-surface/70 backdrop-blur-3xl p-10 lg:p-12 rounded-[3.5rem] border border-white shadow-[0_40px_100px_rgba(0,0,0,0.04)] space-y-8">
-                        <div className="space-y-1">
-                            <span className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em]">{step.title}</span>
-                            <h3 className="text-3xl font-black text-t-1 tracking-tight">{step.subtitle}</h3>
-                        </div>
-
-                        {step.isInput ? (
-                            <div className="space-y-6">
-                                <input
-                                    autoFocus
-                                    type="text"
-                                    value={inputValue}
-                                    onChange={(e) => setInputValue(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleNext()}
-                                    placeholder={step.placeholder}
-                                    className="w-full bg-surface/50 border-2 border-sub-border focus:border-indigo-600 rounded-2xl px-6 py-5 text-xl font-bold text-t-1 outline-none transition-all placeholder:text-slate-300"
+                {/* Progress header */}
+                <div className="w-full space-y-4">
+                    <div className="flex justify-between items-center">
+                        <div className="flex gap-1.5">
+                            {steps.map((_, idx) => (
+                                <div
+                                    key={idx}
+                                    className={`h-1 rounded-full transition-all duration-500 ${idx === currentStep ? 'w-8 bg-indigo-500' : idx < currentStep ? 'w-3 bg-indigo-300' : 'w-3 bg-surface-2'}`}
                                 />
-                                <button
-                                    onClick={handleNext}
-                                    disabled={!inputValue.trim()}
-                                    className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-surface-3 text-white font-black py-5 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-100"
-                                >
-                                    Continue <ChevronRight className="w-5 h-5" />
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 gap-4">
-                                {step.options.map((opt) => (
-                                    <button
-                                        key={opt.id}
-                                        onClick={() => handleSelect(opt.id)}
-                                        className={`group flex items-center gap-6 p-6 rounded-[2rem] border-2 transition-all duration-300 text-left
-                      ${selections[step.id] === opt.id
-                                                ? 'bg-indigo-50 border-indigo-600'
-                                                : 'bg-surface border-transparent hover:border-indigo-100 hover:shadow-lg hover:-translate-y-1'}`}
-                                    >
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm
-                      ${selections[step.id] === opt.id
-                                                ? 'bg-indigo-600 text-white scale-110'
-                                                : 'bg-background text-t-4 group-hover:bg-indigo-100 group-hover:text-indigo-600'}`}>
-                                            {opt.icon}
-                                        </div>
-                                        <div>
-                                            <h4 className={`font-black uppercase tracking-wider text-xs mb-1 ${selections[step.id] === opt.id ? 'text-indigo-700' : 'text-t-2'}`}>
-                                                {opt.label}
-                                            </h4>
-                                            <p className="text-t-4 font-medium text-xs leading-none">{opt.desc}</p>
-                                        </div>
-                                        <ChevronRight className={`ml-auto w-5 h-5 transition-all duration-300 ${selections[step.id] === opt.id ? 'text-indigo-600 translate-x-1' : 'text-slate-200 group-hover:text-slate-300'}`} />
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                            ))}
+                        </div>
+                        <span className="text-[10px] font-black text-t-3 uppercase tracking-widest font-mono">
+                            {currentStep + 1} / {steps.length}
+                        </span>
+                    </div>
+
+                    <div className="text-center space-y-2">
+                        <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] font-mono">{step.sequence}</span>
+                        <h1 className="text-3xl md:text-4xl font-black text-t-1 tracking-tight leading-tight">
+                            {step.title}
+                        </h1>
                     </div>
                 </div>
 
+                {/* Question Content */}
+                <div className="w-full">
+                    {step.isInput ? (
+                        <div className="space-y-4 max-w-md mx-auto">
+                            <input
+                                autoFocus
+                                type="text"
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleNext()}
+                                placeholder={step.placeholder}
+                                className="w-full bg-surface border border-sub-border focus:border-indigo-400 rounded-xl px-6 py-4 text-xl font-black text-t-1 outline-none transition-all placeholder:text-t-4 placeholder:font-medium text-center shadow-sm"
+                            />
+                            <button
+                                onClick={handleNext}
+                                disabled={!inputValue.trim()}
+                                className="w-full bg-indigo-600 disabled:bg-surface-2 disabled:text-t-4 text-white font-black py-4 rounded-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm"
+                            >
+                                Continue <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className={`grid gap-3 ${step.options.length <= 4 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
+                            {step.options.map((opt) => (
+                                <button
+                                    key={opt.id}
+                                    onClick={() => handleSelect(opt.id)}
+                                    className={`group flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-200 text-left
+                      ${selections[step.id] === opt.id
+                                            ? 'bg-indigo-50 border-indigo-400 shadow-lg shadow-indigo-100'
+                                            : 'bg-surface border-sub-border hover:border-indigo-300 hover:bg-indigo-50/50 hover:-translate-y-0.5'}`}
+                                >
+                                    <div className={`flex-none w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200
+                      ${selections[step.id] === opt.id
+                                            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-300'
+                                            : 'bg-background text-t-3 border border-sub-border group-hover:text-indigo-500 group-hover:border-indigo-200'}`}>
+                                        {opt.icon}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <h4 className={`font-black text-sm leading-tight ${selections[step.id] === opt.id ? 'text-indigo-700' : 'text-t-1'}`}>
+                                            {opt.label}
+                                        </h4>
+                                        <p className="text-t-4 font-medium text-xs mt-0.5 truncate">{opt.desc}</p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* Aesthetic Bottom Footer */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-center opacity-0 md:opacity-100 transition-opacity">
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2">
-                    <Target className="w-3 h-3" /> Secure AI Personalization
+            {/* Footer */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+                <p className="text-[10px] font-black text-t-4 uppercase tracking-widest flex items-center gap-2">
+                    <Target className="w-3 h-3" /> Engldom Intelligence Engine
                 </p>
             </div>
-
         </div>
     );
 };

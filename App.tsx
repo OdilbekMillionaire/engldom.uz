@@ -22,21 +22,19 @@ import { storageService } from './services/storageService';
 function App() {
   const [currentModule, setCurrentModule] = useState<ModuleType>(ModuleType.DASHBOARD);
   const [sessionData, setSessionData] = useState<any>(null);
-  const [showLanding, setShowLanding] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [appState, setAppState] = useState<'landing' | 'onboarding' | 'platform'>('platform');
 
   // Apply saved theme on first load; show landing for new users
   useEffect(() => {
     const settings = storageService.getSettings();
 
     if (!settings.onboardingCompleted) {
-      setShowLanding(true);
+      setAppState('landing');
     }
   }, []);
 
   const handleStartOnboarding = () => {
-    setShowLanding(false);
-    setShowOnboarding(true);
+    setAppState('onboarding');
   };
 
   const handleOnboardingComplete = (results: any) => {
@@ -47,7 +45,7 @@ function App() {
       defaultCEFRLevel: results.level.toUpperCase() as CEFRLevel,
       onboardingCompleted: true,
     });
-    setShowOnboarding(false);
+    setAppState('platform');
   };
 
   const handleModuleChange = (module: ModuleType) => {
@@ -81,18 +79,12 @@ function App() {
 
   return (
     <XPToastProvider>
-      {showLanding ? (
-        <LandingPage onStart={handleStartOnboarding} />
-      ) : (
-        <>
-          <Layout currentModule={currentModule} onModuleChange={handleModuleChange}>
-            {renderModule()}
-          </Layout>
-
-          {showOnboarding && (
-            <OnboardingQuiz onComplete={handleOnboardingComplete} />
-          )}
-        </>
+      {appState === 'landing' && <LandingPage onStart={handleStartOnboarding} />}
+      {appState === 'onboarding' && <OnboardingQuiz onComplete={handleOnboardingComplete} />}
+      {appState === 'platform' && (
+        <Layout currentModule={currentModule} onModuleChange={handleModuleChange}>
+          {renderModule()}
+        </Layout>
       )}
     </XPToastProvider>
   );
