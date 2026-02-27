@@ -207,7 +207,7 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
             {!data ? (
                 <div className="space-y-12 max-w-6xl mx-auto">
                     {/* Header */}
-                    <div className="text-center space-y-4 py-12 bg-white rounded-3xl shadow-sm border border-slate-100 relative">
+                    <div className="text-center space-y-4 py-12 bg-surface rounded-3xl shadow-sm border border-sub-border relative">
                         {savedRules.length > 0 && (
                             <button 
                                 onClick={() => setShowCheatSheet(true)}
@@ -219,8 +219,8 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                         <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
                             <Scale className="w-10 h-10 text-indigo-600" />
                         </div>
-                        <h2 className="text-4xl font-bold text-slate-900 font-serif">Grammar Laboratory</h2>
-                        <p className="text-slate-500 max-w-xl mx-auto text-lg">
+                        <h2 className="text-4xl font-bold text-t-1 font-serif">Grammar Laboratory</h2>
+                        <p className="text-t-3 max-w-xl mx-auto text-lg">
                             Master complex rules through AI-generated explanations and adaptive drills. Select a core topic or define your own.
                         </p>
                     </div>
@@ -229,15 +229,15 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                         {/* LEFT: Quick Start Grid */}
                         <div className="lg:col-span-8">
                             <div className="flex items-center justify-between mb-6">
-                                <h3 className="font-bold text-slate-800 text-xl flex items-center gap-2">
+                                <h3 className="font-bold text-t-1 text-xl flex items-center gap-2">
                                     <Layout className="w-5 h-5 text-indigo-500" /> Core Topics
                                 </h3>
-                                <div className="flex bg-slate-100 p-1 rounded-lg">
+                                <div className="flex bg-surface-2 p-1 rounded-lg">
                                     {Object.values(CEFRLevel).slice(2).map(l => (
                                         <button
                                             key={l}
                                             onClick={() => setLevel(l)}
-                                            className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${level === l ? 'bg-white shadow text-indigo-700' : 'text-slate-500'}`}
+                                            className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${level === l ? 'bg-surface shadow text-indigo-700' : 'text-t-3'}`}
                                         >
                                             {l}
                                         </button>
@@ -251,7 +251,7 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                         key={t.id}
                                         onClick={() => handleGenerate(t.label)}
                                         disabled={loading}
-                                        className="group relative bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all text-left overflow-hidden"
+                                        className="group relative bg-surface p-6 rounded-2xl border border-sub-border shadow-sm hover:shadow-md hover:border-indigo-100 transition-all text-left overflow-hidden"
                                     >
                                         <div className={`absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity ${t.color}`}>
                                             <t.icon className="w-16 h-16" />
@@ -259,8 +259,8 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${t.color}`}>
                                             <t.icon className="w-5 h-5" />
                                         </div>
-                                        <h4 className="font-bold text-slate-800 text-lg group-hover:text-indigo-700 transition-colors">{t.label}</h4>
-                                        <div className="flex items-center gap-2 mt-2 text-xs font-bold text-slate-400 group-hover:text-indigo-400">
+                                        <h4 className="font-bold text-t-1 text-lg group-hover:text-indigo-700 transition-colors">{t.label}</h4>
+                                        <div className="flex items-center gap-2 mt-2 text-xs font-bold text-t-4 group-hover:text-indigo-400">
                                             Start Session <ArrowRight className="w-3 h-3" />
                                         </div>
                                     </button>
@@ -289,13 +289,13 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                             value={customTopic}
                                             onChange={(e) => setCustomTopic(e.target.value)}
                                             placeholder="e.g. 'Difference between used to and get used to'"
-                                            className="w-full p-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-indigo-300/50 focus:bg-white/20 outline-none transition-all"
+                                            className="w-full p-4 rounded-xl bg-surface/10 border border-white/20 text-white placeholder:text-indigo-300/50 focus:bg-surface/20 outline-none transition-all"
                                         />
                                     </div>
                                     <button
                                         onClick={() => handleGenerate()}
                                         disabled={loading || !customTopic}
-                                        className="w-full py-4 bg-white text-indigo-900 rounded-xl font-bold hover:bg-indigo-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                                        className="w-full py-4 bg-surface text-indigo-900 rounded-xl font-bold hover:bg-indigo-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                                     >
                                         {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5 text-indigo-600" />}
                                         {loading ? 'Analyzing...' : 'Generate Lesson'}
@@ -309,7 +309,7 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                 <div className="grid lg:grid-cols-12 gap-8 h-[calc(100vh-100px)] relative">
                     {/* Completion overlay */}
                     {showCompletion && (
-                        <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm rounded-3xl overflow-auto">
+                        <div className="absolute inset-0 z-50 bg-surface/95 backdrop-blur-sm rounded-3xl overflow-auto">
                             <CompletionScreen
                                 score={completionData.score}
                                 maxScore={completionData.maxScore}
@@ -345,7 +345,7 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                     </button>
                                     <button 
                                         onClick={() => openChatWithContext("Can you explain this rule further?")}
-                                        className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full flex items-center gap-2 transition-colors"
+                                        className="text-xs bg-surface/10 hover:bg-surface/20 px-3 py-1.5 rounded-full flex items-center gap-2 transition-colors"
                                     >
                                         <HelpCircle className="w-3 h-3" /> Ask Tutor
                                     </button>
@@ -377,14 +377,14 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                 </div>
 
                                 {/* Examples */}
-                                <div className="bg-white/5 rounded-xl p-6 border border-white/10 relative overflow-hidden">
+                                <div className="bg-surface/5 rounded-xl p-6 border border-white/10 relative overflow-hidden">
                                     <div className="absolute top-0 right-0 p-2 opacity-10"><Zap className="w-12 h-12" /></div>
                                     <h3 className="font-sans font-bold text-indigo-300 mb-4 uppercase text-xs tracking-wider">Examples</h3>
                                     <div className="space-y-6">
                                         {data.lessonContent.examples.map((ex, i) => (
                                             <div key={i} className="relative pl-4 border-l-2 border-indigo-400/30">
                                                 <p className="text-white text-lg mb-1 italic">"{ex.text}"</p>
-                                                <p className="text-sm text-slate-400 font-sans">{ex.context}</p>
+                                                <p className="text-sm text-t-4 font-sans">{ex.context}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -406,7 +406,7 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                                     <span className="font-bold">✓</span>
                                                     <span>{m.correction}</span>
                                                 </div>
-                                                <p className="text-xs text-slate-400 font-sans mt-2 border-t border-white/10 pt-2">
+                                                <p className="text-xs text-t-4 font-sans mt-2 border-t border-white/10 pt-2">
                                                     <span className="font-bold text-red-400 uppercase text-[10px]">Why?</span> {m.explanation}
                                                 </p>
                                             </div>
@@ -418,15 +418,15 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                     </div>
 
                     {/* RIGHT: THE GYM (Exercises) */}
-                    <div className="lg:col-span-7 flex flex-col h-full bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <div className="lg:col-span-7 flex flex-col h-full bg-surface rounded-3xl border border-base-border shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-sub-border flex justify-between items-center bg-background">
                             <div>
-                                <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                <h3 className="font-bold text-t-1 text-lg flex items-center gap-2">
                                     <Zap className="w-5 h-5 text-indigo-600" /> Practice Arena
                                 </h3>
-                                <p className="text-slate-500 text-sm">Apply the rules immediately.</p>
+                                <p className="text-t-3 text-sm">Apply the rules immediately.</p>
                             </div>
-                            <button onClick={() => setData(null)} className="text-xs font-bold text-slate-400 hover:text-indigo-600">
+                            <button onClick={() => setData(null)} className="text-xs font-bold text-t-4 hover:text-indigo-600">
                                 Change Topic
                             </button>
                         </div>
@@ -435,7 +435,7 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                             {(() => {
                                 const allRevealed = data.exercises.length > 0 && data.exercises.every(ex => exerciseStates[ex.id]?.revealed);
                                 return allRevealed ? (
-                                    <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm pb-4 -mx-2 px-2 animate-fade-in">
+                                    <div className="sticky top-0 z-10 bg-surface/90 backdrop-blur-sm pb-4 -mx-2 px-2 animate-fade-in">
                                         <button
                                             onClick={handleCompleteLesson}
                                             className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 transition-all"
@@ -453,24 +453,24 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                 return (
                                     <div key={ex.id} className={`transition-all duration-500 ${isCorrect ? 'opacity-60' : 'opacity-100'}`}>
                                         <div className="flex gap-4 mb-4">
-                                            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-none shadow-sm transition-colors ${isCorrect ? 'bg-emerald-100 text-emerald-600' : isIncorrect ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600'}`}>
+                                            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-none shadow-sm transition-colors ${isCorrect ? 'bg-emerald-100 text-emerald-600' : isIncorrect ? 'bg-red-100 text-red-600' : 'bg-surface-2 text-t-2'}`}>
                                                 {isCorrect ? <CheckCircle2 className="w-5 h-5" /> : i + 1}
                                             </span>
                                             <div className="flex-1">
                                                 <div className="flex justify-between items-start">
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">
+                                                    <span className="text-[10px] font-bold text-t-4 uppercase tracking-wider mb-1 block">
                                                         {ex.type.replace('_', ' ')}
                                                     </span>
                                                     {ex.hint && !isCorrect && (
                                                         <button 
                                                             onClick={() => toggleHint(ex.id)}
-                                                            className={`text-xs flex items-center gap-1 font-bold transition-colors ${state.showHint ? 'text-yellow-600' : 'text-slate-400 hover:text-yellow-500'}`}
+                                                            className={`text-xs flex items-center gap-1 font-bold transition-colors ${state.showHint ? 'text-yellow-600' : 'text-t-4 hover:text-yellow-500'}`}
                                                         >
                                                             <Lightbulb className="w-3 h-3" /> {state.showHint ? 'Hide Hint' : 'Hint'}
                                                         </button>
                                                     )}
                                                 </div>
-                                                <p className="font-medium text-slate-800 text-xl leading-relaxed">{ex.question}</p>
+                                                <p className="font-medium text-t-1 text-xl leading-relaxed">{ex.question}</p>
                                                 
                                                 {state.showHint && (
                                                     <div className="mt-2 text-sm text-yellow-700 bg-yellow-50 p-2 rounded-lg border border-yellow-100 animate-fade-in inline-block">
@@ -495,10 +495,10 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                                                         ? 'bg-emerald-100 border-emerald-500 text-emerald-800'
                                                                         : state.userAnswer === opt
                                                                             ? 'bg-red-50 border-red-300 text-red-800'
-                                                                            : 'opacity-50 border-slate-200'
+                                                                            : 'opacity-50 border-base-border'
                                                                     : state.userAnswer === opt
                                                                         ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
-                                                                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600'
+                                                                        : 'bg-surface hover:bg-background border-base-border text-t-2'
                                                             }`}
                                                         >
                                                             {opt}
@@ -511,15 +511,15 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                             {ex.type === 'reorder' && ex.scrambled && (
                                                 <div className="mb-4">
                                                     {/* User Constructed Sentence Area */}
-                                                    <div className={`min-h-[60px] p-4 rounded-xl border-2 border-dashed mb-4 flex flex-wrap gap-2 items-center transition-all ${state.revealed ? (isCorrect ? 'border-emerald-300 bg-emerald-50' : 'border-red-300 bg-red-50') : 'border-slate-300 bg-slate-50'}`}>
+                                                    <div className={`min-h-[60px] p-4 rounded-xl border-2 border-dashed mb-4 flex flex-wrap gap-2 items-center transition-all ${state.revealed ? (isCorrect ? 'border-emerald-300 bg-emerald-50' : 'border-red-300 bg-red-50') : 'border-slate-300 bg-background'}`}>
                                                         {state.userAnswer ? (
                                                             state.userAnswer.split(' ').map((word, wIdx) => (
-                                                                <span key={wIdx} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm font-bold text-slate-700">
+                                                                <span key={wIdx} className="px-3 py-1.5 bg-surface border border-base-border rounded-lg shadow-sm font-bold text-t-2">
                                                                     {word}
                                                                 </span>
                                                             ))
                                                         ) : (
-                                                            <span className="text-slate-400 text-sm">Click words below to build sentence...</span>
+                                                            <span className="text-t-4 text-sm">Click words below to build sentence...</span>
                                                         )}
                                                         {state.userAnswer && !state.revealed && (
                                                             <button 
@@ -544,8 +544,8 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                                                     disabled={state.revealed}
                                                                     className={`px-4 py-2 rounded-lg font-bold text-sm transition-all transform active:scale-95 ${
                                                                         state.revealed 
-                                                                        ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400'
-                                                                        : 'bg-white border border-slate-200 shadow-sm hover:border-indigo-300 hover:text-indigo-600 text-slate-600'
+                                                                        ? 'opacity-50 cursor-not-allowed bg-surface-2 text-t-4'
+                                                                        : 'bg-surface border border-base-border shadow-sm hover:border-indigo-300 hover:text-indigo-600 text-t-2'
                                                                     }`}
                                                                 >
                                                                     {word}
@@ -571,7 +571,7 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                                                 ? isCorrect
                                                                     ? 'bg-emerald-50 border-emerald-500 text-emerald-800 font-bold'
                                                                     : 'bg-red-50 border-red-300 text-red-800 line-through'
-                                                                : 'bg-white border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
+                                                                : 'bg-surface border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
                                                         }`}
                                                     />
                                                 </div>
@@ -625,7 +625,7 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
             {/* Cheat Sheet Modal */}
             {showCheatSheet && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white w-full max-w-2xl h-[600px] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-fade-in">
+                    <div className="bg-surface w-full max-w-2xl h-[600px] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-fade-in">
                         <div className="bg-indigo-600 text-white p-6 flex justify-between items-center">
                             <h3 className="font-bold text-xl flex items-center gap-2">
                                 <Book className="w-5 h-5" /> My Cheat Sheet
@@ -634,15 +634,15 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50">
+                        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-background">
                             {savedRules.length === 0 ? (
-                                <div className="text-center text-slate-400 py-12">
+                                <div className="text-center text-t-4 py-12">
                                     <Save className="w-12 h-12 mx-auto mb-2 opacity-50" />
                                     <p>No saved rules yet. Use the "Save Rule" button during lessons.</p>
                                 </div>
                             ) : (
                                 savedRules.map(rule => (
-                                    <div key={rule.id} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative group">
+                                    <div key={rule.id} className="bg-surface p-6 rounded-xl border border-base-border shadow-sm relative group">
                                         <button 
                                             onClick={() => removeRule(rule.id)}
                                             className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
@@ -652,7 +652,7 @@ export const GrammarModule: React.FC<GrammarModuleProps> = ({ initialData }) => 
                                         <div className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-2 bg-indigo-50 inline-block px-2 py-1 rounded">
                                             {rule.topic}
                                         </div>
-                                        <h4 className="font-bold text-slate-800 text-lg mb-2">{rule.rule}</h4>
+                                        <h4 className="font-bold text-t-1 text-lg mb-2">{rule.rule}</h4>
                                         <div className="pl-3 border-l-4 border-emerald-300 bg-emerald-50/50 p-2 rounded-r-lg">
                                             <p className="text-sm text-emerald-800 italic">"{rule.example}"</p>
                                         </div>

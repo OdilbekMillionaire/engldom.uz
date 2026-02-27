@@ -40,19 +40,19 @@ const GameCard: React.FC<{
             onClick={canPlay ? onClick : undefined}>
             <div className={`${gradient} p-6 text-white`}>
                 <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">{icon}</div>
-                    <span className="text-[10px] font-bold bg-white/20 px-2.5 py-1 rounded-full uppercase tracking-wider">{badge}</span>
+                    <div className="w-12 h-12 bg-surface/20 rounded-xl flex items-center justify-center">{icon}</div>
+                    <span className="text-[10px] font-bold bg-surface/20 px-2.5 py-1 rounded-full uppercase tracking-wider">{badge}</span>
                 </div>
                 <h3 className="text-xl font-bold mb-1">{title}</h3>
                 <p className="text-white/80 text-sm leading-relaxed">{description}</p>
             </div>
-            <div className="bg-white p-4 flex items-center justify-between">
-                <span className="text-xs text-slate-500 font-medium">
+            <div className="bg-surface p-4 flex items-center justify-between">
+                <span className="text-xs text-t-3 font-medium">
                     {canPlay ? `${wordCount} vault words available` : `Need ${minWords}+ vault words`}
                 </span>
                 {canPlay
                     ? <span className="flex items-center gap-1 text-xs font-bold text-indigo-600"><Zap className="w-3.5 h-3.5" />+{GAME_XP[title === 'Vocab Match' ? 'vocab_match' : title === 'Speed Spelling' ? 'speed_spelling' : 'collocation']} XP</span>
-                    : <span className="text-xs text-slate-400 font-medium">Locked 🔒</span>}
+                    : <span className="text-xs text-t-4 font-medium">Locked 🔒</span>}
             </div>
         </div>
     );
@@ -63,27 +63,49 @@ const GameCard: React.FC<{
 const ResultScreen: React.FC<{ result: GameResult; gameName: string; onReplay: () => void; onMenu: () => void }> = ({ result, gameName, onReplay, onMenu }) => {
     const pct = Math.round((result.score / result.total) * 100);
     const emoji = pct === 100 ? '🏆' : pct >= 70 ? '🌟' : pct >= 40 ? '👍' : '💪';
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 fade-slide-in">
-            <div className="text-7xl">{emoji}</div>
+        <div className="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-8 fade-slide-in px-4">
+            <div className="relative">
+                <div className="text-8xl animate-bounce mb-2">{emoji}</div>
+                <div className="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs font-black px-2 py-1 rounded-full shadow-lg">NEW RECORD!</div>
+            </div>
+
             <div>
-                <h2 className="text-3xl font-bold text-slate-800 mb-1">{pct === 100 ? 'Perfect!' : pct >= 70 ? 'Great job!' : 'Keep going!'}</h2>
-                <p className="text-slate-500">You scored {result.score} out of {result.total} in {gameName}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
-                <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-center">
-                    <div className="text-3xl font-bold text-indigo-700">{result.score}/{result.total}</div>
-                    <div className="text-xs text-indigo-500 font-medium">Score</div>
-                </div>
-                <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center">
-                    <div className="text-3xl font-bold text-amber-700 flex items-center justify-center gap-1"><Zap className="w-6 h-6" />{result.xp}</div>
-                    <div className="text-xs text-amber-500 font-medium">XP Earned</div>
+                <h2 className="text-4xl font-black text-t-1 mb-2 tracking-tight">
+                    {pct === 100 ? 'Sensational!' : pct >= 70 ? 'Impressive!' : 'Good Effort!'}
+                </h2>
+                <div className="inline-flex items-center gap-2 bg-surface-2 px-4 py-1.5 rounded-full text-t-2 font-bold text-sm">
+                    {gameName} Module Completed
                 </div>
             </div>
-            <div className="flex gap-3 w-full max-w-xs">
-                <button onClick={onMenu} className="flex-1 py-3 border-2 border-slate-200 text-slate-600 font-bold rounded-xl hover:border-indigo-300 transition-all">Menu</button>
-                <button onClick={onReplay} className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
-                    <RotateCcw className="w-4 h-4" /> Replay
+
+            <div className="flex items-center gap-6 w-full max-w-sm">
+                <div className="flex-1 bg-surface border-2 border-sub-border rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="text-4xl font-black text-indigo-600 mb-1">{result.score}/{result.total}</div>
+                    <div className="text-[10px] text-t-4 font-bold uppercase tracking-widest">Accuracy</div>
+                </div>
+                <div className="flex-1 bg-surface border-2 border-indigo-100 rounded-3xl p-6 shadow-indigo-100 hover:shadow-lg transition-all transform hover:scale-105">
+                    <div className="text-4xl font-black text-amber-500 flex items-center justify-center gap-1">
+                        <Zap className="w-8 h-8 fill-amber-500" />
+                        {result.xp}
+                    </div>
+                    <div className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">XP Earned</div>
+                </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                <button
+                    onClick={onMenu}
+                    className="flex-1 py-4 px-6 border-2 border-sub-border text-t-2 font-black rounded-2xl hover:bg-background transition-all active:scale-95"
+                >
+                    Back to Menu
+                </button>
+                <button
+                    onClick={onReplay}
+                    className="flex-1 py-4 px-6 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-3 active:scale-95"
+                >
+                    <RotateCcw className="w-5 h-5" /> Play Again
                 </button>
             </div>
         </div>
@@ -152,13 +174,13 @@ const VocabMatch: React.FC<{ onDone: (r: GameResult) => void }> = ({ onDone }) =
                 <div className="flex items-center gap-2">
                     <div className="flex gap-1">
                         {Array.from({ length: TOTAL }).map((_, i) => (
-                            <div key={i} className={`w-2.5 h-2.5 rounded-full transition-colors ${i < idx ? 'bg-emerald-500' : i === idx ? 'bg-indigo-500' : 'bg-slate-200'}`} />
+                            <div key={i} className={`w-2.5 h-2.5 rounded-full transition-colors ${i < idx ? 'bg-emerald-500' : i === idx ? 'bg-indigo-500' : 'bg-surface-3'}`} />
                         ))}
                     </div>
-                    <span className="text-sm font-semibold text-slate-500">{idx + 1}/{TOTAL}</span>
+                    <span className="text-sm font-semibold text-t-3">{idx + 1}/{TOTAL}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="w-32 h-2 bg-surface-2 rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${timerPct}%`, background: timerColor }} />
                     </div>
                     <span className="text-sm font-bold" style={{ color: timerColor }}>{timeLeft}s</span>
@@ -169,7 +191,7 @@ const VocabMatch: React.FC<{ onDone: (r: GameResult) => void }> = ({ onDone }) =
             <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-8 text-center text-white shadow-xl shadow-indigo-200">
                 <p className="text-xs font-bold uppercase tracking-widest opacity-70 mb-2">Match the meaning</p>
                 <h2 className="text-5xl font-bold font-serif mb-2">{currentWord.word}</h2>
-                <span className="text-xs bg-white/20 px-2.5 py-1 rounded-full font-medium">{currentWord.pos}</span>
+                <span className="text-xs bg-surface/20 px-2.5 py-1 rounded-full font-medium">{currentWord.pos}</span>
             </div>
 
             {/* Options */}
@@ -177,17 +199,17 @@ const VocabMatch: React.FC<{ onDone: (r: GameResult) => void }> = ({ onDone }) =
                 {options.map((opt, i) => {
                     const isCorrect = opt === currentWord.meaning;
                     const isChosen = chosen === opt;
-                    let cls = 'bg-white border-2 border-slate-200 text-slate-700 hover:border-indigo-300 hover:bg-indigo-50';
-                    if (showFeedback && isCorrect) cls = 'bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-semibold';
-                    else if (showFeedback && isChosen && !isCorrect) cls = 'bg-red-50 border-2 border-red-400 text-red-700';
+                    let cls = 'bg-surface border-2 border-base-border text-t-2 hover:border-indigo-300 hover:bg-indigo-50 hover:shadow-sm';
+                    if (showFeedback && isCorrect) cls = 'bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-black answer-correct shadow-md shadow-emerald-100';
+                    else if (showFeedback && isChosen && !isCorrect) cls = 'bg-red-50 border-2 border-red-400 text-red-700 answer-wrong shadow-md shadow-red-100';
                     return (
                         <button
                             key={i} onClick={() => handleAnswer(opt)} disabled={!!chosen}
-                            className={`w-full text-left p-4 rounded-xl transition-all flex items-center justify-between gap-3 ${cls}`}
+                            className={`w-full text-left py-5 px-6 rounded-2xl transition-all flex items-center justify-between gap-4 min-h-[64px] ${cls}`}
                         >
-                            <span className="text-sm leading-relaxed">{opt}</span>
-                            {showFeedback && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />}
-                            {showFeedback && isChosen && !isCorrect && <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />}
+                            <span className="text-sm font-semibold leading-relaxed">{opt}</span>
+                            {showFeedback && isCorrect && <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />}
+                            {showFeedback && isChosen && !isCorrect && <XCircle className="w-6 h-6 text-red-500 flex-shrink-0" />}
                         </button>
                     );
                 })}
@@ -259,9 +281,9 @@ const SpeedSpelling: React.FC<{ onDone: (r: GameResult) => void }> = ({ onDone }
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     {Array.from({ length: TOTAL }).map((_, i) => (
-                        <div key={i} className={`w-2.5 h-2.5 rounded-full ${i < idx ? 'bg-emerald-500' : i === idx ? 'bg-orange-500' : 'bg-slate-200'}`} />
+                        <div key={i} className={`w-2.5 h-2.5 rounded-full ${i < idx ? 'bg-emerald-500' : i === idx ? 'bg-orange-500' : 'bg-surface-3'}`} />
                     ))}
-                    <span className="text-sm font-semibold text-slate-500">{idx + 1}/{TOTAL}</span>
+                    <span className="text-sm font-semibold text-t-3">{idx + 1}/{TOTAL}</span>
                 </div>
                 <span className="text-sm font-bold text-emerald-600 flex items-center gap-1"><Trophy className="w-4 h-4" />{score} correct</span>
             </div>
@@ -272,7 +294,7 @@ const SpeedSpelling: React.FC<{ onDone: (r: GameResult) => void }> = ({ onDone }
                 <button
                     onClick={() => playAudio(currentWord.word)}
                     disabled={loading}
-                    className="w-20 h-20 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center mx-auto transition-all mb-4 group"
+                    className="w-20 h-20 bg-surface/20 hover:bg-surface/30 rounded-full flex items-center justify-center mx-auto transition-all mb-4 group"
                 >
                     {loading
                         ? <div className="w-8 h-8 border-4 border-white/40 border-t-white rounded-full animate-spin" />
@@ -282,7 +304,7 @@ const SpeedSpelling: React.FC<{ onDone: (r: GameResult) => void }> = ({ onDone }
                 <p className="text-xs mt-1 opacity-50">{currentWord.pos} · {currentWord.meaning.slice(0, 60)}{currentWord.meaning.length > 60 ? '…' : ''}</p>
             </div>
 
-            <div className={`relative transition-all ${feedback === 'correct' ? 'ring-2 ring-emerald-400 rounded-xl' : feedback === 'wrong' ? 'ring-2 ring-red-400 rounded-xl' : ''}`}>
+            <div className={`relative transition-all duration-300 ${feedback === 'correct' ? 'ring-4 ring-emerald-400/20 rounded-2xl answer-correct' : feedback === 'wrong' ? 'ring-4 ring-red-400/20 rounded-2xl answer-wrong' : ''}`}>
                 <input
                     ref={inputRef}
                     type="text"
@@ -291,16 +313,16 @@ const SpeedSpelling: React.FC<{ onDone: (r: GameResult) => void }> = ({ onDone }
                     onKeyDown={e => e.key === 'Enter' && handleSubmit()}
                     disabled={!!feedback}
                     placeholder="Type the word you heard..."
-                    className={`w-full px-5 py-4 rounded-xl border-2 text-lg font-semibold outline-none transition-all ${feedback === 'correct' ? 'border-emerald-400 bg-emerald-50 text-emerald-700' :
-                            feedback === 'wrong' ? 'border-red-400 bg-red-50 text-red-700' :
-                                'border-slate-200 bg-white focus:border-orange-400'
+                    className={`w-full px-6 py-5 rounded-2xl border-2 text-xl font-bold outline-none transition-all ${feedback === 'correct' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' :
+                        feedback === 'wrong' ? 'border-red-500 bg-red-50 text-red-700' :
+                            'border-base-border bg-surface focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100'
                         }`}
                 />
-                {feedback === 'correct' && <CheckCircle2 className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-emerald-500" />}
+                {feedback === 'correct' && <CheckCircle2 className="absolute right-5 top-1/2 -translate-y-1/2 w-8 h-8 text-emerald-600" />}
                 {feedback === 'wrong' && (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-right">
-                        <p className="text-xs text-red-600 font-bold">{currentWord.word}</p>
-                        <XCircle className="w-5 h-5 text-red-400 ml-auto" />
+                    <div className="absolute right-5 top-1/2 -translate-y-1/2 text-right">
+                        <p className="text-xs text-red-600 font-black uppercase tracking-tight">{currentWord.word}</p>
+                        <XCircle className="w-6 h-6 text-red-500 ml-auto" />
                     </div>
                 )}
             </div>
@@ -366,7 +388,7 @@ const CollocationBuilder: React.FC<{ onDone: (r: GameResult) => void }> = ({ onD
 
     if (challengeWords.current.length < 3) {
         return (
-            <div className="text-center py-16 text-slate-500">
+            <div className="text-center py-16 text-t-3">
                 <Link className="w-12 h-12 mx-auto mb-4 opacity-30" />
                 <p className="font-semibold">Not enough vault words with collocations yet.</p>
                 <p className="text-sm mt-1">Generate vocabulary from the Vocab Generator to unlock this game.</p>
@@ -383,9 +405,9 @@ const CollocationBuilder: React.FC<{ onDone: (r: GameResult) => void }> = ({ onD
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     {Array.from({ length: total }).map((_, i) => (
-                        <div key={i} className={`w-2.5 h-2.5 rounded-full ${i < idx ? 'bg-emerald-500' : i === idx ? 'bg-teal-500' : 'bg-slate-200'}`} />
+                        <div key={i} className={`w-2.5 h-2.5 rounded-full ${i < idx ? 'bg-emerald-500' : i === idx ? 'bg-teal-500' : 'bg-surface-3'}`} />
                     ))}
-                    <span className="text-sm font-semibold text-slate-500">{idx + 1}/{total}</span>
+                    <span className="text-sm font-semibold text-t-3">{idx + 1}/{total}</span>
                 </div>
                 <span className="text-sm font-bold text-emerald-600 flex items-center gap-1"><Trophy className="w-4 h-4" />{score} correct</span>
             </div>
@@ -396,22 +418,22 @@ const CollocationBuilder: React.FC<{ onDone: (r: GameResult) => void }> = ({ onD
                 <p className="opacity-70 text-sm mt-2">{challenge.word.meaning.slice(0, 80)}…</p>
             </div>
 
-            <p className="text-center text-sm text-slate-500 font-medium">Which phrase sounds natural with this word?</p>
+            <p className="text-center text-sm text-t-3 font-medium">Which phrase sounds natural with this word?</p>
 
             <div className="space-y-3">
                 {challenge.options.map((opt, i) => {
                     const isCorrect = opt === challenge.correct;
                     const isChosen = chosen === opt;
-                    let cls = 'bg-white border-2 border-slate-200 text-slate-700 hover:border-teal-300 hover:bg-teal-50';
-                    if (feedback !== null && isCorrect) cls = 'bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-semibold';
-                    else if (feedback !== null && isChosen && !isCorrect) cls = 'bg-red-50 border-2 border-red-400 text-red-700';
+                    let cls = 'bg-surface border-2 border-base-border text-t-2 hover:border-teal-300 hover:bg-teal-50 hover:shadow-sm';
+                    if (feedback !== null && isCorrect) cls = 'bg-emerald-50 border-2 border-emerald-500 text-emerald-800 font-black answer-correct shadow-md shadow-emerald-100';
+                    else if (feedback !== null && isChosen && !isCorrect) cls = 'bg-red-50 border-2 border-red-400 text-red-700 answer-wrong shadow-md shadow-red-100';
                     return (
                         <button key={i} onClick={() => handleAnswer(opt)} disabled={!!chosen}
-                            className={`w-full text-left p-4 rounded-xl transition-all flex items-center justify-between gap-3 ${cls}`}
+                            className={`w-full text-left py-5 px-6 rounded-2xl transition-all flex items-center justify-between gap-4 min-h-[64px] ${cls}`}
                         >
-                            <span className="text-sm leading-relaxed italic">"{opt}"</span>
-                            {feedback !== null && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />}
-                            {feedback !== null && isChosen && !isCorrect && <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />}
+                            <span className="text-sm font-semibold leading-relaxed italic">"{opt}"</span>
+                            {feedback !== null && isCorrect && <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />}
+                            {feedback !== null && isChosen && !isCorrect && <XCircle className="w-6 h-6 text-red-500 flex-shrink-0" />}
                         </button>
                     );
                 })}
@@ -436,7 +458,10 @@ export const GamesModule: React.FC = () => {
             xpResult.newBadges.forEach(b => showBadge(b));
             showXP(r.xp, 'Mini-Game');
         }
-        setCurrentGame('menu');
+        // Don't immediately go back to menu, stay on results
+        setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 100);
     };
 
     const gameTitle = {
@@ -454,11 +479,11 @@ export const GamesModule: React.FC = () => {
                             <Gamepad2 className="w-7 h-7 text-indigo-400" />
                             Vocabulary Games
                         </h2>
-                        <p className="text-slate-400 text-sm mt-1">Practice your vault words through fun mini-games and earn XP.</p>
+                        <p className="text-t-4 text-sm mt-1">Practice your vault words through fun mini-games and earn XP.</p>
                     </div>
                     <div className="text-right">
                         <div className="text-2xl font-bold text-indigo-400">{vaultCount}</div>
-                        <div className="text-xs text-slate-500">Vault Words</div>
+                        <div className="text-xs text-t-3">Vault Words</div>
                     </div>
                 </div>
 
@@ -484,8 +509,8 @@ export const GamesModule: React.FC = () => {
                 </div>
             )}
 
-            {/* Game menu */}
-            {currentGame === 'menu' && (
+            {/* Active games or Results */}
+            {currentGame === 'menu' && !result && (
                 <div className="grid md:grid-cols-3 gap-6">
                     <GameCard
                         title="Vocab Match"
@@ -520,14 +545,27 @@ export const GamesModule: React.FC = () => {
                 </div>
             )}
 
+            {result && (
+                <ResultScreen
+                    result={result}
+                    gameName={gameTitle || 'Module'}
+                    onMenu={() => { setResult(null); setCurrentGame('menu'); }}
+                    onReplay={() => {
+                        const lastGame = currentGame === 'menu' ? 'vocab_match' : currentGame;
+                        setResult(null);
+                        setCurrentGame(lastGame);
+                    }}
+                />
+            )}
+
             {/* Active games */}
-            {currentGame !== 'menu' && (
+            {currentGame !== 'menu' && !result && (
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="font-bold text-slate-800 text-lg">{gameTitle}</h3>
+                        <h3 className="font-bold text-t-1 text-lg">{gameTitle}</h3>
                         <button
                             onClick={() => { setCurrentGame('menu'); }}
-                            className="text-sm text-slate-400 hover:text-slate-700 font-medium flex items-center gap-1"
+                            className="text-sm text-t-4 hover:text-t-2 font-medium flex items-center gap-1"
                         >
                             ← Back to Games
                         </button>

@@ -28,17 +28,17 @@ const INCLUSIONS = [
 ];
 
 // Icons helpers
-function MessageSquareIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>; }
-function ZapIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>; }
+function MessageSquareIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>; }
+function ZapIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>; }
 
 // Register badge with semantic colour coding
 const REGISTER_STYLES: Record<string, string> = {
-    formal:    'bg-violet-50 text-violet-700 border-violet-200',
-    academic:  'bg-indigo-50 text-indigo-700 border-indigo-200',
-    informal:  'bg-amber-50  text-amber-700  border-amber-200',
+    formal: 'bg-violet-50 text-violet-700 border-violet-200',
+    academic: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    informal: 'bg-amber-50  text-amber-700  border-amber-200',
     technical: 'bg-teal-50   text-teal-700   border-teal-200',
-    neutral:   'bg-slate-100 text-slate-600  border-slate-200',
-    colloquial:'bg-orange-50 text-orange-700 border-orange-200',
+    neutral: 'bg-surface-2 text-t-2  border-base-border',
+    colloquial: 'bg-orange-50 text-orange-700 border-orange-200',
 };
 
 const RegisterBadge: React.FC<{ register: string }> = ({ register }) => {
@@ -56,7 +56,7 @@ const CollocationPhrase: React.FC<{ phrase: string; word: string }> = ({ phrase,
     const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     const parts = phrase.split(regex);
     return (
-        <span className="text-xs text-slate-700 italic">
+        <span className="text-xs text-t-2 italic">
             {parts.map((part, i) =>
                 regex.test(part)
                     ? <strong key={i} className="font-bold not-italic text-indigo-700">{part}</strong>
@@ -159,15 +159,15 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
         <div className="space-y-6 pb-12">
 
             {/* Header */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8">
-                <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Vocabulary Generator</h2>
-                <p className="text-slate-500">Create custom word lists tailored to your IELTS topic and proficiency level.</p>
+            <div className="bg-surface p-6 rounded-2xl shadow-sm border border-sub-border mb-8">
+                <h2 className="text-3xl font-bold text-t-1 font-serif mb-2">Vocabulary Generator</h2>
+                <p className="text-t-3">Create custom word lists tailored to your IELTS topic and proficiency level.</p>
             </div>
 
             <div className="grid lg:grid-cols-12 gap-8">
                 {/* Left: Configuration Panel */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="bg-white p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 sticky top-24">
+                    <div className="bg-surface p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-sub-border sticky top-24">
                         <h3 className="font-bold text-indigo-900 mb-6 flex items-center gap-2">
                             <Sparkles className="w-5 h-5" /> Settings
                         </h3>
@@ -175,10 +175,10 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                         {/* Topic */}
                         <div className="space-y-4 mb-6">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Select Topic</label>
+                                <label className="text-xs font-bold text-t-3 uppercase">Select Topic</label>
                                 <select
                                     onChange={(e) => setTopic(e.target.value)}
-                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+                                    className="w-full p-3 bg-background border border-base-border rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
                                     value={IELTS_TOPICS.includes(topic) ? topic : ''}
                                 >
                                     <option value="" disabled>-- Common IELTS Topics --</option>
@@ -186,13 +186,13 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                 </select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Or, Specific Topic</label>
+                                <label className="text-xs font-bold text-t-3 uppercase">Or, Specific Topic</label>
                                 <input
                                     type="text"
                                     value={topic}
                                     onChange={(e) => setTopic(e.target.value)}
                                     placeholder="e.g., The Ethics of AI"
-                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+                                    className="w-full p-3 bg-background border border-base-border rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
                                 />
                             </div>
                         </div>
@@ -200,36 +200,36 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                         {/* Level & Count */}
                         <div className="grid grid-cols-2 gap-4 mb-6">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">CEFR Level</label>
+                                <label className="text-xs font-bold text-t-3 uppercase">CEFR Level</label>
                                 <select
                                     value={level}
                                     onChange={(e) => setLevel(e.target.value as CEFRLevel)}
-                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none"
+                                    className="w-full p-3 bg-background border border-base-border rounded-xl text-sm outline-none"
                                 >
                                     {Object.values(CEFRLevel).map(l => <option key={l} value={l}>{l} ({l === 'C2' ? 'Mastery' : l === 'C1' ? 'Advanced' : 'Intermediate'})</option>)}
                                 </select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Count (2–20)</label>
+                                <label className="text-xs font-bold text-t-3 uppercase">Count (2–20)</label>
                                 <input
                                     type="number"
                                     min="2" max="20"
                                     value={count}
                                     onChange={(e) => setCount(Number(e.target.value))}
-                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none"
+                                    className="w-full p-3 bg-background border border-base-border rounded-xl text-sm outline-none"
                                 />
                             </div>
                         </div>
 
                         {/* Word Types */}
                         <div className="mb-6">
-                            <label className="text-xs font-bold text-slate-500 uppercase mb-3 block">Word Types to Include</label>
+                            <label className="text-xs font-bold text-t-3 uppercase mb-3 block">Word Types to Include</label>
                             <div className="grid grid-cols-2 gap-2">
                                 {WORD_TYPES.map(type => (
                                     <button
                                         key={type.id}
                                         onClick={() => toggleType(type.id)}
-                                        className={`p-3 rounded-xl border text-left text-xs font-bold transition-all flex items-center gap-2 ${selectedTypes.includes(type.id) ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                                        className={`p-3 rounded-xl border text-left text-xs font-bold transition-all flex items-center gap-2 ${selectedTypes.includes(type.id) ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm' : 'bg-surface border-base-border text-t-3 hover:bg-background'}`}
                                     >
                                         <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedTypes.includes(type.id) ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300'}`}>
                                             {selectedTypes.includes(type.id) && <CheckSquare className="w-3 h-3 text-white" />}
@@ -242,7 +242,7 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
 
                         {/* Detailed Inclusions */}
                         <div className="mb-8">
-                            <label className="text-xs font-bold text-slate-500 uppercase mb-3 block">Detailed Inclusions</label>
+                            <label className="text-xs font-bold text-t-3 uppercase mb-3 block">Detailed Inclusions</label>
                             <div className="space-y-2">
                                 {INCLUSIONS.map(inc => (
                                     <button
@@ -250,10 +250,10 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                         onClick={() => toggleInclusion(inc.id)}
                                         className="flex items-center gap-3 w-full"
                                     >
-                                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedInclusions.includes(inc.id) ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300'}`}>
+                                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedInclusions.includes(inc.id) ? 'bg-indigo-600 border-indigo-600' : 'bg-surface border-slate-300'}`}>
                                             {selectedInclusions.includes(inc.id) && <CheckSquare className="w-3 h-3 text-white" />}
                                         </div>
-                                        <span className={`text-sm ${selectedInclusions.includes(inc.id) ? 'font-bold text-indigo-900' : 'text-slate-600'}`}>{inc.label}</span>
+                                        <span className={`text-sm ${selectedInclusions.includes(inc.id) ? 'font-bold text-indigo-900' : 'text-t-2'}`}>{inc.label}</span>
                                     </button>
                                 ))}
                             </div>
@@ -275,12 +275,12 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                     {generatedData ? (
                         <div className="space-y-6 animate-fade-in">
                             {/* Results header */}
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-surface p-4 rounded-xl border border-sub-border shadow-sm">
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-800">Results: {generatedData.topic}</h3>
+                                    <h3 className="text-xl font-bold text-t-1">Results: {generatedData.topic}</h3>
                                     <div className="flex gap-2 mt-1">
                                         <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">{generatedData.words.length} Terms</span>
-                                        <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded">Saved to History</span>
+                                        <span className="text-xs font-bold text-t-3 bg-surface-2 px-2 py-1 rounded">Saved to History</span>
                                     </div>
                                 </div>
                                 <button
@@ -303,23 +303,22 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                     return (
                                         <div
                                             key={i}
-                                            className={`bg-white rounded-xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'border-indigo-300 shadow-xl' : 'border-slate-200 hover:border-indigo-200 hover:shadow-md'}`}
+                                            className={`bg-surface rounded-xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'border-indigo-300 shadow-xl' : 'border-base-border hover:border-indigo-200 hover:shadow-md'}`}
                                         >
                                             {/* Card top strip — register colour accent */}
                                             {w.register && (
-                                                <div className={`h-1 w-full ${
-                                                    w.register === 'academic' ? 'bg-indigo-400' :
-                                                    w.register === 'formal'   ? 'bg-violet-400' :
-                                                    w.register === 'technical'? 'bg-teal-400'   :
-                                                    w.register === 'informal' ? 'bg-amber-400'  :
-                                                    'bg-slate-200'
-                                                }`} />
+                                                <div className={`h-1 w-full ${w.register === 'academic' ? 'bg-indigo-400' :
+                                                        w.register === 'formal' ? 'bg-violet-400' :
+                                                            w.register === 'technical' ? 'bg-teal-400' :
+                                                                w.register === 'informal' ? 'bg-amber-400' :
+                                                                    'bg-surface-3'
+                                                    }`} />
                                             )}
 
                                             {/* Header row */}
                                             <div className="p-5 pb-3 flex justify-between items-start">
                                                 <div className="flex-1 min-w-0">
-                                                    <h4 className="text-xl font-serif font-bold text-slate-900 leading-tight">{w.word}</h4>
+                                                    <h4 className="text-xl font-serif font-bold text-t-1 leading-tight">{w.word}</h4>
                                                     <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                                                         <span className="text-xs font-bold text-indigo-500 uppercase tracking-wide bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">{w.pos}</span>
                                                         {w.register && <RegisterBadge register={w.register} />}
@@ -330,7 +329,7 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                                     <button
                                                         onClick={() => copyToClipboard(w.word, w.meaning)}
                                                         title="Copy word & definition"
-                                                        className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-300 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                                        className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-300 hover:text-t-2 hover:bg-surface-2 rounded-lg transition-colors"
                                                     >
                                                         {isCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                                                     </button>
@@ -355,16 +354,16 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
 
                                             {/* Meaning + Example (always visible) */}
                                             <div className="px-5 pb-3 space-y-2">
-                                                <p className="text-sm text-slate-700 leading-relaxed">{w.meaning}</p>
+                                                <p className="text-sm text-t-2 leading-relaxed">{w.meaning}</p>
                                                 <div className="pl-3 border-l-2 border-indigo-200 py-1">
-                                                    <p className="text-xs text-slate-500 italic">"{w.example}"</p>
+                                                    <p className="text-xs text-t-3 italic">"{w.example}"</p>
                                                 </div>
                                             </div>
 
                                             {/* Collocations preview — collapsed */}
                                             {!isExpanded && w.collocations && w.collocations.length > 0 && (
                                                 <div className="px-5 pb-4">
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Collocations</p>
+                                                    <p className="text-[10px] font-bold text-t-4 uppercase tracking-wider mb-1.5">Collocations</p>
                                                     <div className="space-y-1">
                                                         {w.collocations.slice(0, 2).map((c, ci) => (
                                                             <div key={ci} className="flex items-center gap-1.5">
@@ -398,17 +397,17 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
 
                                             {/* ——— EXPANDED PANEL ——— */}
                                             {isExpanded && (
-                                                <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-4 space-y-5 animate-fade-in">
+                                                <div className="border-t border-sub-border bg-background/60 px-5 py-4 space-y-5 animate-fade-in">
 
                                                     {/* All collocations */}
                                                     {w.collocations && w.collocations.length > 0 && (
                                                         <div>
-                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                                            <p className="text-[10px] font-bold text-t-4 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                                                 <BookOpen className="w-3 h-3" /> Common Collocations
                                                             </p>
                                                             <div className="space-y-1.5">
                                                                 {w.collocations.map((c, ci) => (
-                                                                    <div key={ci} className="flex items-start gap-2 bg-white rounded-lg px-3 py-2 border border-slate-100">
+                                                                    <div key={ci} className="flex items-start gap-2 bg-surface rounded-lg px-3 py-2 border border-sub-border">
                                                                         <span className="w-1 h-1 bg-indigo-400 rounded-full flex-none mt-1.5" />
                                                                         <CollocationPhrase phrase={c} word={w.word} />
                                                                     </div>
@@ -420,7 +419,7 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                                     {/* Synonyms + Antonyms */}
                                                     {((w.synonyms && w.synonyms.length > 0) || (w.antonyms && w.antonyms.length > 0)) && (
                                                         <div>
-                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Synonyms & Antonyms</p>
+                                                            <p className="text-[10px] font-bold text-t-4 uppercase tracking-wider mb-2">Synonyms & Antonyms</p>
                                                             <div className="flex flex-wrap gap-1.5">
                                                                 {w.synonyms?.map(s => (
                                                                     <span key={s} className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-100 font-medium">≈ {s}</span>
@@ -446,11 +445,11 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                                     {/* Word Formation */}
                                                     {w.wordFormation && (
                                                         <div>
-                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                                            <p className="text-[10px] font-bold text-t-4 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                                                 <GitBranch className="w-3 h-3" /> Word Family
                                                             </p>
-                                                            <div className="bg-white rounded-lg px-3 py-2.5 border border-slate-100">
-                                                                <p className="text-xs text-slate-600 leading-relaxed">{w.wordFormation}</p>
+                                                            <div className="bg-surface rounded-lg px-3 py-2.5 border border-sub-border">
+                                                                <p className="text-xs text-t-2 leading-relaxed">{w.wordFormation}</p>
                                                             </div>
                                                         </div>
                                                     )}
@@ -458,8 +457,8 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                                                     {/* Etymology */}
                                                     {w.etymology && (
                                                         <div>
-                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Origin</p>
-                                                            <p className="text-xs text-slate-500 italic leading-relaxed">{w.etymology}</p>
+                                                            <p className="text-[10px] font-bold text-t-4 uppercase tracking-wider mb-1.5">Origin</p>
+                                                            <p className="text-xs text-t-3 italic leading-relaxed">{w.etymology}</p>
                                                         </div>
                                                     )}
                                                 </div>
@@ -470,9 +469,9 @@ export const VocabularyModule: React.FC<VocabularyModuleProps> = ({ initialData 
                             </div>
                         </div>
                     ) : (
-                        <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400 p-8 text-center">
+                        <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-surface rounded-2xl border border-dashed border-slate-300 text-t-4 p-8 text-center">
                             <Library className="w-16 h-16 mb-4 opacity-20" />
-                            <h4 className="text-lg font-bold text-slate-600 mb-2">Ready to Generate</h4>
+                            <h4 className="text-lg font-bold text-t-2 mb-2">Ready to Generate</h4>
                             <p className="max-w-md">Select your criteria on the left and click "Generate Glossary" to receive a highly customized, advanced vocabulary list.</p>
                         </div>
                     )}

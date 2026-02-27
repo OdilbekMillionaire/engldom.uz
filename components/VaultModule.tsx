@@ -7,11 +7,11 @@ import { gamificationService } from '../services/gamificationService';
 import { useXPToast } from './ui/XPToastProvider';
 
 const REGISTER_STYLES: Record<string, string> = {
-    formal:    'bg-violet-50 text-violet-700 border-violet-200',
-    academic:  'bg-indigo-50 text-indigo-700 border-indigo-200',
-    informal:  'bg-amber-50  text-amber-700  border-amber-200',
+    formal: 'bg-violet-50 text-violet-700 border-violet-200',
+    academic: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    informal: 'bg-amber-50  text-amber-700  border-amber-200',
     technical: 'bg-teal-50   text-teal-700   border-teal-200',
-    neutral:   'bg-slate-100 text-slate-600  border-slate-200',
+    neutral: 'bg-surface-2 text-t-2  border-base-border',
 };
 
 export const VaultModule: React.FC = () => {
@@ -37,14 +37,14 @@ export const VaultModule: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        setFilteredWords(vaultWords.filter(w => 
-            w.word.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        setFilteredWords(vaultWords.filter(w =>
+            w.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
             w.meaning.toLowerCase().includes(searchTerm.toLowerCase())
         ));
     }, [searchTerm, vaultWords]);
 
     const removeWord = (word: string) => {
-        if(confirm(`Are you sure you want to delete "${word}" from your vault?`)) {
+        if (confirm(`Are you sure you want to delete "${word}" from your vault?`)) {
             storageService.removeWord(word);
             setVaultWords(storageService.getWords());
         }
@@ -100,23 +100,23 @@ export const VaultModule: React.FC = () => {
     return (
         <div className="space-y-8 animate-fade-in pb-12">
             {/* Header Area */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="bg-surface p-8 rounded-2xl shadow-sm border border-sub-border flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">My Vault</h2>
-                    <p className="text-slate-500">Your personal collection of {vaultWords.length} words.</p>
+                    <h2 className="text-3xl font-bold text-t-1 font-serif mb-2">My Vault</h2>
+                    <p className="text-t-3">Your personal collection of {vaultWords.length} words.</p>
                 </div>
                 <div className="flex flex-wrap gap-3 w-full md:w-auto">
-                     <div className="relative flex-1 min-w-[200px] md:w-64">
-                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                         <input
+                    <div className="relative flex-1 min-w-[200px] md:w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-t-4" />
+                        <input
                             type="text"
                             placeholder="Search words..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500"
-                         />
-                     </div>
-                     <button
+                            className="w-full pl-10 pr-4 py-3 bg-background border border-base-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <button
                         onClick={generateQuiz}
                         disabled={quizLoading || vaultWords.length < 3}
                         className="bg-indigo-600 text-white px-6 min-h-[44px] rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-indigo-200 whitespace-nowrap"
@@ -129,12 +129,12 @@ export const VaultModule: React.FC = () => {
 
             {/* Quiz Overlay */}
             {quiz && (
-                <div className="bg-white p-8 rounded-2xl shadow-xl border border-indigo-100 animate-fade-in relative overflow-hidden">
+                <div className="bg-surface p-8 rounded-2xl shadow-xl border border-indigo-100 animate-fade-in relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
                     <div className="flex justify-between items-center mb-8">
                         <div>
-                             <h3 className="text-xl font-bold text-indigo-900">Pop Quiz</h3>
-                             <p className="text-sm text-slate-500">Testing your knowledge of saved words.</p>
+                            <h3 className="text-xl font-bold text-indigo-900">Pop Quiz</h3>
+                            <p className="text-sm text-t-3">Testing your knowledge of saved words.</p>
                         </div>
                         {showQuizResults && (
                             <span className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-lg font-bold">
@@ -144,9 +144,9 @@ export const VaultModule: React.FC = () => {
                     </div>
                     <div className="grid md:grid-cols-2 gap-8">
                         {quiz.map((q, i) => (
-                            <div key={q.id} className="pb-6 border-b border-slate-100 last:border-0">
-                                <p className="font-bold text-slate-800 mb-4 text-base flex gap-2">
-                                    <span className="text-slate-400">{i+1}.</span>
+                            <div key={q.id} className="pb-6 border-b border-sub-border last:border-0">
+                                <p className="font-bold text-t-1 mb-4 text-base flex gap-2">
+                                    <span className="text-t-4">{i + 1}.</span>
                                     {q.prompt}
                                 </p>
                                 <div className="grid grid-cols-2 gap-3">
@@ -155,15 +155,15 @@ export const VaultModule: React.FC = () => {
                                         if (showQuizResults) {
                                             if (opt === q.answer) cls += "bg-green-100 border-green-500 text-green-900";
                                             else if (quizAnswers[q.id] === opt) cls += "bg-red-50 border-red-300 text-red-900";
-                                            else cls += "opacity-50 border-slate-100";
+                                            else cls += "opacity-50 border-sub-border";
                                         } else {
-                                            cls += quizAnswers[q.id] === opt ? "bg-indigo-600 border-indigo-600 text-white shadow-md" : "bg-white hover:bg-slate-50 border-slate-200 text-slate-600";
+                                            cls += quizAnswers[q.id] === opt ? "bg-indigo-600 border-indigo-600 text-white shadow-md" : "bg-surface hover:bg-background border-base-border text-t-2";
                                         }
                                         return (
-                                            <button 
-                                                key={opt} 
+                                            <button
+                                                key={opt}
                                                 disabled={showQuizResults}
-                                                onClick={() => setQuizAnswers({...quizAnswers, [q.id]: opt})}
+                                                onClick={() => setQuizAnswers({ ...quizAnswers, [q.id]: opt })}
                                                 className={cls}
                                             >
                                                 {opt}
@@ -193,10 +193,10 @@ export const VaultModule: React.FC = () => {
                             >
                                 Check Answers
                             </button>
-                            <button onClick={() => setQuiz(null)} className="px-8 py-4 text-slate-500 font-bold hover:bg-slate-50 rounded-xl">Cancel</button>
+                            <button onClick={() => setQuiz(null)} className="px-8 py-4 text-t-3 font-bold hover:bg-background rounded-xl">Cancel</button>
                         </div>
                     ) : (
-                        <button onClick={() => setQuiz(null)} className="mt-8 py-4 bg-slate-100 text-slate-600 w-full rounded-xl font-bold hover:bg-slate-200">Close Quiz</button>
+                        <button onClick={() => setQuiz(null)} className="mt-8 py-4 bg-surface-2 text-t-2 w-full rounded-xl font-bold hover:bg-surface-3">Close Quiz</button>
                     )}
                 </div>
             )}
@@ -206,10 +206,10 @@ export const VaultModule: React.FC = () => {
                 {filteredWords.map((w, i) => {
                     const isExpanded = expandedWord === w.word;
                     return (
-                        <div key={i} className={`bg-white p-6 rounded-2xl border transition-all duration-300 ${isExpanded ? 'border-indigo-300 shadow-xl scale-[1.02] z-10' : 'border-slate-100 hover:shadow-lg hover:border-indigo-100'} flex flex-col`}>
+                        <div key={i} className={`bg-surface p-6 rounded-2xl border transition-all duration-300 ${isExpanded ? 'border-indigo-300 shadow-xl scale-[1.02] z-10' : 'border-sub-border hover:shadow-lg hover:border-indigo-100'} flex flex-col`}>
                             <div className="flex justify-between items-start mb-3">
                                 <div>
-                                    <h3 className="font-serif font-bold text-xl text-slate-900">{w.word}</h3>
+                                    <h3 className="font-serif font-bold text-xl text-t-1">{w.word}</h3>
                                     <div className="flex flex-wrap items-center gap-1.5 mt-1">
                                         <span className="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 uppercase tracking-wider">{w.pos}</span>
                                         {w.register && (
@@ -234,21 +234,21 @@ export const VaultModule: React.FC = () => {
                                     </button>
                                 </div>
                             </div>
-                            
-                            <p className="text-sm text-slate-600 mb-4 font-medium leading-relaxed">{w.meaning}</p>
-                            
+
+                            <p className="text-sm text-t-2 mb-4 font-medium leading-relaxed">{w.meaning}</p>
+
                             {!isExpanded && (
                                 <div className="mt-auto">
                                     <div className="flex flex-wrap gap-2">
-                                        {w.synonyms && w.synonyms.slice(0,2).map(s => <span key={s} className="text-[10px] bg-slate-50 text-slate-500 px-2 py-1 rounded border border-slate-100">{s}</span>)}
+                                        {w.synonyms && w.synonyms.slice(0, 2).map(s => <span key={s} className="text-[10px] bg-background text-t-3 px-2 py-1 rounded border border-sub-border">{s}</span>)}
                                     </div>
                                 </div>
                             )}
 
                             {isExpanded && (
-                                <div className="pt-4 border-t border-slate-100 animate-fade-in space-y-4">
+                                <div className="pt-4 border-t border-sub-border animate-fade-in space-y-4">
                                     {/* Example sentence */}
-                                    <div className="bg-slate-50 p-3 rounded-lg text-xs text-slate-600 italic border border-slate-100">
+                                    <div className="bg-background p-3 rounded-lg text-xs text-t-2 italic border border-sub-border">
                                         "{w.example}"
                                     </div>
 
@@ -262,23 +262,23 @@ export const VaultModule: React.FC = () => {
                                             {/* Academic Definition */}
                                             {w.detailedDefinition && (
                                                 <div>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Academic Definition</span>
-                                                    <p className="text-sm text-slate-700 leading-relaxed">{w.detailedDefinition}</p>
+                                                    <span className="text-[10px] font-bold text-t-4 uppercase tracking-wider block mb-1">Academic Definition</span>
+                                                    <p className="text-sm text-t-2 leading-relaxed">{w.detailedDefinition}</p>
                                                 </div>
                                             )}
 
                                             {/* Collocations — as full phrases */}
                                             {w.collocations && w.collocations.length > 0 && (
                                                 <div>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Common Collocations</span>
+                                                    <span className="text-[10px] font-bold text-t-4 uppercase tracking-wider block mb-2">Common Collocations</span>
                                                     <div className="space-y-1.5">
                                                         {w.collocations.map((c, ci) => {
                                                             const regex = new RegExp(`(${w.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
                                                             const parts = c.split(regex);
                                                             return (
-                                                                <div key={ci} className="flex items-start gap-2 bg-white rounded-lg px-2.5 py-1.5 border border-slate-100">
+                                                                <div key={ci} className="flex items-start gap-2 bg-surface rounded-lg px-2.5 py-1.5 border border-sub-border">
                                                                     <span className="w-1 h-1 bg-indigo-300 rounded-full flex-none mt-1.5" />
-                                                                    <span className="text-xs text-slate-700 italic">
+                                                                    <span className="text-xs text-t-2 italic">
                                                                         {parts.map((p, pi) => regex.test(p)
                                                                             ? <strong key={pi} className="font-bold not-italic text-indigo-700">{p}</strong>
                                                                             : <span key={pi}>{p}</span>
@@ -294,7 +294,7 @@ export const VaultModule: React.FC = () => {
                                             {/* Synonyms + Antonyms */}
                                             {((w.synonyms && w.synonyms.length > 0) || (w.antonyms && w.antonyms.length > 0)) && (
                                                 <div>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Synonyms & Antonyms</span>
+                                                    <span className="text-[10px] font-bold text-t-4 uppercase tracking-wider block mb-2">Synonyms & Antonyms</span>
                                                     <div className="flex flex-wrap gap-1.5">
                                                         {w.synonyms?.map(s => (
                                                             <span key={s} className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-100 font-medium">≈ {s}</span>
@@ -320,11 +320,11 @@ export const VaultModule: React.FC = () => {
                                             {/* Word Formation */}
                                             {w.wordFormation && (
                                                 <div>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+                                                    <span className="text-[10px] font-bold text-t-4 uppercase tracking-wider flex items-center gap-1 mb-1.5">
                                                         <GitBranch className="w-3 h-3" /> Word Family
                                                     </span>
-                                                    <div className="bg-white rounded-lg px-2.5 py-2 border border-slate-100">
-                                                        <p className="text-xs text-slate-600 leading-relaxed">{w.wordFormation}</p>
+                                                    <div className="bg-surface rounded-lg px-2.5 py-2 border border-sub-border">
+                                                        <p className="text-xs text-t-2 leading-relaxed">{w.wordFormation}</p>
                                                     </div>
                                                 </div>
                                             )}
@@ -332,10 +332,10 @@ export const VaultModule: React.FC = () => {
                                             {/* Etymology */}
                                             {w.etymology && (
                                                 <div>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Origin</span>
+                                                    <span className="text-[10px] font-bold text-t-4 uppercase tracking-wider block mb-1">Origin</span>
                                                     <div className="flex items-start gap-2">
-                                                        <Book className="w-3 h-3 text-slate-400 mt-0.5 flex-none" />
-                                                        <p className="text-xs text-slate-600 italic leading-relaxed">{w.etymology}</p>
+                                                        <Book className="w-3 h-3 text-t-4 mt-0.5 flex-none" />
+                                                        <p className="text-xs text-t-2 italic leading-relaxed">{w.etymology}</p>
                                                     </div>
                                                 </div>
                                             )}
@@ -347,9 +347,9 @@ export const VaultModule: React.FC = () => {
                     );
                 })}
                 {filteredWords.length === 0 && (
-                    <div className="col-span-full py-24 text-center text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">
+                    <div className="col-span-full py-24 text-center text-t-4 bg-surface rounded-2xl border border-dashed border-base-border">
                         <BookmarkPlus className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                        <h4 className="font-bold text-slate-600 text-lg">No words found</h4>
+                        <h4 className="font-bold text-t-2 text-lg">No words found</h4>
                         <p className="text-sm">Try changing your search or generate new words.</p>
                     </div>
                 )}

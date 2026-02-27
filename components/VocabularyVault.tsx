@@ -174,20 +174,20 @@ export const VocabularyVault: React.FC = () => {
     return (
         <div className="space-y-8 animate-fade-in pb-12">
             {/* Header Area */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="bg-surface p-8 rounded-2xl shadow-sm border border-sub-border flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">My Vault</h2>
-                    <p className="text-slate-500">Your personal collection of {vaultWords.length} words.</p>
+                    <h2 className="text-3xl font-bold text-t-1 font-serif mb-2">My Vault</h2>
+                    <p className="text-t-3">Your personal collection of {vaultWords.length} words.</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
                      <div className="relative flex-1 sm:w-64">
-                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-t-4" />
                          <input 
                             type="text" 
                             placeholder="Search words..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full pl-10 pr-4 py-3 bg-background border border-base-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                          />
                      </div>
                      <button
@@ -203,15 +203,15 @@ export const VocabularyVault: React.FC = () => {
 
             {/* Config Panel */}
             {isConfiguring && !quiz && (
-                <div className="bg-white p-6 rounded-xl border border-indigo-100 shadow-lg animate-fade-in max-w-2xl mx-auto">
-                    <h3 className="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
+                <div className="bg-surface p-6 rounded-xl border border-indigo-100 shadow-lg animate-fade-in max-w-2xl mx-auto">
+                    <h3 className="font-bold text-lg text-t-1 mb-4 flex items-center gap-2">
                         <Sparkles className="w-5 h-5 text-indigo-500" />
                         Smart Quiz Configuration
                     </h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
-                            <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Number of Questions</label>
+                            <label className="text-xs font-bold text-t-4 uppercase mb-2 block">Number of Questions</label>
                             <input 
                                 type="range" min="3" max="20" 
                                 value={quizSize} 
@@ -221,11 +221,11 @@ export const VocabularyVault: React.FC = () => {
                             <div className="text-center font-bold text-indigo-600 mt-1">{quizSize} Questions</div>
                         </div>
                         <div>
-                            <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Word Type (POS)</label>
+                            <label className="text-xs font-bold text-t-4 uppercase mb-2 block">Word Type (POS)</label>
                             <select 
                                 value={quizPosFilter} 
                                 onChange={(e) => setQuizPosFilter(e.target.value)}
-                                className="w-full p-2 border rounded-lg text-sm bg-slate-50 outline-none"
+                                className="w-full p-2 border rounded-lg text-sm bg-background outline-none"
                             >
                                 <option value="all">All Types</option>
                                 {getUniquePOS().map(pos => <option key={pos} value={pos}>{pos}</option>)}
@@ -251,7 +251,7 @@ export const VocabularyVault: React.FC = () => {
                         </button>
                         <button 
                             onClick={() => setIsConfiguring(false)} 
-                            className="px-6 py-3 text-slate-500 font-bold hover:bg-slate-50 rounded-xl"
+                            className="px-6 py-3 text-t-3 font-bold hover:bg-background rounded-xl"
                         >
                             Cancel
                         </button>
@@ -261,12 +261,12 @@ export const VocabularyVault: React.FC = () => {
 
             {/* Quiz Overlay */}
             {quiz && (
-                <div className="bg-white p-8 rounded-2xl shadow-xl border border-indigo-100 animate-fade-in relative overflow-hidden">
+                <div className="bg-surface p-8 rounded-2xl shadow-xl border border-indigo-100 animate-fade-in relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
                     <div className="flex justify-between items-center mb-8">
                         <div>
                              <h3 className="text-xl font-bold text-indigo-900">Pop Quiz</h3>
-                             <p className="text-sm text-slate-500">Testing your knowledge of saved words.</p>
+                             <p className="text-sm text-t-3">Testing your knowledge of saved words.</p>
                         </div>
                         {showQuizResults && (
                             <span className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-lg font-bold">
@@ -276,9 +276,9 @@ export const VocabularyVault: React.FC = () => {
                     </div>
                     <div className="grid md:grid-cols-2 gap-8">
                         {quiz.map((q, i) => (
-                            <div key={q.id} className="pb-6 border-b border-slate-100 last:border-0">
-                                <p className="font-bold text-slate-800 mb-4 text-base flex gap-2">
-                                    <span className="text-slate-400">{i+1}.</span>
+                            <div key={q.id} className="pb-6 border-b border-sub-border last:border-0">
+                                <p className="font-bold text-t-1 mb-4 text-base flex gap-2">
+                                    <span className="text-t-4">{i+1}.</span>
                                     {q.prompt}
                                 </p>
                                 <div className="grid grid-cols-2 gap-3">
@@ -287,9 +287,9 @@ export const VocabularyVault: React.FC = () => {
                                         if (showQuizResults) {
                                             if (opt === q.answer) cls += "bg-green-100 border-green-500 text-green-900";
                                             else if (quizAnswers[q.id] === opt) cls += "bg-red-50 border-red-300 text-red-900";
-                                            else cls += "opacity-50 border-slate-100";
+                                            else cls += "opacity-50 border-sub-border";
                                         } else {
-                                            cls += quizAnswers[q.id] === opt ? "bg-indigo-600 border-indigo-600 text-white shadow-md" : "bg-white hover:bg-slate-50 border-slate-200 text-slate-600";
+                                            cls += quizAnswers[q.id] === opt ? "bg-indigo-600 border-indigo-600 text-white shadow-md" : "bg-surface hover:bg-background border-base-border text-t-2";
                                         }
                                         return (
                                             <button 
@@ -314,12 +314,12 @@ export const VocabularyVault: React.FC = () => {
                             >
                                 Check Answers
                             </button>
-                            <button onClick={() => setQuiz(null)} className="px-8 py-4 text-slate-500 font-bold hover:bg-slate-50 rounded-xl">Cancel</button>
+                            <button onClick={() => setQuiz(null)} className="px-8 py-4 text-t-3 font-bold hover:bg-background rounded-xl">Cancel</button>
                         </div>
                     ) : (
                         <div className="mt-8">
-                            <p className="text-center text-sm text-slate-500 mb-4">Your spaced repetition schedule has been updated based on these results.</p>
-                            <button onClick={() => setQuiz(null)} className="py-4 bg-slate-100 text-slate-600 w-full rounded-xl font-bold hover:bg-slate-200">Close Quiz</button>
+                            <p className="text-center text-sm text-t-3 mb-4">Your spaced repetition schedule has been updated based on these results.</p>
+                            <button onClick={() => setQuiz(null)} className="py-4 bg-surface-2 text-t-2 w-full rounded-xl font-bold hover:bg-surface-3">Close Quiz</button>
                         </div>
                     )}
                 </div>
@@ -329,7 +329,7 @@ export const VocabularyVault: React.FC = () => {
             <div className="flex gap-2 overflow-x-auto pb-2">
                 <button 
                     onClick={() => setFilterDue(!filterDue)} 
-                    className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all ${filterDue ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                    className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all ${filterDue ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-surface border border-base-border text-t-2 hover:bg-background'}`}
                 >
                     <Clock className="w-4 h-4" />
                     Review Due Only
@@ -344,15 +344,15 @@ export const VocabularyVault: React.FC = () => {
                     const srsLevel = w.srsLevel || 0;
                     
                     return (
-                        <div key={i} className={`bg-white p-6 rounded-2xl border transition-all duration-300 ${isExpanded ? 'border-indigo-300 shadow-xl scale-[1.02] z-10' : 'border-slate-100 hover:shadow-lg hover:border-indigo-100'} flex flex-col relative overflow-hidden`}>
+                        <div key={i} className={`bg-surface p-6 rounded-2xl border transition-all duration-300 ${isExpanded ? 'border-indigo-300 shadow-xl scale-[1.02] z-10' : 'border-sub-border hover:shadow-lg hover:border-indigo-100'} flex flex-col relative overflow-hidden`}>
                             {/* SRS Indicator Badge */}
-                            <div className={`absolute top-0 right-0 px-3 py-1 rounded-bl-xl text-[10px] font-bold tracking-wider ${isDue ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>
+                            <div className={`absolute top-0 right-0 px-3 py-1 rounded-bl-xl text-[10px] font-bold tracking-wider ${isDue ? 'bg-orange-100 text-orange-700' : 'bg-surface-2 text-t-3'}`}>
                                 {isDue ? 'DUE' : `LVL ${srsLevel}`}
                             </div>
                             
                             <div className="flex justify-between items-start mb-3 pt-4">
                                 <div>
-                                    <h3 className="font-serif font-bold text-xl text-slate-900">{w.word}</h3>
+                                    <h3 className="font-serif font-bold text-xl text-t-1">{w.word}</h3>
                                     <span className="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-wider mt-1 inline-block">{w.pos}</span>
                                 </div>
                                 <div className="flex gap-1">
@@ -371,19 +371,19 @@ export const VocabularyVault: React.FC = () => {
                                 </div>
                             </div>
                             
-                            <p className="text-sm text-slate-600 mb-4 font-medium leading-relaxed">{w.meaning}</p>
+                            <p className="text-sm text-t-2 mb-4 font-medium leading-relaxed">{w.meaning}</p>
                             
                             {!isExpanded && (
                                 <div className="mt-auto flex justify-between items-center">
                                     <div className="flex flex-wrap gap-2">
-                                        {w.synonyms && w.synonyms.slice(0,2).map(s => <span key={s} className="text-[10px] bg-slate-50 text-slate-500 px-2 py-1 rounded border border-slate-100">{s}</span>)}
+                                        {w.synonyms && w.synonyms.slice(0,2).map(s => <span key={s} className="text-[10px] bg-background text-t-3 px-2 py-1 rounded border border-sub-border">{s}</span>)}
                                     </div>
                                 </div>
                             )}
 
                             {isExpanded && (
-                                <div className="pt-4 border-t border-slate-100 animate-fade-in space-y-4">
-                                    <div className="bg-slate-50 p-3 rounded-lg text-xs text-slate-600 italic border border-slate-100">"{w.example}"</div>
+                                <div className="pt-4 border-t border-sub-border animate-fade-in space-y-4">
+                                    <div className="bg-background p-3 rounded-lg text-xs text-t-2 italic border border-sub-border">"{w.example}"</div>
                                     
                                     {enriching && !w.etymology ? (
                                         <div className="flex items-center gap-2 text-indigo-500 text-xs font-medium py-2">
@@ -394,23 +394,23 @@ export const VocabularyVault: React.FC = () => {
                                         <>
                                             {w.detailedDefinition && (
                                                 <div>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Academic Definition</span>
-                                                    <p className="text-sm text-slate-700 leading-relaxed">{w.detailedDefinition}</p>
+                                                    <span className="text-[10px] font-bold text-t-4 uppercase tracking-wider block mb-1">Academic Definition</span>
+                                                    <p className="text-sm text-t-2 leading-relaxed">{w.detailedDefinition}</p>
                                                 </div>
                                             )}
                                             {w.etymology && (
                                                 <div>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Origin</span>
+                                                    <span className="text-[10px] font-bold text-t-4 uppercase tracking-wider block mb-1">Origin</span>
                                                     <div className="flex items-start gap-2">
-                                                        <Book className="w-3 h-3 text-slate-400 mt-1" />
-                                                        <p className="text-xs text-slate-600 italic">{w.etymology}</p>
+                                                        <Book className="w-3 h-3 text-t-4 mt-1" />
+                                                        <p className="text-xs text-t-2 italic">{w.etymology}</p>
                                                     </div>
                                                 </div>
                                             )}
                                             {w.nextReview && (
                                                  <div className="flex justify-between items-center pt-2 border-t border-slate-50">
-                                                    <span className="text-[10px] text-slate-400">Next Review:</span>
-                                                    <span className={`text-xs font-bold ${isDue ? 'text-orange-600' : 'text-slate-600'}`}>
+                                                    <span className="text-[10px] text-t-4">Next Review:</span>
+                                                    <span className={`text-xs font-bold ${isDue ? 'text-orange-600' : 'text-t-2'}`}>
                                                         {new Date(w.nextReview).toLocaleDateString()}
                                                     </span>
                                                 </div>
@@ -423,9 +423,9 @@ export const VocabularyVault: React.FC = () => {
                     );
                 })}
                 {filteredWords.length === 0 && (
-                    <div className="col-span-full py-24 text-center text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">
+                    <div className="col-span-full py-24 text-center text-t-4 bg-surface rounded-2xl border border-dashed border-base-border">
                         <BookmarkPlus className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                        <h4 className="font-bold text-slate-600 text-lg">No words found</h4>
+                        <h4 className="font-bold text-t-2 text-lg">No words found</h4>
                         <p className="text-sm">Try changing your search or generate new words.</p>
                     </div>
                 )}

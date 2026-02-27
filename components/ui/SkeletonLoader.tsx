@@ -26,7 +26,7 @@ export const ArticleSkeleton: React.FC = () => (
 export const QuizSkeleton: React.FC = () => (
   <div className="space-y-4">
     {[1,2,3,4,5].map(i => (
-      <div key={i} className="bg-white border border-slate-100 rounded-xl p-5 space-y-3 animate-pulse">
+      <div key={i} className="bg-surface border border-sub-border rounded-xl p-5 space-y-3 animate-pulse">
         <Line w="w-3/4" />
         <div className="grid grid-cols-2 gap-2">
           <Line h="h-10" /> <Line h="h-10" />
@@ -41,7 +41,7 @@ export const QuizSkeleton: React.FC = () => (
 export const WordGridSkeleton: React.FC<{ count?: number }> = ({ count = 6 }) => (
   <div className="grid md:grid-cols-2 gap-4">
     {Array.from({ length: count }, (_, i) => (
-      <div key={i} className="bg-white border border-slate-100 rounded-xl p-5 space-y-2 animate-pulse">
+      <div key={i} className="bg-surface border border-sub-border rounded-xl p-5 space-y-2 animate-pulse">
         <Line w="w-1/3" h="h-5" />
         <Line w="w-1/4" h="h-3" />
         <Line w="w-full" />
@@ -63,8 +63,8 @@ export const GeneratingOverlay: React.FC<{ message?: string }> = ({ message = 'G
       </div>
     </div>
     <div>
-      <p className="font-bold text-slate-700 text-lg">{message}</p>
-      <p className="text-slate-400 text-sm mt-1">This usually takes 5 – 15 seconds</p>
+      <p className="font-bold text-t-2 text-lg">{message}</p>
+      <p className="text-t-4 text-sm mt-1">This usually takes 5 – 15 seconds</p>
     </div>
     {/* Skeleton preview */}
     <div className="w-full max-w-lg opacity-40 mt-2">

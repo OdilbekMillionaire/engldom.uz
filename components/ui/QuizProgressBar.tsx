@@ -23,7 +23,7 @@ export const QuizProgressBar: React.FC<Props> = ({ total, current, results }) =>
         status === 'correct'    ? 'bg-emerald-500' :
         status === 'wrong'      ? 'bg-red-500'     :
         isActive                ? 'bg-indigo-500'  :
-        isDone                  ? 'bg-indigo-300'  : 'bg-slate-200';
+        isDone                  ? 'bg-indigo-300'  : 'bg-surface-3';
 
       return (
         <div

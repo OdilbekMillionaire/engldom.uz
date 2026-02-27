@@ -49,7 +49,7 @@ export const ChatTutor: React.FC<ChatTutorProps> = ({ isOpen, onClose, context }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white w-full max-w-lg h-[600px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in">
+            <div className="bg-surface w-full max-w-lg h-[600px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in">
                 {/* Header */}
                 <div className="bg-slate-900 text-white p-4 flex justify-between items-center">
                     <div className="flex items-center gap-2">
@@ -58,22 +58,22 @@ export const ChatTutor: React.FC<ChatTutorProps> = ({ isOpen, onClose, context }
                         </div>
                         <div>
                             <h3 className="font-bold text-sm">AI Personal Tutor</h3>
-                            <p className="text-xs text-slate-400">Context Aware • IELTS Expert</p>
+                            <p className="text-xs text-t-4">Context Aware • IELTS Expert</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-white">
+                    <button onClick={onClose} className="text-t-4 hover:text-white">
                         <X className="w-6 h-6" />
                     </button>
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
                     {messages.map((m, i) => (
                         <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[80%] rounded-xl p-3 text-sm leading-relaxed ${
                                 m.role === 'user' 
                                 ? 'bg-indigo-600 text-white rounded-br-none' 
-                                : 'bg-white border border-slate-200 text-slate-700 rounded-bl-none shadow-sm'
+                                : 'bg-surface border border-base-border text-t-2 rounded-bl-none shadow-sm'
                             }`}>
                                 {m.text}
                             </div>
@@ -81,7 +81,7 @@ export const ChatTutor: React.FC<ChatTutorProps> = ({ isOpen, onClose, context }
                     ))}
                     {loading && (
                         <div className="flex justify-start">
-                             <div className="bg-white border border-slate-200 px-4 py-2 rounded-xl rounded-bl-none shadow-sm">
+                             <div className="bg-surface border border-base-border px-4 py-2 rounded-xl rounded-bl-none shadow-sm">
                                 <div className="flex gap-1">
                                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
                                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75"></div>
@@ -94,7 +94,7 @@ export const ChatTutor: React.FC<ChatTutorProps> = ({ isOpen, onClose, context }
                 </div>
 
                 {/* Input */}
-                <div className="p-4 bg-white border-t border-slate-100">
+                <div className="p-4 bg-surface border-t border-sub-border">
                     <div className="flex gap-2">
                         <input
                             type="text"
@@ -102,7 +102,7 @@ export const ChatTutor: React.FC<ChatTutorProps> = ({ isOpen, onClose, context }
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                             placeholder="Ask for clarification..."
-                            className="flex-1 bg-slate-100 border-none rounded-full px-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="flex-1 bg-surface-2 border-none rounded-full px-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
                         />
                         <button 
                             onClick={handleSend}

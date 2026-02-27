@@ -10,7 +10,8 @@ import {
 import { LevelBadge } from './ui/LevelBadge';
 import { ModuleType } from '../types';
 import { storageService } from '../services/storageService';
-import { applyTheme } from './SettingsModule';
+import { gamificationService, getLevel } from '../services/gamificationService';
+import { Menu, X as LucideX, Flame } from 'lucide-react';
 
 interface LayoutProps {
   currentModule: ModuleType;
@@ -24,6 +25,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // User settings – load once on mount and whenever module changes to SETTINGS
@@ -32,7 +34,6 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
   useEffect(() => {
     const s = storageService.getSettings();
     setUserSettings(s);
-    applyTheme(s.theme);
   }, [currentModule]); // re-read after visiting Settings
 
   const navItems = [
@@ -147,26 +148,24 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
 
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="min-h-screen bg-background text-t-1 font-sans overflow-x-hidden">
+      {/* Mobile Backdrop */}
+      <div
+        className="fixed inset-0 bg-slate-900/80 z-[45] lg:hidden transition-opacity duration-300"
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
+
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen bg-slate-900 text-white flex flex-col z-50 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'
-          }`}
+        className={`fixed left-0 top-0 h-screen bg-slate-900 text-white flex flex-col z-50 transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0 w-64 shadow-2xl' : 'lg:translate-x-0 -translate-x-full lg:w-20'
+          } ${!isMobileMenuOpen && !isSidebarCollapsed ? 'lg:w-64' : 'lg:w-20'}`}
       >
         {/* Logo */}
         <div className={`flex items-center gap-3 border-b border-slate-800 transition-all duration-300 ${isSidebarCollapsed ? 'p-4 justify-center' : 'p-6'}`}>
-          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex-none flex items-center justify-center shadow-lg shadow-indigo-900/50">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white">
-              <path d="M18 10c0-2.2-1.8-4-4-4-1 0-2 .5-2.5 1.5-.5-1-1.5-1.5-2.5-1.5-2.2 0-4 1.8-4 4 0 1.5.8 2.8 2 3.5-1.5 1-2.5 2.5-2.5 4.5 0 2.2 1.8 4 4 4 1.5 0 2.8-.8 3.5-2 1.2 0 2.5-1.3 3.5-2.5.8.5 1.8 1 3 1 2 0 3.5-1.5 3.5-3.5 0-2.2-1.8-4-4-4z" />
-              <path d="M15 10c0-1.1-.9-2-2-2" />
-              <path d="M12 2v4" />
-              <path d="M19 5l-2 2" />
-              <path d="M5 5l2 2" />
-              <circle cx="10.5" cy="10.5" r="1" fill="currentColor" />
-              <circle cx="15.5" cy="10.5" r="1" fill="currentColor" />
-            </svg>
+          <div className="w-10 h-10 bg-surface rounded-xl flex-none flex items-center justify-center shadow-lg shadow-indigo-900/50 p-1.5">
+            <img src="/assets/logo.png" alt="Dragon" className="w-full h-full object-contain" />
           </div>
-          <span className={`font-bold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
+          <span className="font-display font-black text-xl tracking-tight text-white whitespace-nowrap overflow-hidden transition-all duration-300">
             ENGLDOM
           </span>
         </div>
@@ -180,12 +179,12 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
             <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-700 flex items-center justify-center flex-shrink-0">
               {userSettings.avatarDataUrl
                 ? <img src={userSettings.avatarDataUrl} alt="avatar" className="w-full h-full object-cover" />
-                : <User className="w-4 h-4 text-slate-400" />
+                : <User className="w-4 h-4 text-t-4" />
               }
             </div>
             <div className="min-w-0">
               <div className="text-sm font-semibold text-white truncate">{userSettings.displayName || 'My Profile'}</div>
-              <div className="text-xs text-slate-400">Target Band {userSettings.targetBand}</div>
+              <div className="text-xs text-t-4">Target Band {userSettings.targetBand}</div>
             </div>
           </button>
         )}
@@ -198,19 +197,19 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
             ) : (
               <button
                 key={item.id}
-                onClick={() => onModuleChange(item.id as ModuleType)}
-                title={isSidebarCollapsed ? item.label : ''}
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${currentModule === item.id
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                onClick={() => { onModuleChange(item.id as ModuleType); setIsMobileMenuOpen(false); }}
+                title={isSidebarCollapsed && !isMobileMenuOpen ? item.label : ''}
+                className={`group w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 active:scale-95 ${currentModule === item.id
+                  ? 'bg-white/10 text-white shadow-sm ring-1 ring-white/20'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  } ${isSidebarCollapsed && !isMobileMenuOpen ? 'justify-center' : ''}`}
               >
-                {item.icon && <item.icon className="w-5 h-5 flex-shrink-0" />}
-                <span className={`font-medium truncate transition-all duration-300 ${isSidebarCollapsed ? 'w-0 hidden' : 'block'}`}>
+                {item.icon && <item.icon className={`w-5 h-5 flex-shrink-0 transition-transform ${currentModule === item.id ? 'scale-110' : 'group-hover:scale-110'}`} />}
+                <span className={`font-medium truncate transition-all duration-300 ${isSidebarCollapsed && !isMobileMenuOpen ? 'w-0 hidden' : 'block'}`}>
                   {item.label}
                 </span>
-                {!isSidebarCollapsed && (item as any).badge && (
-                  <span className="ml-auto text-[11px]">{(item as any).badge}</span>
+                {(!isSidebarCollapsed || isMobileMenuOpen) && (item as any).badge && (
+                  <span className="ml-auto text-[10px] bg-slate-800 px-1.5 py-0.5 rounded-full border border-slate-700">{(item as any).badge}</span>
                 )}
               </button>
             )
@@ -218,38 +217,59 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
         </nav>
 
         {/* Bottom actions */}
-        <div className="p-4 border-t border-slate-800 flex flex-col gap-2">
-          {!isSidebarCollapsed && (
+        <div className="p-4 border-t border-slate-800 flex flex-col gap-2 bg-slate-900">
+          {(!isSidebarCollapsed || isMobileMenuOpen) && (
             <button
-              onClick={() => setIsCmdOpen(true)}
-              className="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-between transition-all mb-1"
+              onClick={() => { setIsCmdOpen(true); setIsMobileMenuOpen(false); }}
+              className="w-full bg-slate-800 hover:bg-slate-700 text-t-4 hover:text-white py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-between transition-all mb-1 border border-slate-700/50"
             >
               <span className="flex items-center gap-2"><Search className="w-3 h-3" /> Quick Find</span>
               <span className="bg-slate-900 px-1.5 py-0.5 rounded text-[10px] font-mono border border-slate-700">⌘K</span>
             </button>
           )}
 
+          {/* Gamification Bar */}
+          {(!isSidebarCollapsed || isMobileMenuOpen) && (
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-3 mb-2 space-y-2 group transition-colors">
+              <div className="flex justify-between items-center text-[10px] font-black text-indigo-400 uppercase tracking-widest">
+                <span>LVL {getLevel(gamificationService.getData().xp).level}</span>
+                <span className="flex items-center gap-1 bg-orange-500/10 px-1.5 py-0.5 rounded text-orange-400">
+                  <Flame className="w-3 h-3" /> {storageService.getStreak().current}
+                </span>
+              </div>
+              <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                <div
+                  className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 transition-all duration-1000 ease-out shadow-lg"
+                  style={{ width: `${getLevel(gamificationService.getData().xp).progressPercent}%` }}
+                />
+              </div>
+              <div className="text-[10px] text-t-3 font-bold text-center tracking-tight">
+                {gamificationService.getData().xp.toLocaleString()} TOTAL XP
+              </div>
+            </div>
+          )}
+
           {/* XP Level badge row */}
-          <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-2 px-1 py-2'}`}>
-            <LevelBadge size={36} showLabel={!isSidebarCollapsed} />
+          <div className={`flex items-center ${isSidebarCollapsed && !isMobileMenuOpen ? 'justify-center' : 'gap-2 px-1 py-1'}`}>
+            <LevelBadge size={isSidebarCollapsed && !isMobileMenuOpen ? 40 : 36} showLabel={!isSidebarCollapsed || isMobileMenuOpen} />
           </div>
 
           {/* Settings button */}
           <button
-            onClick={() => onModuleChange(ModuleType.SETTINGS)}
-            title={isSidebarCollapsed ? 'Settings' : ''}
+            onClick={() => { onModuleChange(ModuleType.SETTINGS); setIsMobileMenuOpen(false); }}
+            title={isSidebarCollapsed && !isMobileMenuOpen ? 'Settings' : ''}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${currentModule === ModuleType.SETTINGS
-                ? 'bg-indigo-600 text-white'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20'
+              : 'text-t-4 hover:text-indigo-300 hover:bg-slate-800'
+              } ${isSidebarCollapsed && !isMobileMenuOpen ? 'justify-center' : ''}`}
           >
             <Settings className="w-5 h-5 flex-shrink-0" />
-            <span className={`font-medium text-sm transition-all duration-300 ${isSidebarCollapsed ? 'w-0 hidden' : 'block'}`}>Settings</span>
+            <span className={`font-medium text-sm transition-all duration-300 ${isSidebarCollapsed && !isMobileMenuOpen ? 'w-0 hidden' : 'block'}`}>Settings</span>
           </button>
 
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="w-full flex items-center justify-center p-2 rounded-lg text-slate-500 hover:bg-slate-800 hover:text-white transition-colors"
+            className="hidden lg:flex w-full items-center justify-center p-2 rounded-lg text-t-3 hover:bg-slate-800 hover:text-white transition-colors"
             title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
             {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
@@ -259,28 +279,47 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
 
       {/* Main Content */}
       <main
-        className={`min-h-screen transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'pl-20' : 'lg:pl-64 pl-20'
-          }`}
+        className={`min-h-screen transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'
+          } pl-0`}
       >
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-40 backdrop-blur-md">
-          <h1 className="font-bold text-slate-800 capitalize flex items-center gap-2">
-            {moduleTitle()}
-          </h1>
+        <header className="h-16 bg-surface border-b border-base-border flex items-center justify-between px-4 lg:px-8 sticky top-0 z-40 backdrop-blur-md">
           <div className="flex items-center gap-4">
-            <button onClick={() => setIsCmdOpen(true)} className="lg:hidden text-slate-400">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-2 hover:bg-surface-2 rounded-lg text-t-2 transition-colors"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="font-bold text-t-1 capitalize flex items-center gap-2">
+              {moduleTitle()}
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setIsCmdOpen(true)} className="p-2 text-t-4 hover:text-t-2 transition-colors">
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Avatar in header (mobile/compact) */}
+            {/* Gamification chips in header */}
+            <div className="hidden sm:flex items-center gap-3 border-l border-sub-border pl-4 h-6">
+              <div className="flex items-center gap-1.5 text-xs font-black">
+                <span className="text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100 shadow-sm">{gamificationService.getData().xp.toLocaleString()} XP</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-black bg-orange-50 text-orange-700 px-2.5 py-1 rounded-lg border border-orange-100 shadow-sm">
+                <Flame className="w-4 h-4" />
+                <span>{storageService.getStreak().current}</span>
+              </div>
+            </div>
+
+            {/* Avatar in header */}
             {userSettings.avatarDataUrl && (
-              <button onClick={() => onModuleChange(ModuleType.SETTINGS)} className="w-8 h-8 rounded-full overflow-hidden border-2 border-indigo-200 flex-shrink-0">
+              <button onClick={() => onModuleChange(ModuleType.SETTINGS)} className="w-9 h-9 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm flex-shrink-0 hover:border-indigo-400 transition-all hover:scale-105">
                 <img src={userSettings.avatarDataUrl} alt="avatar" className="w-full h-full object-cover" />
               </button>
             )}
 
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-100">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-xs font-bold">AI Online</span>
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 shadow-inner">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+              <span className="text-[10px] font-black uppercase tracking-widest">AI Online</span>
             </div>
           </div>
         </header>
@@ -292,9 +331,9 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
       {/* Command Palette Modal */}
       {isCmdOpen && (
         <div className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-start justify-center pt-[20vh] px-4">
-          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
-            <div className="p-4 border-b border-slate-100 flex items-center gap-3">
-              <Command className="w-5 h-5 text-slate-400" />
+          <div className="w-full max-w-xl bg-surface rounded-2xl shadow-2xl overflow-hidden border border-base-border">
+            <div className="p-4 border-b border-sub-border flex items-center gap-3">
+              <Command className="w-5 h-5 text-t-4" />
               <input
                 ref={inputRef}
                 type="text"
@@ -302,13 +341,13 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type a command or search..."
-                className="flex-1 text-lg outline-none text-slate-800 placeholder:text-slate-400 bg-transparent"
+                className="flex-1 text-lg outline-none text-t-1 placeholder:text-t-4 bg-transparent"
               />
-              <button onClick={() => setIsCmdOpen(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+              <button onClick={() => setIsCmdOpen(false)} className="text-t-4 hover:text-t-2"><X className="w-5 h-5" /></button>
             </div>
             <div className="max-h-[300px] overflow-y-auto p-2">
               {searchResults.length === 0 ? (
-                <div className="p-8 text-center text-slate-400 text-sm">
+                <div className="p-8 text-center text-t-4 text-sm">
                   No results found. Try "Writing", "History", or a saved word.
                 </div>
               ) : (
@@ -316,17 +355,17 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
                   <button
                     key={i}
                     onClick={() => handleSelect(result)}
-                    className={`w-full text-left p-3 rounded-lg flex items-center justify-between group transition-colors ${i === activeIndex ? 'bg-indigo-50 text-indigo-900' : 'hover:bg-slate-50 text-slate-600'}`}
+                    className={`w-full text-left p-3 rounded-lg flex items-center justify-between group transition-colors ${i === activeIndex ? 'bg-indigo-50 text-indigo-900' : 'hover:bg-background text-t-2'}`}
                   >
                     <div className="flex items-center gap-3">
-                      {result.type === 'nav' && <CornerDownLeft className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />}
-                      {result.type === 'word' && <Hash className="w-4 h-4 text-slate-400 group-hover:text-pink-500" />}
-                      {result.type === 'history' && <FileText className="w-4 h-4 text-slate-400 group-hover:text-emerald-500" />}
+                      {result.type === 'nav' && <CornerDownLeft className="w-4 h-4 text-t-4 group-hover:text-indigo-500" />}
+                      {result.type === 'word' && <Hash className="w-4 h-4 text-t-4 group-hover:text-pink-500" />}
+                      {result.type === 'history' && <FileText className="w-4 h-4 text-t-4 group-hover:text-emerald-500" />}
                       <div>
                         <div className="font-bold text-sm">
                           {result.type === 'word' ? result.word : result.label}
                         </div>
-                        {result.type === 'word' && <div className="text-xs text-slate-400 truncate max-w-[200px]">{result.meaning}</div>}
+                        {result.type === 'word' && <div className="text-xs text-t-4 truncate max-w-[200px]">{result.meaning}</div>}
                       </div>
                     </div>
                     {i === activeIndex && <ArrowRight className="w-4 h-4 text-indigo-500" />}
@@ -334,7 +373,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentModule, onModuleChange, c
                 ))
               )}
             </div>
-            <div className="bg-slate-50 px-4 py-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+            <div className="bg-background px-4 py-2 border-t border-sub-border flex justify-between items-center text-[10px] text-t-4 font-bold uppercase tracking-wider">
               <span>↑↓ Navigate · Enter Select</span>
               <span>EnglDom v1.1</span>
             </div>

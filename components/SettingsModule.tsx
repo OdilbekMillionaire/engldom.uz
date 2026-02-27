@@ -2,96 +2,83 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   User, BookOpen, Palette, Database,
   Camera, Check, Download, Upload, Trash2,
-  Sun, Moon, Monitor, AlertTriangle, ChevronDown, X
+  AlertTriangle, ChevronDown, X
 } from 'lucide-react';
 import { storageService } from '../services/storageService';
 import { UserSettings, CEFRLevel } from '../types';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-export const applyTheme = (theme: UserSettings['theme']) => {
-  const html = document.documentElement;
-  if (theme === 'dark') {
-    html.classList.add('dark');
-  } else if (theme === 'light') {
-    html.classList.remove('dark');
-  } else {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (prefersDark) html.classList.add('dark');
-    else html.classList.remove('dark');
-  }
-};
-
 // ── Language list ─────────────────────────────────────────────────────────
 
 const LANGUAGES = [
-  { code: 'English',    label: 'English (native)' },
-  { code: 'Uzbek',      label: 'Uzbek / O\'zbek' },
-  { code: 'Russian',    label: 'Russian / Русский' },
-  { code: 'Arabic',     label: 'Arabic / العربية' },
-  { code: 'Chinese (Simplified)',  label: 'Chinese Simplified / 中文(简体)' },
+  { code: 'English', label: 'English (native)' },
+  { code: 'Uzbek', label: 'Uzbek / O\'zbek' },
+  { code: 'Russian', label: 'Russian / Русский' },
+  { code: 'Arabic', label: 'Arabic / العربية' },
+  { code: 'Chinese (Simplified)', label: 'Chinese Simplified / 中文(简体)' },
   { code: 'Chinese (Traditional)', label: 'Chinese Traditional / 中文(繁體)' },
-  { code: 'Spanish',    label: 'Spanish / Español' },
-  { code: 'French',     label: 'French / Français' },
-  { code: 'German',     label: 'German / Deutsch' },
-  { code: 'Italian',    label: 'Italian / Italiano' },
+  { code: 'Spanish', label: 'Spanish / Español' },
+  { code: 'French', label: 'French / Français' },
+  { code: 'German', label: 'German / Deutsch' },
+  { code: 'Italian', label: 'Italian / Italiano' },
   { code: 'Portuguese', label: 'Portuguese / Português' },
-  { code: 'Hindi',      label: 'Hindi / हिन्दी' },
-  { code: 'Bengali',    label: 'Bengali / বাংলা' },
-  { code: 'Urdu',       label: 'Urdu / اردو' },
-  { code: 'Turkish',    label: 'Turkish / Türkçe' },
-  { code: 'Korean',     label: 'Korean / 한국어' },
-  { code: 'Japanese',   label: 'Japanese / 日本語' },
+  { code: 'Hindi', label: 'Hindi / हिन्दी' },
+  { code: 'Bengali', label: 'Bengali / বাংলা' },
+  { code: 'Urdu', label: 'Urdu / اردو' },
+  { code: 'Turkish', label: 'Turkish / Türkçe' },
+  { code: 'Korean', label: 'Korean / 한국어' },
+  { code: 'Japanese', label: 'Japanese / 日本語' },
   { code: 'Vietnamese', label: 'Vietnamese / Tiếng Việt' },
-  { code: 'Thai',       label: 'Thai / ภาษาไทย' },
+  { code: 'Thai', label: 'Thai / ภาษาไทย' },
   { code: 'Indonesian', label: 'Indonesian / Bahasa Indonesia' },
-  { code: 'Malay',      label: 'Malay / Bahasa Melayu' },
-  { code: 'Persian',    label: 'Persian / فارسی' },
-  { code: 'Nepali',     label: 'Nepali / नेपाली' },
-  { code: 'Tamil',      label: 'Tamil / தமிழ்' },
-  { code: 'Telugu',     label: 'Telugu / తెలుగు' },
-  { code: 'Sinhala',    label: 'Sinhala / සිංහල' },
-  { code: 'Kazakh',     label: 'Kazakh / Қазақша' },
-  { code: 'Azerbaijani',label: 'Azerbaijani / Azərbaycan' },
-  { code: 'Georgian',   label: 'Georgian / ქართული' },
-  { code: 'Romanian',   label: 'Romanian / Română' },
-  { code: 'Polish',     label: 'Polish / Polski' },
-  { code: 'Ukrainian',  label: 'Ukrainian / Українська' },
-  { code: 'Hungarian',  label: 'Hungarian / Magyar' },
-  { code: 'Greek',      label: 'Greek / Ελληνικά' },
-  { code: 'Hebrew',     label: 'Hebrew / עברית' },
-  { code: 'Dutch',      label: 'Dutch / Nederlands' },
-  { code: 'Swedish',    label: 'Swedish / Svenska' },
-  { code: 'Norwegian',  label: 'Norwegian / Norsk' },
-  { code: 'Danish',     label: 'Danish / Dansk' },
-  { code: 'Finnish',    label: 'Finnish / Suomi' },
-  { code: 'Swahili',    label: 'Swahili / Kiswahili' },
-  { code: 'Amharic',    label: 'Amharic / አማርኛ' },
+  { code: 'Malay', label: 'Malay / Bahasa Melayu' },
+  { code: 'Persian', label: 'Persian / فارسی' },
+  { code: 'Nepali', label: 'Nepali / नेपाली' },
+  { code: 'Tamil', label: 'Tamil / தமிழ்' },
+  { code: 'Telugu', label: 'Telugu / తెలుగు' },
+  { code: 'Sinhala', label: 'Sinhala / සිංහල' },
+  { code: 'Kazakh', label: 'Kazakh / Қазақша' },
+  { code: 'Azerbaijani', label: 'Azerbaijani / Azərbaycan' },
+  { code: 'Georgian', label: 'Georgian / ქართული' },
+  { code: 'Romanian', label: 'Romanian / Română' },
+  { code: 'Polish', label: 'Polish / Polski' },
+  { code: 'Ukrainian', label: 'Ukrainian / Українська' },
+  { code: 'Hungarian', label: 'Hungarian / Magyar' },
+  { code: 'Greek', label: 'Greek / Ελληνικά' },
+  { code: 'Hebrew', label: 'Hebrew / עברית' },
+  { code: 'Dutch', label: 'Dutch / Nederlands' },
+  { code: 'Swedish', label: 'Swedish / Svenska' },
+  { code: 'Norwegian', label: 'Norwegian / Norsk' },
+  { code: 'Danish', label: 'Danish / Dansk' },
+  { code: 'Finnish', label: 'Finnish / Suomi' },
+  { code: 'Swahili', label: 'Swahili / Kiswahili' },
+  { code: 'Amharic', label: 'Amharic / አማርኛ' },
 ];
 
-const BAND_OPTIONS = ['5.0','5.5','6.0','6.5','7.0','7.5','8.0','8.5','9.0'];
+const BAND_OPTIONS = ['5.0', '5.5', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0'];
 const CEFR_OPTIONS = [CEFRLevel.A1, CEFRLevel.A2, CEFRLevel.B1, CEFRLevel.B2, CEFRLevel.C1, CEFRLevel.C2];
 const DAILY_GOAL_OPTIONS = [
-  { value: 2,  label: 'Light',    desc: '2 exercises/day' },
-  { value: 5,  label: 'Moderate', desc: '5 exercises/day' },
-  { value: 10, label: 'Intense',  desc: '10 exercises/day' },
-  { value: 20, label: 'Expert',   desc: '20 exercises/day' },
+  { value: 2, label: 'Light', desc: '2 exercises/day' },
+  { value: 5, label: 'Moderate', desc: '5 exercises/day' },
+  { value: 10, label: 'Intense', desc: '10 exercises/day' },
+  { value: 20, label: 'Expert', desc: '20 exercises/day' },
 ];
 
 // ── Sub-components ────────────────────────────────────────────────────────
 
 const SectionCard: React.FC<{ title: string; description: string; children: React.ReactNode }> = ({ title, description, children }) => (
-  <div className="bg-white rounded-xl border border-slate-100 p-6 space-y-5">
+  <div className="bg-surface rounded-xl border border-sub-border p-6 space-y-5">
     <div>
-      <h3 className="font-bold text-slate-800 text-lg">{title}</h3>
-      <p className="text-slate-500 text-sm mt-0.5">{description}</p>
+      <h3 className="font-bold text-t-1 text-lg">{title}</h3>
+      <p className="text-t-3 text-sm mt-0.5">{description}</p>
     </div>
     {children}
   </div>
 );
 
 const FieldLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <label className="block text-sm font-semibold text-slate-700 mb-1.5">{children}</label>
+  <label className="block text-sm font-semibold text-t-2 mb-1.5">{children}</label>
 );
 
 // ── Toast component ──────────────────────────────────────────────────────
@@ -105,14 +92,14 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
 
   const colors = {
     success: 'bg-emerald-600',
-    error:   'bg-red-600',
-    info:    'bg-indigo-600',
+    error: 'bg-red-600',
+    info: 'bg-indigo-600',
   };
 
   return (
     <div className={`fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-3 rounded-xl text-white font-medium shadow-xl ${colors[type]}`}>
       {type === 'success' && <Check className="w-4 h-4 flex-shrink-0" />}
-      {type === 'error'   && <AlertTriangle className="w-4 h-4 flex-shrink-0" />}
+      {type === 'error' && <AlertTriangle className="w-4 h-4 flex-shrink-0" />}
       <span className="text-sm">{message}</span>
       <button onClick={onClose} className="opacity-70 hover:opacity-100"><X className="w-4 h-4" /></button>
     </div>
@@ -131,8 +118,8 @@ export const SettingsModule: React.FC = () => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [clearConfirm, setClearConfirm] = useState<'progress' | 'vault' | 'all' | null>(null);
 
-  const avatarInputRef  = useRef<HTMLInputElement>(null);
-  const importInputRef  = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
   const langDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close language dropdown on outside click
@@ -154,7 +141,6 @@ export const SettingsModule: React.FC = () => {
 
   const handleSave = () => {
     storageService.saveSettings(settings);
-    applyTheme(settings.theme);
     showToast('Settings saved successfully!');
   };
 
@@ -177,9 +163,9 @@ export const SettingsModule: React.FC = () => {
   const handleExport = () => {
     const data = storageService.exportAllData();
     const blob = new Blob([data], { type: 'application/json' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
     a.download = `engldom-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
@@ -204,9 +190,9 @@ export const SettingsModule: React.FC = () => {
   };
 
   const handleClear = (type: 'progress' | 'vault' | 'all') => {
-    if (type === 'progress')      storageService.clearProgressOnly();
-    else if (type === 'vault')    storageService.clearVaultOnly();
-    else                          storageService.clearAllData();
+    if (type === 'progress') storageService.clearProgressOnly();
+    else if (type === 'vault') storageService.clearVaultOnly();
+    else storageService.clearAllData();
     setClearConfirm(null);
     showToast(
       type === 'all' ? 'All data cleared. Page will refresh.' : 'Selected data cleared.',
@@ -226,31 +212,29 @@ export const SettingsModule: React.FC = () => {
   // ── Tabs ───────────────────────────────────────────────────────────────
 
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
-    { id: 'profile',    label: 'Profile',    icon: User },
-    { id: 'learning',   label: 'Learning',   icon: BookOpen },
-    { id: 'appearance', label: 'Appearance', icon: Palette },
-    { id: 'data',       label: 'Data',       icon: Database },
+    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'learning', label: 'Learning', icon: BookOpen },
+    { id: 'data', label: 'Data', icon: Database },
   ];
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Page header */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <h2 className="text-2xl font-bold text-slate-800 mb-1">Settings & Profile</h2>
-        <p className="text-slate-500">Personalise your ENGLDOM experience.</p>
+      <div className="bg-surface p-6 rounded-xl shadow-sm border border-sub-border">
+        <h2 className="text-2xl font-bold text-t-1 mb-1">Settings & Profile</h2>
+        <p className="text-t-3">Personalise your ENGLDOM experience.</p>
       </div>
 
       {/* Tab navigation */}
-      <div className="bg-white rounded-xl border border-slate-100 p-1.5 flex gap-1">
+      <div className="bg-surface rounded-xl border border-sub-border p-1.5 flex gap-1">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all ${
-              activeTab === tab.id
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-            }`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all ${activeTab === tab.id
+              ? 'bg-indigo-600 text-white shadow-sm'
+              : 'text-t-3 hover:text-t-1 hover:bg-background'
+              }`}
           >
             <tab.icon className="w-4 h-4" />
             <span className="hidden sm:inline">{tab.label}</span>
@@ -268,11 +252,11 @@ export const SettingsModule: React.FC = () => {
               <FieldLabel>Profile Picture</FieldLabel>
               <div className="flex items-center gap-5">
                 <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
-                  <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-indigo-100 bg-slate-100 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-indigo-100 bg-surface-2 flex items-center justify-center">
                     {settings.avatarDataUrl ? (
                       <img src={settings.avatarDataUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <User className="w-8 h-8 text-slate-400" />
+                      <User className="w-8 h-8 text-t-4" />
                     )}
                   </div>
                   <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -294,7 +278,7 @@ export const SettingsModule: React.FC = () => {
                       Remove
                     </button>
                   )}
-                  <p className="text-xs text-slate-400">JPG, PNG, GIF up to 2 MB</p>
+                  <p className="text-xs text-t-4">JPG, PNG, GIF up to 2 MB</p>
                 </div>
               </div>
               <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarFile} />
@@ -309,9 +293,9 @@ export const SettingsModule: React.FC = () => {
                 onChange={e => update({ displayName: e.target.value })}
                 placeholder="e.g. Akbar, Sarah…"
                 maxLength={40}
-                className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                className="w-full border border-base-border rounded-lg px-4 py-2.5 text-t-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
               />
-              <p className="text-xs text-slate-400 mt-1">Used in dashboard greetings and streaks.</p>
+              <p className="text-xs text-t-4 mt-1">Used in dashboard greetings and streaks.</p>
             </div>
           </SectionCard>
 
@@ -334,20 +318,20 @@ export const SettingsModule: React.FC = () => {
               <div className="relative" ref={langDropdownRef}>
                 <button
                   onClick={() => setLangOpen(o => !o)}
-                  className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-left text-slate-800 text-sm flex items-center justify-between hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                  className="w-full border border-base-border rounded-lg px-4 py-2.5 text-left text-t-1 text-sm flex items-center justify-between hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                 >
                   <span>{selectedLang?.label || 'Select language…'}</span>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-t-4 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {langOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                    <div className="p-2 border-b border-slate-100">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-base-border rounded-xl shadow-xl z-50 overflow-hidden">
+                    <div className="p-2 border-b border-sub-border">
                       <input
                         type="text"
                         value={langSearch}
                         onChange={e => setLangSearch(e.target.value)}
                         placeholder="Search language…"
-                        className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-3 py-2 text-sm border border-base-border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         autoFocus
                       />
                     </div>
@@ -356,9 +340,8 @@ export const SettingsModule: React.FC = () => {
                         <button
                           key={lang.code}
                           onClick={() => { update({ nativeLanguage: lang.code }); setLangOpen(false); setLangSearch(''); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 transition-colors flex items-center justify-between ${
-                            settings.nativeLanguage === lang.code ? 'text-indigo-600 font-semibold bg-indigo-50' : 'text-slate-700'
-                          }`}
+                          className={`w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 transition-colors flex items-center justify-between ${settings.nativeLanguage === lang.code ? 'text-indigo-600 font-semibold bg-indigo-50' : 'text-t-2'
+                            }`}
                         >
                           <span>{lang.label}</span>
                           {settings.nativeLanguage === lang.code && <Check className="w-4 h-4 text-indigo-600" />}
@@ -386,11 +369,10 @@ export const SettingsModule: React.FC = () => {
                   <button
                     key={b}
                     onClick={() => update({ targetBand: b })}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${
-                      settings.targetBand === b
-                        ? 'bg-indigo-600 text-white border-indigo-600'
-                        : 'border-slate-200 text-slate-600 hover:border-indigo-400 hover:text-indigo-600'
-                    }`}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${settings.targetBand === b
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'border-base-border text-t-2 hover:border-indigo-400 hover:text-indigo-600'
+                      }`}
                   >
                     {b}
                   </button>
@@ -406,14 +388,13 @@ export const SettingsModule: React.FC = () => {
                   <button
                     key={g.value}
                     onClick={() => update({ dailyGoal: g.value })}
-                    className={`p-3 rounded-xl border-2 text-center transition-all ${
-                      settings.dailyGoal === g.value
-                        ? 'border-indigo-600 bg-indigo-50'
-                        : 'border-slate-200 hover:border-indigo-300'
-                    }`}
+                    className={`p-3 rounded-xl border-2 text-center transition-all ${settings.dailyGoal === g.value
+                      ? 'border-indigo-600 bg-indigo-50'
+                      : 'border-base-border hover:border-indigo-300'
+                      }`}
                   >
-                    <div className={`text-base font-bold ${settings.dailyGoal === g.value ? 'text-indigo-700' : 'text-slate-700'}`}>{g.label}</div>
-                    <div className={`text-xs mt-0.5 ${settings.dailyGoal === g.value ? 'text-indigo-500' : 'text-slate-400'}`}>{g.desc}</div>
+                    <div className={`text-base font-bold ${settings.dailyGoal === g.value ? 'text-indigo-700' : 'text-t-2'}`}>{g.label}</div>
+                    <div className={`text-xs mt-0.5 ${settings.dailyGoal === g.value ? 'text-indigo-500' : 'text-t-4'}`}>{g.desc}</div>
                   </button>
                 ))}
               </div>
@@ -427,11 +408,10 @@ export const SettingsModule: React.FC = () => {
                   <button
                     key={c}
                     onClick={() => update({ defaultCEFRLevel: c })}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${
-                      settings.defaultCEFRLevel === c
-                        ? 'bg-indigo-600 text-white border-indigo-600'
-                        : 'border-slate-200 text-slate-600 hover:border-indigo-400 hover:text-indigo-600'
-                    }`}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${settings.defaultCEFRLevel === c
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'border-base-border text-t-2 hover:border-indigo-400 hover:text-indigo-600'
+                      }`}
                   >
                     {c}
                   </button>
@@ -448,41 +428,6 @@ export const SettingsModule: React.FC = () => {
         </div>
       )}
 
-      {/* ── Appearance Tab ───────────────────────────────────────────── */}
-      {activeTab === 'appearance' && (
-        <div className="space-y-4">
-          <SectionCard title="Theme" description="Choose how ENGLDOM looks on your device.">
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { id: 'light',  label: 'Light',  icon: Sun,     desc: 'Bright & clean' },
-                { id: 'dark',   label: 'Dark',   icon: Moon,    desc: 'Easy on the eyes' },
-                { id: 'system', label: 'System', icon: Monitor, desc: 'Match OS setting' },
-              ].map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => { update({ theme: t.id as UserSettings['theme'] }); applyTheme(t.id as UserSettings['theme']); }}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                    settings.theme === t.id
-                      ? 'border-indigo-600 bg-indigo-50'
-                      : 'border-slate-200 hover:border-indigo-300'
-                  }`}
-                >
-                  <t.icon className={`w-6 h-6 ${settings.theme === t.id ? 'text-indigo-600' : 'text-slate-500'}`} />
-                  <span className={`text-sm font-bold ${settings.theme === t.id ? 'text-indigo-700' : 'text-slate-700'}`}>{t.label}</span>
-                  <span className={`text-xs ${settings.theme === t.id ? 'text-indigo-500' : 'text-slate-400'}`}>{t.desc}</span>
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-slate-400">Theme changes are applied immediately and saved when you click Save.</p>
-          </SectionCard>
-
-          <div className="flex justify-end">
-            <button onClick={handleSave} className="px-6 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors flex items-center gap-2">
-              <Check className="w-4 h-4" /> Save Appearance
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ── Data Tab ─────────────────────────────────────────────────── */}
       {activeTab === 'data' && (
@@ -498,15 +443,15 @@ export const SettingsModule: React.FC = () => {
               </button>
               <button
                 onClick={() => importInputRef.current?.click()}
-                className="flex items-center justify-center gap-3 px-5 py-4 border-2 border-dashed border-slate-300 text-slate-600 rounded-xl font-semibold hover:border-indigo-400 hover:text-indigo-600 transition-colors"
+                className="flex items-center justify-center gap-3 px-5 py-4 border-2 border-dashed border-slate-300 text-t-2 rounded-xl font-semibold hover:border-indigo-400 hover:text-indigo-600 transition-colors"
               >
                 <Upload className="w-5 h-5" />
                 Import from Backup
               </button>
             </div>
             <input ref={importInputRef} type="file" accept=".json" className="hidden" onChange={handleImportFile} />
-            <p className="text-xs text-slate-400">
-              Exported as a <code className="bg-slate-100 px-1 rounded">.json</code> file. You can import it later on any device.
+            <p className="text-xs text-t-4">
+              Exported as a <code className="bg-surface-2 px-1 rounded">.json</code> file. You can import it later on any device.
             </p>
           </SectionCard>
 
@@ -518,17 +463,17 @@ export const SettingsModule: React.FC = () => {
                   <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
                   <span className="text-sm text-red-700 font-medium flex-1">Clear all progress & streaks?</span>
                   <button onClick={() => handleClear('progress')} className="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg">Yes, clear</button>
-                  <button onClick={() => setClearConfirm(null)} className="px-3 py-1.5 border border-slate-300 text-slate-600 text-xs font-bold rounded-lg">Cancel</button>
+                  <button onClick={() => setClearConfirm(null)} className="px-3 py-1.5 border border-slate-300 text-t-2 text-xs font-bold rounded-lg">Cancel</button>
                 </div>
               ) : (
                 <button
                   onClick={() => setClearConfirm('progress')}
-                  className="w-full flex items-center gap-3 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl hover:border-red-300 hover:text-red-600 hover:bg-red-50 transition-all text-sm font-semibold text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3 border border-base-border text-t-2 rounded-xl hover:border-red-300 hover:text-red-600 hover:bg-red-50 transition-all text-sm font-semibold text-left"
                 >
                   <Trash2 className="w-4 h-4" />
                   <div>
                     <div>Clear Progress & Streaks</div>
-                    <div className="text-xs font-normal text-slate-400">Removes scores, history, and streak data</div>
+                    <div className="text-xs font-normal text-t-4">Removes scores, history, and streak data</div>
                   </div>
                 </button>
               )}
@@ -539,17 +484,17 @@ export const SettingsModule: React.FC = () => {
                   <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
                   <span className="text-sm text-red-700 font-medium flex-1">Clear vocabulary vault & grammar rules?</span>
                   <button onClick={() => handleClear('vault')} className="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg">Yes, clear</button>
-                  <button onClick={() => setClearConfirm(null)} className="px-3 py-1.5 border border-slate-300 text-slate-600 text-xs font-bold rounded-lg">Cancel</button>
+                  <button onClick={() => setClearConfirm(null)} className="px-3 py-1.5 border border-slate-300 text-t-2 text-xs font-bold rounded-lg">Cancel</button>
                 </div>
               ) : (
                 <button
                   onClick={() => setClearConfirm('vault')}
-                  className="w-full flex items-center gap-3 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl hover:border-red-300 hover:text-red-600 hover:bg-red-50 transition-all text-sm font-semibold text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3 border border-base-border text-t-2 rounded-xl hover:border-red-300 hover:text-red-600 hover:bg-red-50 transition-all text-sm font-semibold text-left"
                 >
                   <Trash2 className="w-4 h-4" />
                   <div>
                     <div>Clear Vocabulary Vault</div>
-                    <div className="text-xs font-normal text-slate-400">Removes all saved words and grammar rules</div>
+                    <div className="text-xs font-normal text-t-4">Removes all saved words and grammar rules</div>
                   </div>
                 </button>
               )}
@@ -560,7 +505,7 @@ export const SettingsModule: React.FC = () => {
                   <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
                   <span className="text-sm text-red-700 font-medium flex-1">Delete ALL data including settings? This cannot be undone.</span>
                   <button onClick={() => handleClear('all')} className="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg">Yes, delete all</button>
-                  <button onClick={() => setClearConfirm(null)} className="px-3 py-1.5 border border-slate-300 text-slate-600 text-xs font-bold rounded-lg">Cancel</button>
+                  <button onClick={() => setClearConfirm(null)} className="px-3 py-1.5 border border-slate-300 text-t-2 text-xs font-bold rounded-lg">Cancel</button>
                 </div>
               ) : (
                 <button
@@ -580,20 +525,20 @@ export const SettingsModule: React.FC = () => {
           <SectionCard title="About" description="">
             <div className="grid sm:grid-cols-2 gap-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-500">App version</span>
-                <span className="font-semibold text-slate-700">ENGLDOM v1.1</span>
+                <span className="text-t-3">App version</span>
+                <span className="font-semibold text-t-2">ENGLDOM v1.1</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">AI engine</span>
-                <span className="font-semibold text-slate-700">Google Gemini</span>
+                <span className="text-t-3">AI engine</span>
+                <span className="font-semibold text-t-2">Google Gemini</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Storage</span>
-                <span className="font-semibold text-slate-700">Local (browser)</span>
+                <span className="text-t-3">Storage</span>
+                <span className="font-semibold text-t-2">Local (browser)</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Settings since</span>
-                <span className="font-semibold text-slate-700">{new Date(settings.createdAt).toLocaleDateString()}</span>
+                <span className="text-t-3">Settings since</span>
+                <span className="font-semibold text-t-2">{new Date(settings.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
           </SectionCard>

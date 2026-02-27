@@ -340,7 +340,7 @@ export const ListeningModule: React.FC<ListeningModuleProps> = ({ initialData })
       const parts = cleanScript.split(pattern);
 
       return (
-          <div className={`prose prose-lg prose-slate max-w-none font-serif text-slate-800 leading-loose transition-all duration-500 ${!showTranscript ? 'blur-md select-none opacity-50' : ''}`}>
+          <div className={`prose prose-lg prose-slate max-w-none font-serif text-t-1 leading-loose transition-all duration-500 ${!showTranscript ? 'blur-md select-none opacity-50' : ''}`}>
               {parts.map((part, i) => {
                   const match = data.newWords.find(w => w.word.toLowerCase() === part.toLowerCase());
                   const isSelected = selectedWord?.word.toLowerCase() === match?.word.toLowerCase();
@@ -358,40 +358,40 @@ export const ListeningModule: React.FC<ListeningModuleProps> = ({ initialData })
   return (
     <div className="space-y-8 animate-fade-in pb-12">
       {!data && (
-        <div className="bg-white p-8 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 max-w-4xl mx-auto">
+        <div className="bg-surface p-8 rounded-2xl shadow-xl shadow-slate-200/50 border border-sub-border max-w-4xl mx-auto">
              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-slate-800 mb-2 font-serif">Listening Lab</h2>
-                <p className="text-slate-500">Train your ear with custom AI-generated audio content.</p>
+                <h2 className="text-3xl font-bold text-t-1 mb-2 font-serif">Listening Lab</h2>
+                <p className="text-t-3">Train your ear with custom AI-generated audio content.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 block">Topic</label>
+                        <label className="text-sm font-bold text-t-2 block">Topic</label>
                         <input
                             type="text"
                             value={topic}
                             onChange={(e) => setTopic(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full bg-background border border-base-border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700 block">Level</label>
+                            <label className="text-sm font-bold text-t-2 block">Level</label>
                             <select
                                 value={level}
                                 onChange={(e) => setLevel(e.target.value as CEFRLevel)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none"
+                                className="w-full bg-background border border-base-border rounded-lg px-4 py-3 outline-none"
                             >
                                 {Object.values(CEFRLevel).map(l => <option key={l} value={l}>{l}</option>)}
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700 block">Style</label>
+                            <label className="text-sm font-bold text-t-2 block">Style</label>
                             <select
                                 value={style}
                                 onChange={(e) => setStyle(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none text-sm"
+                                className="w-full bg-background border border-base-border rounded-lg px-4 py-3 outline-none text-sm"
                             >
                                 {LISTENING_STYLES.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
@@ -400,20 +400,20 @@ export const ListeningModule: React.FC<ListeningModuleProps> = ({ initialData })
                 </div>
                 <div className="space-y-6">
                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 block">Voice Preference</label>
+                        <label className="text-sm font-bold text-t-2 block">Voice Preference</label>
                         <select
                             value={voice}
                             onChange={(e) => setVoice(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none"
+                            className="w-full bg-background border border-base-border rounded-lg px-4 py-3 outline-none"
                         >
                             {VOICES.map(v => <option key={v.name} value={v.name}>{v.label} - {v.style}</option>)}
                         </select>
                      </div>
                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 block">New Vocabulary Count</label>
+                        <label className="text-sm font-bold text-t-2 block">New Vocabulary Count</label>
                         <input
                             type="number" min="1" max="10" value={newWordCount} onChange={(e) => setNewWordCount(Number(e.target.value))}
-                            className={`w-full bg-slate-50 border rounded-lg px-4 py-3 outline-none ${!isCountValid ? 'border-red-300 bg-red-50' : 'border-slate-200'}`}
+                            className={`w-full bg-background border rounded-lg px-4 py-3 outline-none ${!isCountValid ? 'border-red-300 bg-red-50' : 'border-base-border'}`}
                         />
                      </div>
                 </div>
@@ -451,14 +451,14 @@ export const ListeningModule: React.FC<ListeningModuleProps> = ({ initialData })
                             <button 
                                 onClick={togglePlay}
                                 disabled={audioLoading || !audioBufferRef.current}
-                                className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-lg flex-none ${audioLoading || !audioBufferRef.current ? 'bg-slate-700 cursor-not-allowed text-slate-500' : 'bg-indigo-500 hover:bg-indigo-400 shadow-indigo-500/30'}`}
+                                className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-lg flex-none ${audioLoading || !audioBufferRef.current ? 'bg-slate-700 cursor-not-allowed text-t-3' : 'bg-indigo-500 hover:bg-indigo-400 shadow-indigo-500/30'}`}
                             >
                                 {audioLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 ml-1 fill-current" />}
                             </button>
                         )}
                         
                         <div className="flex-1 w-full space-y-2">
-                            <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            <div className="flex justify-between text-xs font-bold text-t-4 uppercase tracking-wider">
                                 <span>{audioLoading ? 'Synthesizing Audio...' : isPlaying ? 'Now Playing' : !audioBufferRef.current ? 'Audio Not Loaded' : 'Ready to Play'}</span>
                                 <span>{data.title}</span>
                             </div>
@@ -472,18 +472,18 @@ export const ListeningModule: React.FC<ListeningModuleProps> = ({ initialData })
                                 {audioLoading && <div className="absolute inset-0 bg-slate-600 animate-pulse"></div>}
                                 <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-100" style={{ width: `${progress}%` }}></div>
                             </div>
-                            <div className="flex justify-between items-center text-xs text-slate-500 font-mono">
+                            <div className="flex justify-between items-center text-xs text-t-3 font-mono">
                                 <span>{audioBufferRef.current ? new Date(pauseTimeRef.current * 1000).toISOString().substr(14, 5) : "00:00"}</span>
                                 <span>{audioBufferRef.current ? new Date(audioBufferRef.current.duration * 1000).toISOString().substr(14, 5) : "00:00"}</span>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-2 flex-none">
-                             <button onClick={() => seek(-10)} className="p-2 text-slate-400 hover:text-white"><Rewind className="w-5 h-5" /></button>
-                             <button onClick={() => seek(10)} className="p-2 text-slate-400 hover:text-white"><FastForward className="w-5 h-5" /></button>
+                             <button onClick={() => seek(-10)} className="p-2 text-t-4 hover:text-white"><Rewind className="w-5 h-5" /></button>
+                             <button onClick={() => seek(10)} className="p-2 text-t-4 hover:text-white"><FastForward className="w-5 h-5" /></button>
                              <div className="w-px h-6 bg-slate-700 mx-2"></div>
                              {[1, 1.25].map(rate => (
-                                <button key={rate} onClick={() => changeSpeed(rate)} className={`px-2 py-1 text-xs font-bold rounded ${playbackRate === rate ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-white'}`}>{rate}x</button>
+                                <button key={rate} onClick={() => changeSpeed(rate)} className={`px-2 py-1 text-xs font-bold rounded ${playbackRate === rate ? 'bg-indigo-500 text-white' : 'text-t-4 hover:text-white'}`}>{rate}x</button>
                              ))}
                         </div>
                     </div>
@@ -495,7 +495,7 @@ export const ListeningModule: React.FC<ListeningModuleProps> = ({ initialData })
                   {/* LEFT: Transcript - Natural Height */}
                   <div className="lg:col-span-7 flex flex-col bg-[#faf9f6] rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
                       <div className="p-6 border-b border-stone-200 bg-stone-100 flex justify-between items-center">
-                           <h2 className="font-serif font-bold text-xl text-slate-800">Transcript</h2>
+                           <h2 className="font-serif font-bold text-xl text-t-1">Transcript</h2>
                            <button onClick={() => setShowTranscript(!showTranscript)} className="flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
                                {showTranscript ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />} {showTranscript ? 'Hide Text' : 'Reveal Text'}
                            </button>
@@ -503,12 +503,12 @@ export const ListeningModule: React.FC<ListeningModuleProps> = ({ initialData })
                       <div className="p-8 relative">
                           {renderTranscript()}
                           {!showTranscript && (
-                              <div className="absolute inset-0 flex items-center justify-center z-0 backdrop-blur-sm bg-white/30 h-96">
-                                  <div className="bg-white/80 p-6 rounded-xl border border-white/50 shadow-lg text-center max-w-sm backdrop-blur-md">
+                              <div className="absolute inset-0 flex items-center justify-center z-0 backdrop-blur-sm bg-surface/30 h-96">
+                                  <div className="bg-surface/80 p-6 rounded-xl border border-white/50 shadow-lg text-center max-w-sm backdrop-blur-md">
                                       <Headphones className="w-12 h-12 text-indigo-300 mx-auto mb-4" />
-                                      <h3 className="font-bold text-slate-800 mb-2">Listen First</h3>
-                                      <p className="text-sm text-slate-500 mb-6">Try to answer questions by listening only.</p>
-                                      <button onClick={() => setShowTranscript(true)} className="bg-white border border-slate-200 px-6 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">Reveal Transcript</button>
+                                      <h3 className="font-bold text-t-1 mb-2">Listen First</h3>
+                                      <p className="text-sm text-t-3 mb-6">Try to answer questions by listening only.</p>
+                                      <button onClick={() => setShowTranscript(true)} className="bg-surface border border-base-border px-6 py-2 rounded-full text-sm font-bold text-t-2 hover:bg-background transition-all shadow-sm">Reveal Transcript</button>
                                   </div>
                               </div>
                           )}
@@ -518,34 +518,34 @@ export const ListeningModule: React.FC<ListeningModuleProps> = ({ initialData })
                   {/* RIGHT: Sidebar - Sticky */}
                   <div className="lg:col-span-5 flex flex-col gap-4 lg:sticky lg:top-24 h-fit">
                       {/* Tabs */}
-                      <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-sm flex flex-none">
-                        <button onClick={() => setActiveTab('vocab')} className={`flex-1 py-3 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === 'vocab' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}><BrainCircuit className="w-4 h-4" /> Vocabulary ({data.newWords.length})</button>
-                        <button onClick={() => setActiveTab('quiz')} className={`flex-1 py-3 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === 'quiz' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}><GraduationCap className="w-4 h-4" /> Questions ({data.questions.length})</button>
+                      <div className="bg-surface p-1 rounded-xl border border-base-border shadow-sm flex flex-none">
+                        <button onClick={() => setActiveTab('vocab')} className={`flex-1 py-3 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === 'vocab' ? 'bg-indigo-600 text-white shadow-md' : 'text-t-3 hover:bg-background'}`}><BrainCircuit className="w-4 h-4" /> Vocabulary ({data.newWords.length})</button>
+                        <button onClick={() => setActiveTab('quiz')} className={`flex-1 py-3 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === 'quiz' ? 'bg-indigo-600 text-white shadow-md' : 'text-t-3 hover:bg-background'}`}><GraduationCap className="w-4 h-4" /> Questions ({data.questions.length})</button>
                       </div>
                       
                       {/* Content Box with constrained max-height for scrolling sidebar only if needed */}
-                      <div className="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative max-h-[calc(100vh-10rem)] overflow-y-auto">
+                      <div className="flex-1 bg-surface rounded-2xl border border-base-border shadow-sm overflow-hidden flex flex-col relative max-h-[calc(100vh-10rem)] overflow-y-auto">
                            {activeTab === 'vocab' && (
                                <div className="h-full flex flex-col">
                                    {selectedWord ? (
                                        <div className="flex-1 p-6 flex flex-col animate-fade-in bg-gradient-to-br from-white to-indigo-50/30">
-                                            <button onClick={() => setSelectedWord(null)} className="text-slate-400 hover:text-indigo-600 text-sm font-medium mb-6 flex items-center gap-1 self-start"><ArrowRight className="w-4 h-4 rotate-180" /> Back to list</button>
+                                            <button onClick={() => setSelectedWord(null)} className="text-t-4 hover:text-indigo-600 text-sm font-medium mb-6 flex items-center gap-1 self-start"><ArrowRight className="w-4 h-4 rotate-180" /> Back to list</button>
                                             <div className="flex-1">
                                                 <span className="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded uppercase tracking-wider mb-2 inline-block">{selectedWord.pos}</span>
                                                 <h2 className="text-3xl font-serif font-bold text-indigo-900 mb-4">{selectedWord.word}</h2>
-                                                <p className="text-lg text-slate-800 leading-relaxed font-medium mb-6">{selectedWord.meaning}</p>
-                                                <div className="pl-4 border-l-4 border-indigo-300 italic text-slate-600 mb-6">"{selectedWord.example}"</div>
+                                                <p className="text-lg text-t-1 leading-relaxed font-medium mb-6">{selectedWord.meaning}</p>
+                                                <div className="pl-4 border-l-4 border-indigo-300 italic text-t-2 mb-6">"{selectedWord.example}"</div>
                                             </div>
-                                            <button id={`save-btn-${selectedWord.word}`} onClick={() => saveToVault(selectedWord)} className="w-full py-4 border-2 border-slate-200 rounded-xl text-slate-600 font-bold hover:border-indigo-600 hover:text-indigo-600 transition-all flex items-center justify-center gap-2"><BookmarkPlus className="w-5 h-5" /> Save to Vault</button>
+                                            <button id={`save-btn-${selectedWord.word}`} onClick={() => saveToVault(selectedWord)} className="w-full py-4 border-2 border-base-border rounded-xl text-t-2 font-bold hover:border-indigo-600 hover:text-indigo-600 transition-all flex items-center justify-center gap-2"><BookmarkPlus className="w-5 h-5" /> Save to Vault</button>
                                        </div>
                                    ) : (
                                        <div className="h-full p-4">
-                                           <div className="text-center py-6"><p className="text-sm text-slate-500">Select a word from the transcript or list below.</p></div>
+                                           <div className="text-center py-6"><p className="text-sm text-t-3">Select a word from the transcript or list below.</p></div>
                                            <div className="space-y-2">
                                                 {data.newWords.map((w, i) => (
-                                                    <button key={i} onClick={() => handleWordClick(w)} className="w-full text-left p-3 rounded-xl border border-slate-100 hover:border-indigo-200 hover:shadow-md hover:bg-white bg-slate-50/50 transition-all group">
-                                                        <div className="flex justify-between items-center"><span className="font-bold text-slate-700 group-hover:text-indigo-700">{w.word}</span><ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all" /></div>
-                                                        <p className="text-xs text-slate-500 truncate mt-1">{w.meaning}</p>
+                                                    <button key={i} onClick={() => handleWordClick(w)} className="w-full text-left p-3 rounded-xl border border-sub-border hover:border-indigo-200 hover:shadow-md hover:bg-surface bg-background/50 transition-all group">
+                                                        <div className="flex justify-between items-center"><span className="font-bold text-t-2 group-hover:text-indigo-700">{w.word}</span><ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all" /></div>
+                                                        <p className="text-xs text-t-3 truncate mt-1">{w.meaning}</p>
                                                     </button>
                                                 ))}
                                            </div>
@@ -554,30 +554,30 @@ export const ListeningModule: React.FC<ListeningModuleProps> = ({ initialData })
                                </div>
                            )}
                            {activeTab === 'quiz' && (
-                               <div className="h-full flex flex-col bg-slate-50/30">
+                               <div className="h-full flex flex-col bg-background/30">
                                     {/* Questions Container - Natural flow in sidebar */}
                                     <div className="flex-1 p-6 space-y-6">
                                         {data.questions.map((q, idx) => (
-                                            <div key={q.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                                                <div className="flex gap-3 mb-4"><span className="flex-none w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">{idx+1}</span><p className="font-medium text-slate-800 text-sm leading-relaxed">{q.prompt}</p></div>
+                                            <div key={q.id} className="bg-surface p-5 rounded-xl border border-base-border shadow-sm">
+                                                <div className="flex gap-3 mb-4"><span className="flex-none w-6 h-6 rounded-full bg-surface-2 text-t-2 flex items-center justify-center text-xs font-bold">{idx+1}</span><p className="font-medium text-t-1 text-sm leading-relaxed">{q.prompt}</p></div>
                                                 <div className="pl-9 space-y-2">
                                                     {q.type === 'mcq' && q.options ? q.options.map((opt, i) => {
                                                             const isSelected = answers[q.id] === opt;
                                                             const isCorrect = q.answer === opt;
                                                             let cls = "w-full text-left px-4 py-3 rounded-lg border text-sm transition-all flex items-center gap-3 ";
-                                                            if (showResults) { if (isCorrect) cls += "bg-green-50 border-green-500 text-green-800 font-medium"; else if (isSelected) cls += "bg-red-50 border-red-300 text-red-800"; else cls += "opacity-50 border-slate-200"; } 
-                                                            else { cls += isSelected ? "bg-indigo-50 border-indigo-600 text-indigo-700 font-medium" : "hover:bg-slate-50 border-slate-200 text-slate-600"; }
+                                                            if (showResults) { if (isCorrect) cls += "bg-green-50 border-green-500 text-green-800 font-medium"; else if (isSelected) cls += "bg-red-50 border-red-300 text-red-800"; else cls += "opacity-50 border-base-border"; } 
+                                                            else { cls += isSelected ? "bg-indigo-50 border-indigo-600 text-indigo-700 font-medium" : "hover:bg-background border-base-border text-t-2"; }
                                                             return <button key={i} onClick={() => !showResults && setAnswers({...answers, [q.id]: opt})} disabled={showResults} className={cls}><div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected || (showResults && isCorrect) ? 'border-current' : 'border-slate-300'}`}>{(isSelected || (showResults && isCorrect)) && <div className="w-2 h-2 rounded-full bg-current"></div>}</div>{opt}</button>
                                                         }) : <input type="text" disabled={showResults} value={answers[q.id] || ''} onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})} className="w-full border border-slate-300 rounded p-2 text-sm focus:border-indigo-500 outline-none" placeholder="Type your answer..." />}
                                                 </div>
-                                                {showResults && <div className="mt-4 ml-9 p-3 bg-slate-50 rounded-lg text-xs text-slate-600 border border-slate-100 animate-fade-in"><span className="font-bold block mb-1">Explanation:</span> {q.explanation}</div>}
+                                                {showResults && <div className="mt-4 ml-9 p-3 bg-background rounded-lg text-xs text-t-2 border border-sub-border animate-fade-in"><span className="font-bold block mb-1">Explanation:</span> {q.explanation}</div>}
                                             </div>
                                         ))}
                                     </div>
                                     
                                     {/* Sticky Footer for Sidebar */}
-                                    <div className="p-4 border-t border-slate-200 bg-white/80 backdrop-blur-md shadow-lg flex-none sticky bottom-0 z-10">
-                                        {!showResults ? <button onClick={handleCheckAnswers} className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 shadow-lg transition-all">Check Answers</button> : <div className="p-2 text-center"><div className="text-sm font-bold text-slate-400 uppercase mb-1">Your Score</div><div className="text-3xl font-bold text-indigo-600 mb-2">{calculateScore()} / {data.questions.length}</div><button onClick={() => { setData(null); }} className="text-sm text-slate-500 underline hover:text-slate-800">Start New Session</button></div>}
+                                    <div className="p-4 border-t border-base-border bg-surface/80 backdrop-blur-md shadow-lg flex-none sticky bottom-0 z-10">
+                                        {!showResults ? <button onClick={handleCheckAnswers} className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 shadow-lg transition-all">Check Answers</button> : <div className="p-2 text-center"><div className="text-sm font-bold text-t-4 uppercase mb-1">Your Score</div><div className="text-3xl font-bold text-indigo-600 mb-2">{calculateScore()} / {data.questions.length}</div><button onClick={() => { setData(null); }} className="text-sm text-t-3 underline hover:text-t-1">Start New Session</button></div>}
                                     </div>
                                </div>
                            )}

@@ -53,6 +53,34 @@ const loadCompleted = (): Set<string> => {
 const saveCompleted = (set: Set<string>) =>
     localStorage.setItem(COMPLETED_KEY, JSON.stringify([...set]));
 
+// ── Skeleton Loader ─────────────────────────────────────────────────────────
+
+const SkeletonCard: React.FC = () => (
+    <div className="bg-surface border border-base-border rounded-2xl p-5 space-y-4 animate-pulse">
+        <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-surface-2 rounded-2xl"></div>
+            <div className="flex-1 space-y-2">
+                <div className="h-4 bg-surface-2 rounded w-1/3"></div>
+                <div className="h-3 bg-background rounded w-1/2"></div>
+            </div>
+            <div className="w-5 h-5 bg-surface-2 rounded-full"></div>
+        </div>
+        <div className="space-y-2 pt-2">
+            <div className="h-16 bg-background rounded-xl w-full"></div>
+            <div className="h-16 bg-background rounded-xl w-full"></div>
+        </div>
+    </div>
+);
+
+const PlanSkeleton: React.FC = () => (
+    <div className="space-y-6 fade-slide-in pb-12">
+        <div className="bg-surface-3 h-64 rounded-2xl animate-pulse"></div>
+        <div className="space-y-4">
+            {[1, 2, 3].map(i => <SkeletonCard key={i} />)}
+        </div>
+    </div>
+);
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 const ScoreGapBadge: React.FC<{ current: string; target: string }> = ({ current, target }) => {
@@ -78,8 +106,8 @@ const TaskCard: React.FC<{
 
     return (
         <div className={`rounded-xl border transition-all duration-300 overflow-hidden ${isCompleted
-                ? 'bg-slate-50 border-slate-200 opacity-75'
-                : 'bg-white border-slate-200 hover:border-indigo-200 hover:shadow-md'
+            ? 'bg-background border-base-border opacity-75'
+            : 'bg-surface border-sub-border hover:border-indigo-200 shadow-sm hover:shadow-md'
             }`}>
             <div
                 className="p-4 flex items-start gap-3 cursor-pointer"
@@ -89,8 +117,8 @@ const TaskCard: React.FC<{
                 <button
                     onClick={(e) => { e.stopPropagation(); onToggle(task.id, task.xp); }}
                     className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all mt-0.5 ${isCompleted
-                            ? 'bg-emerald-500 border-emerald-500 text-white'
-                            : 'border-slate-300 hover:border-emerald-400'
+                        ? 'bg-emerald-500 border-emerald-500 text-white'
+                        : 'border-slate-300 hover:border-emerald-400'
                         }`}
                 >
                     {isCompleted && <CheckCircle2 className="w-4 h-4" />}
@@ -103,28 +131,28 @@ const TaskCard: React.FC<{
                             <Icon className="w-3 h-3" />
                             {task.type.toUpperCase()}
                         </span>
-                        <span className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
+                        <span className="flex items-center gap-1 text-[11px] text-t-4 font-medium">
                             <Clock className="w-3 h-3" /> {task.duration}
                         </span>
                         <span className="flex items-center gap-1 text-[11px] text-indigo-600 font-bold ml-auto">
                             <Zap className="w-3 h-3" /> +{task.xp} XP
                         </span>
                     </div>
-                    <p className={`font-semibold text-sm ${isCompleted ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                    <p className={`font-semibold text-sm ${isCompleted ? 'line-through text-t-4' : 'text-t-1'}`}>
                         {task.title}
                     </p>
                 </div>
 
                 {/* Expand toggle */}
-                <div className="text-slate-400 flex-shrink-0">
+                <div className="text-t-4 flex-shrink-0">
                     {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </div>
             </div>
 
             {/* Expanded details */}
             {expanded && (
-                <div className="px-4 pb-4 pt-0 space-y-3 animate-fade-in border-t border-slate-100 mt-0">
-                    <p className="text-sm text-slate-600 leading-relaxed">{task.description}</p>
+                <div className="px-4 pb-4 pt-0 space-y-3 animate-fade-in border-t border-sub-border mt-0">
+                    <p className="text-sm text-t-2 leading-relaxed">{task.description}</p>
                     {task.tip && (
                         <div className="flex gap-2 bg-indigo-50 border border-indigo-100 rounded-lg p-3">
                             <Sparkles className="w-4 h-4 text-indigo-500 flex-shrink-0 mt-0.5" />
@@ -157,18 +185,20 @@ const DayPanel: React.FC<{
     const isDone = completedTasks === day.tasks.length;
 
     return (
-        <div className={`rounded-2xl border overflow-hidden transition-all ${isToday ? 'border-indigo-400 shadow-lg shadow-indigo-100' : isDone ? 'border-emerald-200' : 'border-slate-200'
+        <div className={`rounded-2xl border overflow-hidden transition-all duration-300 ${isToday
+            ? 'border-indigo-400 shadow-xl shadow-indigo-100/50 transform scale-[1.01] z-10'
+            : isDone ? 'border-emerald-200 bg-surface/50' : 'border-base-border bg-surface hover:border-slate-300 shadow-sm'
             }`}>
             {/* Day header */}
             <button
-                className={`w-full flex items-center gap-4 p-5 text-left transition-colors ${open ? 'bg-slate-900 text-white' : isDone ? 'bg-emerald-50' : 'bg-white hover:bg-slate-50'
+                className={`w-full flex items-center gap-4 p-5 text-left transition-colors ${open ? 'bg-slate-900 text-white' : isDone ? 'bg-emerald-50' : 'bg-surface hover:bg-background'
                     }`}
                 onClick={() => setOpen(o => !o)}
             >
                 {/* Day number circle */}
                 <div className={`w-12 h-12 rounded-2xl flex-shrink-0 flex flex-col items-center justify-center font-bold ${isDone ? 'bg-emerald-500 text-white' :
-                        isToday ? 'bg-indigo-500 text-white' :
-                            open ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-700'
+                    isToday ? 'bg-indigo-500 text-white' :
+                        open ? 'bg-surface/10 text-white' : 'bg-surface-2 text-t-2'
                     }`}>
                     <span className="text-[10px] uppercase tracking-widest leading-none">{day.dayName.slice(0, 3)}</span>
                     <span className="text-lg leading-none">{day.day}</span>
@@ -176,31 +206,31 @@ const DayPanel: React.FC<{
 
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <p className={`font-bold ${open ? 'text-white' : 'text-slate-800'}`}>{day.theme}</p>
+                        <p className={`font-bold ${open ? 'text-white' : 'text-t-1'}`}>{day.theme}</p>
                         {isToday && <span className="text-[10px] bg-indigo-500 text-white px-2 py-0.5 rounded-full font-bold">TODAY</span>}
                         {isDone && <span className="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold">DONE ✓</span>}
                     </div>
                     <div className="flex items-center gap-3 mt-1">
-                        <div className={`flex-1 h-1.5 rounded-full ${open ? 'bg-white/20' : 'bg-slate-200'}`}>
+                        <div className={`flex-1 h-1.5 rounded-full ${open ? 'bg-surface/20' : 'bg-surface-3'}`}>
                             <div
                                 className="h-full rounded-full bg-indigo-500 transition-all duration-500"
                                 style={{ width: `${progress}%`, background: isDone ? '#22c55e' : undefined }}
                             />
                         </div>
-                        <span className={`text-xs font-semibold whitespace-nowrap ${open ? 'text-white/70' : 'text-slate-500'}`}>
+                        <span className={`text-xs font-semibold whitespace-nowrap ${open ? 'text-white/70' : 'text-t-3'}`}>
                             {completedTasks}/{day.tasks.length} tasks · {day.totalMinutes} min
                         </span>
                     </div>
                 </div>
 
-                <div className={open ? 'text-white/60' : 'text-slate-400'}>
+                <div className={open ? 'text-white/60' : 'text-t-4'}>
                     {open ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                 </div>
             </button>
 
             {/* Tasks */}
             {open && (
-                <div className="p-4 space-y-3 bg-slate-50">
+                <div className="p-4 space-y-3 bg-background">
                     {day.tasks.map(task => (
                         <TaskCard
                             key={task.id}
@@ -239,7 +269,7 @@ const OnboardingForm: React.FC<{ onGenerate: (c: string, t: string, w: number) =
         <div className="max-w-2xl mx-auto">
             {/* Hero */}
             <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 rounded-2xl p-8 text-white text-center mb-8 shadow-xl shadow-indigo-200">
-                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-surface/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <CalendarDays className="w-8 h-8" />
                 </div>
                 <h2 className="text-3xl font-bold mb-2">AI Study Plan Generator</h2>
@@ -248,30 +278,30 @@ const OnboardingForm: React.FC<{ onGenerate: (c: string, t: string, w: number) =
                 </p>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm space-y-8">
+            <div className="bg-surface rounded-2xl border border-base-border p-6 sm:p-8 shadow-sm space-y-8">
                 {/* IELTS Scores */}
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <label className="block text-sm font-bold text-slate-700">Current IELTS Band</label>
+                        <label className="block text-sm font-bold text-t-2">Current IELTS Band</label>
                         <select
                             value={currentScore}
                             onChange={e => setCurrentScore(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                            className="w-full bg-background border border-base-border rounded-xl px-4 py-3 font-semibold text-t-1 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
                         >
                             {IELTS_BANDS.map(b => <option key={b} value={b}>Band {b}</option>)}
                         </select>
-                        <p className="text-xs text-slate-400">Your most recent exam score</p>
+                        <p className="text-xs text-t-4">Your most recent exam score</p>
                     </div>
                     <div className="space-y-2">
-                        <label className="block text-sm font-bold text-slate-700">Target IELTS Band</label>
+                        <label className="block text-sm font-bold text-t-2">Target IELTS Band</label>
                         <select
                             value={targetScore}
                             onChange={e => setTargetScore(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                            className="w-full bg-background border border-base-border rounded-xl px-4 py-3 font-semibold text-t-1 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
                         >
                             {IELTS_BANDS.map(b => <option key={b} value={b}>Band {b}</option>)}
                         </select>
-                        <p className="text-xs text-slate-400">The score you need to achieve</p>
+                        <p className="text-xs text-t-4">The score you need to achieve</p>
                     </div>
                 </div>
 
@@ -285,8 +315,8 @@ const OnboardingForm: React.FC<{ onGenerate: (c: string, t: string, w: number) =
                 {isValid && (
                     <div className="flex items-center gap-4 bg-indigo-50 rounded-xl p-4">
                         <div className="text-center">
-                            <div className="text-2xl font-bold text-slate-700">{currentScore}</div>
-                            <div className="text-xs text-slate-500">Current</div>
+                            <div className="text-2xl font-bold text-t-2">{currentScore}</div>
+                            <div className="text-xs text-t-3">Current</div>
                         </div>
                         <div className="flex-1 flex flex-col items-center">
                             <ArrowRight className="w-5 h-5 text-indigo-400" />
@@ -301,13 +331,13 @@ const OnboardingForm: React.FC<{ onGenerate: (c: string, t: string, w: number) =
 
                 {/* Time */}
                 <div className="space-y-4">
-                    <label className="block text-sm font-bold text-slate-700">How long until your exam?</label>
+                    <label className="block text-sm font-bold text-t-2">How long until your exam?</label>
                     <div className="flex gap-3">
                         {(['weeks', 'date'] as const).map(m => (
                             <button
                                 key={m}
                                 onClick={() => setMode(m)}
-                                className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-all ${mode === m ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-200 text-slate-500 hover:border-indigo-300'
+                                className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-all ${mode === m ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-base-border text-t-3 hover:border-indigo-300'
                                     }`}
                             >
                                 {m === 'weeks' ? '🗓️ Set Weeks' : '📅 Pick Date'}
@@ -318,7 +348,7 @@ const OnboardingForm: React.FC<{ onGenerate: (c: string, t: string, w: number) =
                     {mode === 'weeks' ? (
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-600 font-medium">Weeks remaining:</span>
+                                <span className="text-sm text-t-2 font-medium">Weeks remaining:</span>
                                 <span className="text-2xl font-bold text-indigo-700">{weeksRemaining}</span>
                             </div>
                             <input
@@ -326,7 +356,7 @@ const OnboardingForm: React.FC<{ onGenerate: (c: string, t: string, w: number) =
                                 onChange={e => setWeeksRemaining(Number(e.target.value))}
                                 className="w-full accent-indigo-600"
                             />
-                            <div className="flex justify-between text-xs text-slate-400">
+                            <div className="flex justify-between text-xs text-t-4">
                                 <span>1 week</span><span>26 weeks</span><span>52 weeks</span>
                             </div>
                         </div>
@@ -336,7 +366,7 @@ const OnboardingForm: React.FC<{ onGenerate: (c: string, t: string, w: number) =
                             value={testDate}
                             onChange={e => setTestDate(e.target.value)}
                             min={new Date(Date.now() + 7 * 864e5).toISOString().split('T')[0]}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full bg-background border border-base-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                     )}
                 </div>
@@ -413,6 +443,8 @@ export const StudyPlanModule: React.FC = () => {
     // Determine "today" day index (resets weekly)
     const todayDayIndex = (new Date().getDay() || 7); // 1=Mon … 7=Sun
 
+    if (loading) return <PlanSkeleton />;
+
     if (!plan) {
         return (
             <div className="space-y-6 fade-slide-in pb-12">
@@ -434,7 +466,7 @@ export const StudyPlanModule: React.FC = () => {
                     <button
                         onClick={handleReset}
                         title="Generate new plan"
-                        className="flex-shrink-0 p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors"
+                        className="flex-shrink-0 p-2 bg-surface/10 hover:bg-surface/20 rounded-xl transition-colors"
                     >
                         <RotateCcw className="w-5 h-5" />
                     </button>
@@ -448,7 +480,7 @@ export const StudyPlanModule: React.FC = () => {
                         { icon: CalendarDays, label: 'Weeks Left', value: plan.weeksRemaining },
                         { icon: Zap, label: 'XP Earned', value: `${totalXP}` },
                     ].map(({ icon: Icon, label, value }) => (
-                        <div key={label} className="bg-white/10 rounded-xl p-3 text-center">
+                        <div key={label} className="bg-surface/10 rounded-xl p-3 text-center">
                             <Icon className="w-5 h-5 mx-auto mb-1 opacity-70" />
                             <div className="text-xl font-bold">{value}</div>
                             <div className="text-[11px] opacity-70">{label}</div>
@@ -462,9 +494,9 @@ export const StudyPlanModule: React.FC = () => {
                         <span className="text-xs font-semibold text-indigo-200">Overall Progress</span>
                         <span className="text-xs font-bold text-white">{completedCount}/{totalTasks} tasks</span>
                     </div>
-                    <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                    <div className="h-2.5 bg-surface/20 rounded-full overflow-hidden shadow-inner">
                         <div
-                            className="h-full bg-emerald-400 rounded-full transition-all duration-700"
+                            className="h-full bg-gradient-to-r from-emerald-400 to-emerald-300 rounded-full transition-all duration-1000 ease-out"
                             style={{ width: `${overallProgress}%` }}
                         />
                     </div>
@@ -514,7 +546,7 @@ export const StudyPlanModule: React.FC = () => {
             {plan.motivationalNote && (
                 <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-indigo-100 rounded-2xl p-5 text-center">
                     <div className="text-2xl mb-2">💪</div>
-                    <p className="text-slate-700 font-medium italic">"{plan.motivationalNote}"</p>
+                    <p className="text-t-2 font-medium italic">"{plan.motivationalNote}"</p>
                 </div>
             )}
         </div>

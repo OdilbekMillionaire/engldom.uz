@@ -42,7 +42,7 @@ export const LevelBadge: React.FC<Props> = ({ size = 44, showLabel = false, clas
       {showLabel && (
         <div className="min-w-0">
           <div className="text-xs font-bold text-white leading-tight">{levelInfo.name}</div>
-          <div className="text-[10px] text-slate-400">{data.xp.toLocaleString()} XP</div>
+          <div className="text-[10px] text-t-4">{data.xp.toLocaleString()} XP</div>
         </div>
       )}
     </div>

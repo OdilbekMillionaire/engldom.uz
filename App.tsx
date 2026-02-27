@@ -10,28 +10,45 @@ import { VaultModule } from './components/VaultModule';
 import { HistoryModule } from './components/HistoryModule';
 import { GrammarModule } from './components/GrammarModule';
 import { LibraryModule } from './components/LibraryModule';
-import { SettingsModule, applyTheme } from './components/SettingsModule';
-import { OnboardingModal } from './components/OnboardingModal';
+import { SettingsModule } from './components/SettingsModule';
+import { LandingPage } from './components/LandingPage';
+import { OnboardingQuiz } from './components/OnboardingQuiz';
 import { XPToastProvider } from './components/ui/XPToastProvider';
 import { StudyPlanModule } from './components/StudyPlanModule';
 import { GamesModule } from './components/GamesModule';
-import { ModuleType } from './types';
+import { ModuleType, CEFRLevel } from './types';
 import { storageService } from './services/storageService';
 
 function App() {
   const [currentModule, setCurrentModule] = useState<ModuleType>(ModuleType.DASHBOARD);
   const [sessionData, setSessionData] = useState<any>(null);
+  const [showLanding, setShowLanding] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Apply saved theme on first load; show onboarding for new users
+  // Apply saved theme on first load; show landing for new users
   useEffect(() => {
     const settings = storageService.getSettings();
-    const progress = storageService.getProgress();
-    applyTheme(settings.theme);
 
-    const isNewUser = !settings.displayName && progress.length === 0;
-    if (isNewUser) setShowOnboarding(true);
+    if (!settings.onboardingCompleted) {
+      setShowLanding(true);
+    }
   }, []);
+
+  const handleStartOnboarding = () => {
+    setShowLanding(false);
+    setShowOnboarding(true);
+  };
+
+  const handleOnboardingComplete = (results: any) => {
+    storageService.saveSettings({
+      displayName: results.name,
+      targetBand: results.targetBand.toString(),
+      dailyGoal: results.commitment,
+      defaultCEFRLevel: results.level.toUpperCase() as CEFRLevel,
+      onboardingCompleted: true,
+    });
+    setShowOnboarding(false);
+  };
 
   const handleModuleChange = (module: ModuleType) => {
     setSessionData(null);
@@ -64,12 +81,18 @@ function App() {
 
   return (
     <XPToastProvider>
-      <Layout currentModule={currentModule} onModuleChange={handleModuleChange}>
-        {renderModule()}
-      </Layout>
+      {showLanding ? (
+        <LandingPage onStart={handleStartOnboarding} />
+      ) : (
+        <>
+          <Layout currentModule={currentModule} onModuleChange={handleModuleChange}>
+            {renderModule()}
+          </Layout>
 
-      {showOnboarding && (
-        <OnboardingModal onComplete={() => setShowOnboarding(false)} />
+          {showOnboarding && (
+            <OnboardingQuiz onComplete={handleOnboardingComplete} />
+          )}
+        </>
       )}
     </XPToastProvider>
   );

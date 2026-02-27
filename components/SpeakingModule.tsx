@@ -295,25 +295,25 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
     <div className="space-y-8 pb-12 animate-fade-in">
         
         {/* Header */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="bg-surface p-6 rounded-2xl shadow-sm border border-sub-border flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-                <h1 className="text-3xl font-bold text-slate-800 font-serif flex items-center gap-3">
+                <h1 className="text-3xl font-bold text-t-1 font-serif flex items-center gap-3">
                     <Mic2 className="w-8 h-8 text-indigo-600" />
                     Speaking Studio
                 </h1>
-                <p className="text-slate-500 mt-1">Real-time pronunciation analysis and IELTS simulation.</p>
+                <p className="text-t-3 mt-1">Real-time pronunciation analysis and IELTS simulation.</p>
             </div>
             
-            <div className="flex p-1 bg-slate-100 rounded-xl">
+            <div className="flex p-1 bg-surface-2 rounded-xl">
                 <button
                     onClick={() => setActiveTab('practice')}
-                    className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'practice' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'practice' ? 'bg-surface text-indigo-700 shadow-sm' : 'text-t-3 hover:text-t-2'}`}
                 >
                     <MessageSquare className="w-4 h-4" /> Practice Mode
                 </button>
                 <button
                     onClick={() => setActiveTab('evaluate')}
-                    className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'evaluate' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'evaluate' ? 'bg-surface text-indigo-700 shadow-sm' : 'text-t-3 hover:text-t-2'}`}
                 >
                     <Activity className="w-4 h-4" /> Evaluation
                 </button>
@@ -325,7 +325,7 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
             <div className="space-y-6">
                 {!lessonData ? (
                     <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-10 text-white text-center shadow-xl">
-                        <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+                        <div className="w-20 h-20 bg-surface/10 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
                             <Sparkles className="w-10 h-10 text-yellow-300" />
                         </div>
                         <h2 className="text-3xl font-bold mb-4">IELTS Topic Generator</h2>
@@ -335,7 +335,7 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                         <button 
                             onClick={startLesson} 
                             disabled={loading}
-                            className="bg-white text-indigo-700 px-8 py-4 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto"
+                            className="bg-surface text-indigo-700 px-8 py-4 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto"
                         >
                             {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5 fill-current" />}
                             {loading ? 'Generating Topics...' : 'Start New Session'}
@@ -346,14 +346,14 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                         {/* Prompt Cards */}
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-bold text-slate-800 text-lg">Your Speaking Topics</h3>
+                                <h3 className="font-bold text-t-1 text-lg">Your Speaking Topics</h3>
                                 <button onClick={startLesson} className="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
                                     <RefreshCw className="w-3 h-3" /> New Topics
                                 </button>
                             </div>
                             
                             {lessonData.prompts.map((p, i) => (
-                                <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                                <div key={i} className="bg-surface p-6 rounded-2xl border border-sub-border shadow-sm hover:shadow-md transition-all group">
                                     <div className="flex justify-between items-start mb-4">
                                         <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide ${
                                             p.level === 'easy' ? 'bg-green-100 text-green-700' : 
@@ -363,12 +363,12 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                                         </span>
                                         <button 
                                             onClick={() => handlePlayTTS(p.text, `prompt-${i}`)}
-                                            className={`p-2 rounded-full transition-colors ${audioPlaying === `prompt-${i}` ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-indigo-100 hover:text-indigo-600'}`}
+                                            className={`p-2 rounded-full transition-colors ${audioPlaying === `prompt-${i}` ? 'bg-indigo-600 text-white' : 'bg-surface-2 text-t-3 hover:bg-indigo-100 hover:text-indigo-600'}`}
                                         >
                                             {audioPlaying === `prompt-${i}` ? <StopCircle className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                                         </button>
                                     </div>
-                                    <p className="font-serif text-lg text-slate-800 leading-relaxed">"{p.text}"</p>
+                                    <p className="font-serif text-lg text-t-1 leading-relaxed">"{p.text}"</p>
                                 </div>
                             ))}
                         </div>
@@ -385,7 +385,7 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                                 </div>
                             </div>
                             
-                            <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-6 backdrop-blur-sm relative">
+                            <div className="bg-surface/5 rounded-2xl p-6 border border-white/10 mb-6 backdrop-blur-sm relative">
                                 <p className="leading-relaxed text-slate-300 italic">
                                     "{lessonData.modelAnswers.long}"
                                 </p>
@@ -396,7 +396,7 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                                 className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${
                                     audioPlaying === 'model-answer' 
                                     ? 'bg-red-500 hover:bg-red-600 text-white' 
-                                    : 'bg-white text-slate-900 hover:bg-indigo-50'
+                                    : 'bg-surface text-t-1 hover:bg-indigo-50'
                                 }`}
                             >
                                 {audioPlaying === 'model-answer' ? (
@@ -417,18 +417,18 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                 
                 {/* LEFT: Recorder Interface */}
                 <div className="xl:col-span-5 space-y-6">
-                    <div className={`bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col h-[500px] relative transition-all duration-300 ${isRecording ? 'border-2 border-red-400 ring-4 ring-red-200/40 shadow-red-100' : 'border border-slate-100'}`}>
+                    <div className={`bg-surface rounded-3xl shadow-xl overflow-hidden flex flex-col h-[500px] relative transition-all duration-300 ${isRecording ? 'border-2 border-red-400 ring-4 ring-red-200/40 shadow-red-100' : 'border border-sub-border'}`}>
                         {/* Visualizer Canvas Area */}
-                        <div className="flex-1 bg-slate-50 relative flex flex-col items-center justify-center p-6 overflow-hidden">
+                        <div className="flex-1 bg-background relative flex flex-col items-center justify-center p-6 overflow-hidden">
 
                             {/* IDLE STATE */}
                             {!audioUrl && !isRecording && (
                                 <div className="text-center">
-                                    <div className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center mx-auto mb-6">
+                                    <div className="w-24 h-24 bg-surface rounded-full shadow-lg flex items-center justify-center mx-auto mb-6">
                                         <Mic className="w-10 h-10 text-slate-300" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-slate-700 mb-2">Ready to Record</h3>
-                                    <p className="text-slate-400 text-sm max-w-xs mx-auto">
+                                    <h3 className="text-xl font-bold text-t-2 mb-2">Ready to Record</h3>
+                                    <p className="text-t-4 text-sm max-w-xs mx-auto">
                                         Ensure you are in a quiet environment. Speak clearly for accurate AI analysis.
                                     </p>
                                 </div>
@@ -478,7 +478,7 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                             {/* REC timer pill */}
                             {isRecording && (
                                 <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-1.5 rounded-full text-sm font-mono font-bold shadow-lg z-20 flex items-center gap-2">
-                                    <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                                    <span className="w-2 h-2 bg-surface rounded-full animate-pulse" />
                                     REC {formatDuration(recordingDuration)}
                                 </div>
                             )}
@@ -490,9 +490,9 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                                         <div className="w-2 h-2 rounded-full bg-emerald-500 flex-none" />
                                         <span className="text-sm font-bold text-emerald-700">Recording ready for analysis</span>
                                     </div>
-                                    <div className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100">
+                                    <div className="bg-surface p-4 rounded-2xl shadow-lg border border-sub-border">
                                         <div className="flex justify-between items-center mb-2">
-                                            <span className="text-xs font-bold text-slate-400 uppercase">Preview</span>
+                                            <span className="text-xs font-bold text-t-4 uppercase">Preview</span>
                                             <button
                                                 onClick={() => { setAudioUrl(null); setAudioBlob(null); setEvalData(null); }}
                                                 className="text-xs text-red-500 font-bold hover:underline"
@@ -507,7 +507,7 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                         </div>
 
                         {/* Controls */}
-                        <div className="p-8 bg-white border-t border-slate-100 z-10">
+                        <div className="p-8 bg-surface border-t border-sub-border z-10">
                             {!isRecording ? (
                                 !audioUrl ? (
                                     <button 
@@ -544,9 +544,9 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                         <div className="space-y-6 animate-fade-in">
                             
                             {/* Score Card */}
-                            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-8 items-center">
+                            <div className="bg-surface p-6 rounded-2xl border border-sub-border shadow-sm flex flex-col md:flex-row gap-8 items-center">
                                 <div className="flex-1 w-full h-64">
-                                     <h4 className="text-sm font-bold text-slate-400 uppercase mb-4 text-center">Skill Breakdown</h4>
+                                     <h4 className="text-sm font-bold text-t-4 uppercase mb-4 text-center">Skill Breakdown</h4>
                                      <ResponsiveContainer width="100%" height="100%">
                                         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={getRadarData()}>
                                             <PolarGrid stroke="#e2e8f0" />
@@ -564,22 +564,22 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                                             {((Object.values(evalData.scores) as number[]).reduce((a, b) => a + b, 0) / 5).toFixed(1)}
                                         </span>
                                     </div>
-                                    <p className="text-sm font-bold text-slate-600">Overall Band</p>
+                                    <p className="text-sm font-bold text-t-2">Overall Band</p>
                                 </div>
                             </div>
 
                             {/* Enhanced Mistake Analysis with Visual Feedback */}
                             {evalData.mistakes && evalData.mistakes.length > 0 && (
-                                <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm">
+                                <div className="bg-surface p-6 rounded-2xl border border-red-100 shadow-sm">
                                     <h4 className="font-bold text-red-600 mb-4 flex items-center gap-2">
                                         <AlertCircle className="w-5 h-5" /> Pronunciation Analysis
                                     </h4>
-                                    <p className="text-sm text-slate-500 mb-4">
+                                    <p className="text-sm text-t-3 mb-4">
                                         We detected potential errors in the following segments. 
                                     </p>
                                     
                                     {/* Visual Waveform Simulation */}
-                                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-4 flex items-center justify-center gap-1 overflow-hidden h-16">
+                                    <div className="bg-background rounded-xl p-4 border border-sub-border mb-4 flex items-center justify-center gap-1 overflow-hidden h-16">
                                         {/* Generate fake waveform bars */}
                                         {Array.from({ length: 40 }).map((_, i) => {
                                             const isError = i % 8 === 0 || i % 8 === 1; // Fake error spots
@@ -597,14 +597,14 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                                     <div className="space-y-3">
                                         {evalData.mistakes.map((m, i) => (
                                             <div key={i} className="flex items-start gap-4 p-3 bg-red-50 rounded-xl border border-red-100">
-                                                <div className="flex-none p-2 bg-white rounded-full border border-red-100">
+                                                <div className="flex-none p-2 bg-surface rounded-full border border-red-100">
                                                     <AudioLines className="w-4 h-4 text-red-500" />
                                                 </div>
                                                 <div className="flex-1">
                                                     <div className="flex items-center gap-2 mb-1">
-                                                        <p className="font-bold text-slate-800 text-sm">"{m.word}"</p>
+                                                        <p className="font-bold text-t-1 text-sm">"{m.word}"</p>
                                                         <ArrowRight className="w-3 h-3 text-red-300" />
-                                                        <span className="bg-white px-2 py-0.5 rounded-lg border border-red-200 text-xs font-bold text-emerald-600">
+                                                        <span className="bg-surface px-2 py-0.5 rounded-lg border border-red-200 text-xs font-bold text-emerald-600">
                                                             {m.correction}
                                                         </span>
                                                     </div>
@@ -624,13 +624,13 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                                         <Volume2 className="w-5 h-5" /> General Feedback
                                     </h4>
                                     <div className="space-y-3">
-                                        <div className="bg-white/60 p-3 rounded-lg">
+                                        <div className="bg-surface/60 p-3 rounded-lg">
                                             <span className="text-xs font-bold text-purple-600 uppercase block mb-1">Strengths</span>
-                                            <p className="text-sm text-slate-700">{evalData.pronunciationFeedback?.strengths[0]}</p>
+                                            <p className="text-sm text-t-2">{evalData.pronunciationFeedback?.strengths[0]}</p>
                                         </div>
-                                        <div className="bg-white/60 p-3 rounded-lg">
+                                        <div className="bg-surface/60 p-3 rounded-lg">
                                             <span className="text-xs font-bold text-red-500 uppercase block mb-1">Needs Work</span>
-                                            <p className="text-sm text-slate-700">{evalData.pronunciationFeedback?.improvements[0]}</p>
+                                            <p className="text-sm text-t-2">{evalData.pronunciationFeedback?.improvements[0]}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -640,8 +640,8 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                                     <h4 className="font-bold text-emerald-900 mb-3 flex items-center gap-2">
                                         <Brain className="w-5 h-5" /> Native Refinement
                                     </h4>
-                                    <div className="bg-white/60 p-4 rounded-xl border border-emerald-100/50 h-full">
-                                        <p className="text-sm text-slate-700 leading-relaxed italic">
+                                    <div className="bg-surface/60 p-4 rounded-xl border border-emerald-100/50 h-full">
+                                        <p className="text-sm text-t-2 leading-relaxed italic">
                                             "{evalData.correctedVersion}"
                                         </p>
                                     </div>
@@ -651,17 +651,17 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                             {/* Drills Section */}
                             {evalData.drills && evalData.drills.length > 0 && (
                                 <div>
-                                    <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <h3 className="font-bold text-t-1 mb-4 flex items-center gap-2">
                                         <Zap className="w-5 h-5 text-yellow-500" /> Recommended Drills
                                     </h3>
                                     <div className="grid md:grid-cols-3 gap-4">
                                         {evalData.drills.slice(0,3).map((drill, i) => (
-                                            <div key={i} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-colors">
-                                                <span className="text-xs font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded uppercase tracking-wider mb-2 inline-block">
+                                            <div key={i} className="bg-surface p-5 rounded-xl border border-base-border shadow-sm hover:border-indigo-300 transition-colors">
+                                                <span className="text-xs font-bold bg-surface-2 text-t-3 px-2 py-1 rounded uppercase tracking-wider mb-2 inline-block">
                                                     {drill.focus}
                                                 </span>
-                                                <p className="font-bold text-slate-800 text-sm mb-2">{drill.instruction}</p>
-                                                <p className="text-xs text-slate-500 italic bg-slate-50 p-2 rounded">
+                                                <p className="font-bold text-t-1 text-sm mb-2">{drill.instruction}</p>
+                                                <p className="text-xs text-t-3 italic bg-background p-2 rounded">
                                                     "{drill.practice}"
                                                 </p>
                                             </div>
@@ -672,19 +672,19 @@ export const SpeakingModule: React.FC<SpeakingModuleProps> = ({ initialData }) =
                             
                             <button 
                                 onClick={() => setShowChat(true)}
-                                className="w-full py-4 bg-white border border-slate-200 text-slate-600 rounded-xl shadow-sm hover:bg-slate-50 transition-all font-bold flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-surface border border-base-border text-t-2 rounded-xl shadow-sm hover:bg-background transition-all font-bold flex items-center justify-center gap-2"
                             >
                                 <MessageSquare className="w-5 h-5 text-indigo-600" />
                                 Chat with AI Tutor about this result
                             </button>
                         </div>
                     ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 opacity-70">
-                            <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mb-4">
-                                <Activity className="w-8 h-8 text-slate-400" />
+                        <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-background rounded-3xl border-2 border-dashed border-base-border opacity-70">
+                            <div className="w-16 h-16 bg-surface-3 rounded-full flex items-center justify-center mb-4">
+                                <Activity className="w-8 h-8 text-t-4" />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-600">No Analysis Yet</h3>
-                            <p className="text-slate-400 max-w-xs mx-auto mt-2">
+                            <h3 className="text-lg font-bold text-t-2">No Analysis Yet</h3>
+                            <p className="text-t-4 max-w-xs mx-auto mt-2">
                                 Record your speech on the left to receive a detailed breakdown of your IELTS performance.
                             </p>
                         </div>

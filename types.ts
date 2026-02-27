@@ -234,9 +234,8 @@ export interface UserSettings {
   targetBand: string;                // "5.0" … "9.0"
   dailyGoal: number;                 // exercises per day: 2, 5, 10, 20
   defaultCEFRLevel: CEFRLevel;
-  // Appearance
-  theme: 'light' | 'dark' | 'system';
   // Meta
+  onboardingCompleted: boolean;
   createdAt: number;
   updatedAt: number;
 }

@@ -1,24 +1,24 @@
 import { ModuleType, ProgressEntry, VocabItem, ActivityLogEntry, SavedGrammarRule, UserSettings, StreakData, CEFRLevel } from '../types';
 
 const STORAGE_KEYS = {
-  PROGRESS:      'engldom_progress',
-  VOCAB:         'engldom_vocab',
-  ACTIVITY:      'engldom_activity_log',
+  PROGRESS: 'engldom_progress',
+  VOCAB: 'engldom_vocab',
+  ACTIVITY: 'engldom_activity_log',
   GRAMMAR_RULES: 'engldom_grammar_rules',
-  SETTINGS:      'engldom_settings',
-  STREAK:        'engldom_streak',
+  SETTINGS: 'engldom_settings',
+  STREAK: 'engldom_streak',
 };
 
 const DEFAULT_SETTINGS: UserSettings = {
-  displayName:      '',
-  avatarDataUrl:    null,
-  nativeLanguage:   'English',
-  targetBand:       '7.0',
-  dailyGoal:        5,
+  displayName: '',
+  avatarDataUrl: null,
+  nativeLanguage: 'English',
+  targetBand: '7.0',
+  dailyGoal: 5,
   defaultCEFRLevel: CEFRLevel.B2,
-  theme:            'light',
-  createdAt:        Date.now(),
-  updatedAt:        Date.now(),
+  onboardingCompleted: false,
+  createdAt: Date.now(),
+  updatedAt: Date.now(),
 };
 
 const todayISO = () => new Date().toISOString().split('T')[0];
@@ -184,26 +184,26 @@ export const storageService = {
 
   exportAllData: (): string => {
     return JSON.stringify({
-      settings:    storageService.getSettings(),
-      progress:    storageService.getProgress(),
-      vocab:       storageService.getWords(),
+      settings: storageService.getSettings(),
+      progress: storageService.getProgress(),
+      vocab: storageService.getWords(),
       activityLog: storageService.getActivityLog(),
-      grammarRules:storageService.getGrammarRules(),
-      streak:      storageService.getStreak(),
-      exportedAt:  new Date().toISOString(),
-      version:     '1.1',
+      grammarRules: storageService.getGrammarRules(),
+      streak: storageService.getStreak(),
+      exportedAt: new Date().toISOString(),
+      version: '1.1',
     }, null, 2);
   },
 
   importData: (jsonString: string): { success: boolean; error?: string } => {
     try {
       const data = JSON.parse(jsonString);
-      if (data.progress)     localStorage.setItem(STORAGE_KEYS.PROGRESS,      JSON.stringify(data.progress));
-      if (data.vocab)        localStorage.setItem(STORAGE_KEYS.VOCAB,         JSON.stringify(data.vocab));
-      if (data.activityLog)  localStorage.setItem(STORAGE_KEYS.ACTIVITY,      JSON.stringify(data.activityLog));
+      if (data.progress) localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(data.progress));
+      if (data.vocab) localStorage.setItem(STORAGE_KEYS.VOCAB, JSON.stringify(data.vocab));
+      if (data.activityLog) localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(data.activityLog));
       if (data.grammarRules) localStorage.setItem(STORAGE_KEYS.GRAMMAR_RULES, JSON.stringify(data.grammarRules));
-      if (data.settings)     localStorage.setItem(STORAGE_KEYS.SETTINGS,      JSON.stringify(data.settings));
-      if (data.streak)       localStorage.setItem(STORAGE_KEYS.STREAK,        JSON.stringify(data.streak));
+      if (data.settings) localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(data.settings));
+      if (data.streak) localStorage.setItem(STORAGE_KEYS.STREAK, JSON.stringify(data.streak));
       return { success: true };
     } catch {
       return { success: false, error: 'Invalid backup file. Please use a file exported from ENGLDOM.' };

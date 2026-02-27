@@ -1,221 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>ENGLDOM — AI IELTS Tutor</title>
-    <meta name="description" content="AI-powered adaptive IELTS preparation — Reading, Writing, Listening, Speaking, Vocabulary. Study smarter with personalised feedback." />
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ENGLDOM — Professional AI IELTS Tutor</title>
+  <meta name="description"
+    content="The most effective AI-powered platform for IELTS preparation. Professional tools for Reading, Writing, Listening, and Speaking." />
 
-    <!-- Theme colour (browser chrome on Android) -->
-    <meta name="theme-color" content="#4338ca" />
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap"
+    rel="stylesheet">
 
-    <!-- iOS PWA meta tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="ENGLDOM" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
 
-    <!-- Microsoft Tiles -->
-    <meta name="msapplication-TileColor" content="#4338ca" />
-    <meta name="msapplication-TileImage" content="/icons/icon-192.svg" />
+  <!-- Theme colour (browser chrome on Android) -->
+  <meta name="theme-color" content="#4338ca" />
 
-    <!-- Custom Shield Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234338ca'/%3E%3Cpath d='M16 6C10 6 6 10 6 16v4c0 4 3 8 10 10 7-2 10-6 10-10v-4c0-6-4-10-10-10zm0 4c2 0 4 1.5 4 3.5S18 17 16 17s-4-1.5-4-3.5S14 10 16 10zm0 16c-3 0-5-2-5-4 0-1 2-3 5-3s5 2 5 3c0 2-2 4-5 4z' fill='white'/%3E%3C/svg%3E" />
+  <!-- iOS PWA meta tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ENGLDOM" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
 
-    <!-- Tailwind with dark-mode class strategy -->
-    <script>
-      tailwind.config = { darkMode: 'class' };
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
-    <style>
-      body { font-family: 'Inter', sans-serif; }
-      .font-serif { font-family: 'Merriweather', serif; }
+  <!-- Microsoft Tiles -->
+  <meta name="msapplication-TileColor" content="#4338ca" />
+  <meta name="msapplication-TileImage" content="/icons/icon-192.svg" />
 
-      /* ── Scrollbar hide ─────────────────────────────────────── */
-      .scrollbar-hide::-webkit-scrollbar { display: none; }
-      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  <!-- Custom Shield Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234338ca'/%3E%3Cpath d='M16 6C10 6 6 10 6 16v4c0 4 3 8 10 10 7-2 10-6 10-10v-4c0-6-4-10-10-10zm0 4c2 0 4 1.5 4 3.5S18 17 16 17s-4-1.5-4-3.5S14 10 16 10zm0 16c-3 0-5-2-5-4 0-1 2-3 5-3s5 2 5 3c0 2-2 4-5 4z' fill='white'/%3E%3C/svg%3E" />
 
-      /* ─────────────────────────────────────────────────────────
-         GAMIFICATION & MICRO-INTERACTION ANIMATIONS
-      ───────────────────────────────────────────────────────── */
-
-      /* XP / badge toast float-up */
-      @keyframes xpFloat {
-        0%   { opacity: 0; transform: translateY(16px) scale(0.85); }
-        15%  { opacity: 1; transform: translateY(0)    scale(1);    }
-        75%  { opacity: 1; transform: translateY(-6px) scale(1);    }
-        100% { opacity: 0; transform: translateY(-16px)scale(0.9);  }
+  <!-- Tailwind with dark-mode class strategy -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f5f7ff',
+              100: '#ebf0fe',
+              200: '#dae3fd',
+              300: '#c0cdfb',
+              400: '#9ea9f7',
+              500: '#4f46e5',
+              600: '#4338ca',
+              700: '#3730a3',
+              800: '#312e81',
+              900: '#23215e',
+            },
+            surface: {
+              light: '#ffffff',
+              dark: '#0f172a',
+            },
+            'base-border': '#e2e8f0',
+            't-1': '#0f172a',
+            't-2': '#334155',
+            't-3': '#64748b',
+            't-4': '#94a3b8',
+          },
+          boxShadow: {
+            'premium': '0 2px 4px rgba(0,0,0,0.02), 0 10px 20px rgba(0,0,0,0.04)',
+            'premium-hover': '0 4px 8px rgba(0,0,0,0.04), 0 20px 40px rgba(0,0,0,0.08)',
+            'ambient': '0 0 0 1px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.05), 0 12px 24px rgba(0,0,0,0.05)',
+          }
+        }
       }
-      .xp-toast { animation: xpFloat 2.6s cubic-bezier(.22,.68,0,1.2) forwards; }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Elite Typography */
+    h1,
+    h2,
+    h3,
+    .font-display {
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: -0.02em;
+    }
 
-      /* Correct answer bounce */
-      @keyframes correctBounce {
-        0%,100% { transform: scale(1);    }
-        40%     { transform: scale(1.06); }
-        70%     { transform: scale(0.97); }
-      }
-      .answer-correct { animation: correctBounce 0.45s ease forwards; }
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
 
-      /* Wrong answer shake */
-      @keyframes wrongShake {
-        0%,100% { transform: translateX(0);   }
-        20%     { transform: translateX(-8px); }
-        40%     { transform: translateX(8px);  }
-        60%     { transform: translateX(-5px); }
-        80%     { transform: translateX(4px);  }
-      }
-      .answer-wrong { animation: wrongShake 0.45s ease forwards; }
+    /* Global Micro-interactions */
+    .btn-expensive {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-      /* Duolingo-style feedback panel slide up */
-      @keyframes slideUp {
-        from { transform: translateY(100%); opacity: 0; }
-        to   { transform: translateY(0);   opacity: 1; }
-      }
-      .slide-up-feedback { animation: slideUp 0.28s cubic-bezier(.22,.68,0,1.2) forwards; }
+    .active-scale:active {
+      transform: scale(0.98);
+    }
 
-      /* Skeleton shimmer */
-      @keyframes shimmer {
-        0%   { background-position: -200% 0; }
-        100% { background-position:  200% 0; }
-      }
-      .skeleton-shimmer {
-        background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.6s infinite linear;
-      }
-      html.dark .skeleton-shimmer {
-        background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-        background-size: 200% 100%;
+    /* Smooth Slide Transitions */
+    .fade-slide-in {
+      animation: fadeSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
       }
 
-      /* 3-D word card flip */
-      .flip-card { perspective: 1000px; }
-      .flip-card-inner {
-        position: relative; width: 100%; height: 100%;
-        transition: transform 0.55s cubic-bezier(.4,.2,.2,1);
-        transform-style: preserve-3d;
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
-      .flip-card-inner.is-flipped { transform: rotateY(180deg); }
-      .flip-card-front,
-      .flip-card-back  {
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
+    }
+
+    /* Refined Scrollbar */
+    *::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 10px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background: #cbd5e1;
+    }
+
+    /* ── Scrollbar hide ─────────────────────────────────────── */
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* XP / badge toast float-up */
+    @keyframes xpFloat {
+      0% {
+        opacity: 0;
+        transform: translateY(16px) scale(0.85);
       }
-      .flip-card-back  { transform: rotateY(180deg); }
 
-      /* Timer ring pulse when critical */
-      @keyframes pulseRing {
-        0%   { box-shadow: 0 0 0 0   rgba(239,68,68,.7); }
-        70%  { box-shadow: 0 0 0 10px rgba(239,68,68,0);  }
-        100% { box-shadow: 0 0 0 0   rgba(239,68,68,0);   }
+      15% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
       }
-      .timer-urgent { animation: pulseRing 1.1s ease-out infinite; border-radius: 50%; }
 
-      /* Fade-in for completion screen */
-      @keyframes fadeSlideIn {
-        from { opacity: 0; transform: translateY(12px); }
-        to   { opacity: 1; transform: translateY(0);    }
+      75% {
+        opacity: 1;
+        transform: translateY(-6px) scale(1);
       }
-      .fade-slide-in { animation: fadeSlideIn 0.4s ease forwards; }
 
-      /* Heatmap cell pop */
-      @keyframes cellPop {
-        0%   { transform: scale(1);    }
-        50%  { transform: scale(1.35); }
-        100% { transform: scale(1);    }
+      100% {
+        opacity: 0;
+        transform: translateY(-16px)scale(0.9);
       }
-      .heatmap-cell:hover { animation: cellPop 0.2s ease; }
+    }
 
-      /* ── Dark-mode overrides for existing Tailwind classes ─── */
-      /* These allow the bulk of components that use hardcoded
-         slate/white classes to look good in dark mode without
-         requiring per-file changes. */
+    .xp-toast {
+      animation: xpFloat 2.6s cubic-bezier(.22, .68, 0, 1.2) forwards;
+    }
 
-      html.dark body { background-color: #0f172a; color: #f1f5f9; }
+    /* Correct answer bounce */
+    @keyframes correctBounce {
 
-      /* Backgrounds */
-      html.dark .bg-slate-50  { background-color: #0f172a !important; }
-      html.dark .bg-white     { background-color: #1e293b !important; }
-      html.dark .bg-slate-100 { background-color: #1e293b !important; }
-      html.dark .bg-slate-200 { background-color: #334155 !important; }
-
-      /* Text */
-      html.dark .text-slate-900 { color: #f8fafc !important; }
-      html.dark .text-slate-800 { color: #f1f5f9 !important; }
-      html.dark .text-slate-700 { color: #e2e8f0 !important; }
-      html.dark .text-slate-600 { color: #cbd5e1 !important; }
-      html.dark .text-slate-500 { color: #94a3b8 !important; }
-      html.dark .text-slate-400 { color: #64748b !important; }
-
-      /* Borders */
-      html.dark .border-slate-100 { border-color: #334155 !important; }
-      html.dark .border-slate-200 { border-color: #334155 !important; }
-      html.dark .border-slate-300 { border-color: #475569 !important; }
-
-      /* Hover states */
-      html.dark .hover\:bg-slate-50:hover  { background-color: #1e293b !important; }
-      html.dark .hover\:bg-slate-100:hover { background-color: #334155 !important; }
-
-      /* Coloured accent surfaces */
-      html.dark .bg-indigo-50  { background-color: #1e1b4b !important; }
-      html.dark .bg-blue-50    { background-color: #0c1a35 !important; }
-      html.dark .bg-green-50   { background-color: #052e16 !important; }
-      html.dark .bg-emerald-50 { background-color: #052e16 !important; }
-      html.dark .bg-orange-50  { background-color: #431407 !important; }
-      html.dark .bg-red-50     { background-color: #450a0a !important; }
-      html.dark .bg-purple-50  { background-color: #2e1065 !important; }
-      html.dark .bg-yellow-50  { background-color: #1c1a00 !important; }
-
-      /* Coloured text in dark */
-      html.dark .text-indigo-700 { color: #a5b4fc !important; }
-      html.dark .text-indigo-800 { color: #c7d2fe !important; }
-      html.dark .text-blue-700   { color: #93c5fd !important; }
-      html.dark .text-green-700  { color: #86efac !important; }
-      html.dark .text-emerald-700{ color: #6ee7b7 !important; }
-      html.dark .text-orange-700 { color: #fdba74 !important; }
-      html.dark .text-red-700    { color: #fca5a5 !important; }
-      html.dark .text-purple-700 { color: #d8b4fe !important; }
-      html.dark .text-yellow-700 { color: #fde047 !important; }
-
-      /* Input / textarea / select in dark mode */
-      html.dark input:not([type="range"]),
-      html.dark textarea,
-      html.dark select {
-        background-color: #1e293b !important;
-        color: #f1f5f9 !important;
-        border-color: #475569 !important;
+      0%,
+      100% {
+        transform: scale(1);
       }
-      html.dark input::placeholder,
-      html.dark textarea::placeholder { color: #64748b !important; }
 
-      /* Header glass in dark mode */
-      html.dark .backdrop-blur-md { background-color: rgba(15,23,42,0.85) !important; }
+      40% {
+        transform: scale(1.06);
+      }
 
-      /* Shadow softening */
-      html.dark .shadow-sm  { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.6) !important; }
-      html.dark .shadow-lg  { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.6) !important; }
-    </style>
+      70% {
+        transform: scale(0.97);
+      }
+    }
+
+    .answer-correct {
+      animation: correctBounce 0.45s ease forwards;
+    }
+
+    /* Wrong answer shake */
+    @keyframes wrongShake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-8px);
+      }
+
+      40% {
+        transform: translateX(8px);
+      }
+
+      60% {
+        transform: translateX(-5px);
+      }
+
+      80% {
+        transform: translateX(4px);
+      }
+    }
+
+    .answer-wrong {
+      animation: wrongShake 0.45s ease forwards;
+    }
+
+    /* Skeleton shimmer */
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .skeleton-shimmer {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite linear;
+    }
+
+    /* 3-D word card flip */
+    .flip-card {
+      perspective: 1000px;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.55s cubic-bezier(.4, .2, .2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flip-card-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+    }
+
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+  </style>
   <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
-    "recharts": "https://esm.sh/recharts@^3.7.0",
-    "vite": "https://esm.sh/vite@^7.3.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+  {
+    "imports": {
+      "react": "https://esm.sh/react@^19.2.4",
+      "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+      "react/": "https://esm.sh/react@^19.2.4/",
+      "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+      "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+      "recharts": "https://esm.sh/recharts@^3.7.0",
+      "vite": "https://esm.sh/vite@^7.3.1",
+      "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+    }
   }
-}
-</script>
+  </script>
 </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
 </html>

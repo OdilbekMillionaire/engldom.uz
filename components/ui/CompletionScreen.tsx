@@ -26,7 +26,7 @@ const emojiForScore = (pct: number) =>
 
 const TIER_COLORS: Record<Badge['tier'], string> = {
   bronze: 'bg-orange-100 border-orange-300 text-orange-700',
-  silver: 'bg-slate-100  border-slate-300  text-slate-700',
+  silver: 'bg-surface-2  border-slate-300  text-t-2',
   gold:   'bg-yellow-100 border-yellow-300 text-yellow-700',
 };
 
@@ -47,10 +47,10 @@ export const CompletionScreen: React.FC<Props> = ({
 
       {/* Title */}
       <div>
-        <h2 className="text-3xl font-bold text-slate-800">
+        <h2 className="text-3xl font-bold text-t-1">
           {pct === 100 ? 'Perfect Score!' : pct >= 80 ? 'Great Work!' : pct >= 60 ? 'Good Effort!' : 'Keep Practising!'}
         </h2>
-        <p className="text-slate-500 mt-1">{moduleLabel} complete</p>
+        <p className="text-t-3 mt-1">{moduleLabel} complete</p>
       </div>
 
       {/* Score ring */}
@@ -69,8 +69,8 @@ export const CompletionScreen: React.FC<Props> = ({
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold text-slate-800">{score}/{maxScore}</span>
-          <span className="text-xs text-slate-400 font-medium">{pct}%</span>
+          <span className="text-3xl font-bold text-t-1">{score}/{maxScore}</span>
+          <span className="text-xs text-t-4 font-medium">{pct}%</span>
         </div>
       </div>
 
@@ -98,7 +98,7 @@ export const CompletionScreen: React.FC<Props> = ({
       {/* New badges */}
       {newBadges.length > 0 && (
         <div className="w-full">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
+          <p className="text-xs font-bold text-t-4 uppercase tracking-widest mb-3">
             Badge{newBadges.length > 1 ? 's' : ''} Unlocked
           </p>
           <div className="flex flex-wrap justify-center gap-3">
@@ -119,7 +119,7 @@ export const CompletionScreen: React.FC<Props> = ({
       <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
         <button
           onClick={onHome}
-          className="flex-1 flex items-center justify-center gap-2 px-5 py-3 border-2 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-5 py-3 border-2 border-base-border text-t-2 font-bold rounded-xl hover:bg-background transition-colors"
         >
           <Home className="w-4 h-4" /> Dashboard
         </button>
